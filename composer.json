@@ -1,0 +1,7 @@
+{
+    "name": "leadingsystems/lsjs",
+    "type": "contao-component",
+    "require": {
+        "contao-components/installer": "^1.0.9"
+    }
+}

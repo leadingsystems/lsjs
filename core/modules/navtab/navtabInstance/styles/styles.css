@@ -1,0 +1,74 @@
+[data-lsjs-component="navtab"] {
+	position: relative;
+	margin-bottom: 10px;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] {
+	display: none;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"].visible {
+	display: block;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_prev"],
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_next"],
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_play"],
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_stop"] {
+	display: inline-block;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	padding: 3px;
+	cursor: pointer;
+	background-color: #FFFFFF;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_play"].active,
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_stop"].active {
+	font-weight: bold;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabLabelContainer"] {
+	display: none;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabLabelContainer"].visible {
+	display: block;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabLabel"] {
+	display: inline-block;
+	margin-right: 5px;
+	margin-top: 5px;
+	cursor: pointer;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabLabel"].active {
+	border: 1px solid #000000;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabContentContainer"] {
+	position: relative;
+	overflow: hidden;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabContentContainer"] img {
+	height: auto;
+	width: 100%;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabContent"] {
+	display: none;
+}
+
+[data-lsjs-component="navtab"] [data-lsjs-element="navtabContent"].noJsDefault {
+	display: block;
+}
+
+.navtabContentShow {
+	opacity: 1;
+}
+
+.navtabContentHide {
+	opacity: 0;
+}
