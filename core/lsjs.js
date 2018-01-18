@@ -1167,7 +1167,12 @@ var classdef_lsjs_module = {
 		arr_matchingDataPaths = this.lookForMatchingDataBindings(str_dataPath, this.obj_dataFunctionBindings, true);
 		
 		Array.each(arr_matchingDataPaths, function(str_registeredDataPath) {			
-			this[this.obj_dataFunctionBindings[str_registeredDataPath]](this.readData(str_registeredDataPath), str_registeredDataPath, this.readData(str_registeredDataPath, obj_originalData), str_dataPath);
+			this[this.obj_dataFunctionBindings[str_registeredDataPath]](
+				this.readData(str_registeredDataPath), // the new data that is written to the actual data path
+				str_registeredDataPath, // the registered data path, which might be some levels above the actual data path where the data is being written to
+				this.readData(str_registeredDataPath, obj_originalData), // the original data that is stored in the actual data path before the new data is being written to it
+				str_dataPath // the actual data path where the new data is being written to
+			);
 		}.bind(this));
 	},
 	
