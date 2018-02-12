@@ -610,7 +610,7 @@ var classdef_lsjs_module = {
 				arg;
 			
 			/*
-			 * In the scope that this funciton is executed in, the "arg" parameter
+			 * In the scope that this function is executed in, the "arg" parameter
 			 * that would be available in the template's scope does not exist.
 			 * Since the value for the 'data-lsjs-replaceWith' property is written
 			 * in the template we want the parameter "arg" to work, so we create

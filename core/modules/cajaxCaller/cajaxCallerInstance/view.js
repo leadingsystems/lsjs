@@ -83,6 +83,9 @@ var obj_classdef = 	{
 					data: 'cajaxRequestData=' + JSON.encode(this.__models.options.data.obj_cajaxRequestData),
 					onComplete: function() {
 						lsjs.loadingIndicator.__controller.hide();
+					},
+					onSuccess: function(els, str_html, str_script) {
+						Browser.exec(str_script);
 					}
 				}).send();
 				break;
@@ -102,6 +105,9 @@ var obj_classdef = 	{
 					},
 					onComplete: function() {
 						lsjs.loadingIndicator.__controller.hide();
+					},
+					onSuccess: function(els, str_html, str_script) {
+						Browser.exec(str_script);
 					}
 				}).send();
 				break;
