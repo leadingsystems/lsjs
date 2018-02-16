@@ -39,6 +39,7 @@ class lsjs_binderController {
 	protected $bln_includeAppModules = true;
 	protected $bln_includeApp = true;
 	protected $bln_includeMasterStyleFiles = true;
+	protected $bln_debugMode = false;
 
 
 	protected $arr_files = array();
@@ -292,7 +293,8 @@ class lsjs_binderController {
 			$obj_lsjs_templateConverter = new lsjs_templateConverter(
 				$str_moduleName,
 				$str_templatePath,
-				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_templateBasisFileName
+				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_templateBasisFileName,
+				$this->bln_debugMode
 			);
 			return $obj_lsjs_templateConverter->output();
 		} catch (Exception $e) {
@@ -370,6 +372,10 @@ class lsjs_binderController {
 	}
 	
 	protected function processGetParameters() {
+		if (isset($_GET['debug']) && $_GET['debug']) {
+			$this->bln_debugMode = true;
+		}
+
 		if (isset($_GET['pathToApp']) && $_GET['pathToApp']) {
 			/*
 			 * Since passing a url as a get parameter can cause the request to be blocked when there are many "folder up" parts

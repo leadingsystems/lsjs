@@ -4,6 +4,7 @@ class lsjs_templateConverter {
 	protected $str_moduleName = '';
 	protected $str_templatesPath = '';
 	protected $str_pathToTemplateBasisFile = '';
+	protected $bln_debugMode = false;
 	
 	protected $str_patternForSingleTemplatePartInBasisFile = '/\'__templateName__\'.*?\}/s';
 	
@@ -13,11 +14,12 @@ class lsjs_templateConverter {
 	protected $int_maxNumTemplateInsertionRecursions = 3;
 	public $int_processedInsertions = 0;
 	
-	public function __construct($str_moduleName, $str_templatesPath, $str_pathToTemplateBasisFile) {
+	public function __construct($str_moduleName, $str_templatesPath, $str_pathToTemplateBasisFile, $bln_debugMode = false) {
 		$this->str_moduleName = $str_moduleName;
 		$this->str_templatesPath = $str_templatesPath;
 		$this->str_pathToTemplateBasisFile = $str_pathToTemplateBasisFile;
-		
+		$this->bln_debugMode = $bln_debugMode;
+
 		if (!$this->str_moduleName) {
 			throw new Exception('no module name given');
 		}
@@ -162,7 +164,18 @@ class lsjs_templateConverter {
 		foreach($this->arr_templatesContent as $str_templateName => $str_templateContent) {
 			$str_templateContent = preg_replace('/__templateCode__/', $str_templateContent, $str_partForSingleTemplate);
 			$str_templateContent = preg_replace('/__templateName__/', $str_templateName, $str_templateContent);
-			
+
+			$str_templateInfoBegin = '';
+			$str_templateInfoEnd = '';
+			if ($this->bln_debugMode) {
+				$str_templatesPathWithoutDirectoryUpPrefix = str_replace('../', '', $this->str_templatesPath);
+				$str_templateInfoBegin = '<!-- BEGIN LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
+				$str_templateInfoEnd = '<!-- END LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
+			}
+
+			$str_templateContent = preg_replace('/__templateInfoBegin__/', $str_templateInfoBegin, $str_templateContent);
+			$str_templateContent = preg_replace('/__templateInfoEnd__/', $str_templateInfoEnd, $str_templateContent);
+
 			if ($str_wholeTemplatePart) {
 				$str_wholeTemplatePart = $str_wholeTemplatePart.",\r\n";
 			}
