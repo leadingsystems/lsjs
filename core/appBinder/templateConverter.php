@@ -3,6 +3,7 @@
 class lsjs_templateConverter {
 	protected $str_moduleName = '';
 	protected $str_templatesPath = '';
+	protected $arr_templateFiles = array();
 	protected $str_pathToTemplateBasisFile = '';
 	protected $bln_debugMode = false;
 	
@@ -14,9 +15,10 @@ class lsjs_templateConverter {
 	protected $int_maxNumTemplateInsertionRecursions = 3;
 	public $int_processedInsertions = 0;
 	
-	public function __construct($str_moduleName, $str_templatesPath, $str_pathToTemplateBasisFile, $bln_debugMode = false) {
+	public function __construct($str_moduleName, $str_templatesPath, $arr_templateFiles, $str_pathToTemplateBasisFile, $bln_debugMode = false) {
 		$this->str_moduleName = $str_moduleName;
 		$this->str_templatesPath = $str_templatesPath;
+		$this->arr_templateFiles = $arr_templateFiles;
 		$this->str_pathToTemplateBasisFile = $str_pathToTemplateBasisFile;
 		$this->bln_debugMode = $bln_debugMode;
 
@@ -24,12 +26,8 @@ class lsjs_templateConverter {
 			throw new Exception('no module name given');
 		}
 		
-		if (!$this->str_templatesPath) {
-			throw new Exception('no templates path given');
-		}
-		
-		if (!file_exists($this->str_templatesPath) || !is_dir($this->str_templatesPath)) {
-			throw new Exception('no template folder found for module "'.$this->str_moduleName.'"');
+		if (!is_array($this->arr_templateFiles)) {
+			throw new Exception('no template files array given');
 		}
 		
 		if (!$this->str_pathToTemplateBasisFile) {
@@ -47,12 +45,9 @@ class lsjs_templateConverter {
 	}
 	
 	protected function readTemplatesContent() {
-		foreach(scandir($this->str_templatesPath) as $str_filename) {
-			if ($str_filename === '.' || $str_filename === '..') {
-				continue;
-			}
-			$str_templateName = pathinfo($str_filename, PATHINFO_FILENAME);
-			$this->arr_templatesContent[$str_templateName] = lsjsBinder_file_get_contents($this->str_templatesPath.'/'.$str_filename);
+		foreach($this->arr_templateFiles as $str_filePath) {
+			$str_templateName = pathinfo($str_filePath, PATHINFO_FILENAME);
+			$this->arr_templatesContent[$str_templateName] = lsjsBinder_file_get_contents($str_filePath);
 		}
 	}
 	
