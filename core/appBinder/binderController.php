@@ -244,7 +244,6 @@ class lsjs_binderController {
 		return array(
 			'viewFile' => $str_modulePath.'/'.self::c_str_viewFileName,
 			'controllerFile' => $str_modulePath.'/'.self::c_str_controllerFileName,
-			'modelPath' => $str_modulePath.'/'.self::c_str_pathToModels,
 			'modelFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToModels),
 			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates),
 			'styleFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToStyles)
