@@ -245,6 +245,7 @@ class lsjs_binderController {
 			'viewFile' => $str_modulePath.'/'.self::c_str_viewFileName,
 			'controllerFile' => $str_modulePath.'/'.self::c_str_controllerFileName,
 			'modelPath' => $str_modulePath.'/'.self::c_str_pathToModels,
+			'modelFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToModels),
 			'templatePath' => $str_modulePath.'/'.self::c_str_pathToTemplates,
 			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates),
 			'styleFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToStyles)
@@ -268,15 +269,15 @@ class lsjs_binderController {
 		return $arr_return;
 	}
 	
-	protected function generateModelOutput($str_moduleName, $str_modelPath) {
-		if (!file_exists($str_modelPath) || !is_dir($str_modelPath)) {
+	protected function generateModelOutput($str_moduleName, $arr_modelFiles) {
+		if (!is_array($arr_modelFiles) || !count($arr_modelFiles)) {
 			return '';
 		}
 		
 		try {
 			$obj_modelCombiner = new modelCombiner(
 				$str_moduleName,
-				$str_modelPath,
+				$arr_modelFiles,
 				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_modelBasisFileName
 			);
 			return $obj_modelCombiner->output();
@@ -320,7 +321,7 @@ class lsjs_binderController {
 				$str_moduleOutput = preg_replace('/__viewFile__/', $this->file_get_contents_envelope($arr_moduleFiles['viewFile']), $str_moduleOutput);
 				$str_moduleOutput = preg_replace('/__controllerFile__/', $this->file_get_contents_envelope($arr_moduleFiles['controllerFile']), $str_moduleOutput);
 
-				$str_tmpOutput = $this->generateModelOutput($str_moduleName, $arr_moduleFiles['modelPath']);
+				$str_tmpOutput = $this->generateModelOutput($str_moduleName, $arr_moduleFiles['modelFiles']);
 				$str_moduleOutput = preg_replace('/__modelFiles__/', $str_tmpOutput, $str_moduleOutput);
 
 				$str_tmpOutput = $this->generateTemplateOutput($str_moduleName, $arr_moduleFiles['templateFiles'], $arr_moduleFiles['templatePath']);
