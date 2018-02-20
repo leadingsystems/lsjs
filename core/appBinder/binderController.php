@@ -246,7 +246,6 @@ class lsjs_binderController {
 			'controllerFile' => $str_modulePath.'/'.self::c_str_controllerFileName,
 			'modelPath' => $str_modulePath.'/'.self::c_str_pathToModels,
 			'modelFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToModels),
-			'templatePath' => $str_modulePath.'/'.self::c_str_pathToTemplates,
 			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates),
 			'styleFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToStyles)
 		);
@@ -286,7 +285,7 @@ class lsjs_binderController {
 		}
 	}
 	
-	protected function generateTemplateOutput($str_moduleName, $arr_templateFiles, $str_templatesPath) {
+	protected function generateTemplateOutput($str_moduleName, $arr_templateFiles) {
 		if (!is_array($arr_templateFiles) || !count($arr_templateFiles)) {
 			return '';
 		}
@@ -294,7 +293,6 @@ class lsjs_binderController {
 		try {
 			$obj_lsjs_templateConverter = new lsjs_templateConverter(
 				$str_moduleName,
-				$str_templatesPath,
 				$arr_templateFiles,
 				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_templateBasisFileName,
 				$this->bln_debugMode
@@ -324,7 +322,7 @@ class lsjs_binderController {
 				$str_tmpOutput = $this->generateModelOutput($str_moduleName, $arr_moduleFiles['modelFiles']);
 				$str_moduleOutput = preg_replace('/__modelFiles__/', $str_tmpOutput, $str_moduleOutput);
 
-				$str_tmpOutput = $this->generateTemplateOutput($str_moduleName, $arr_moduleFiles['templateFiles'], $arr_moduleFiles['templatePath']);
+				$str_tmpOutput = $this->generateTemplateOutput($str_moduleName, $arr_moduleFiles['templateFiles']);
 				$str_moduleOutput = preg_replace('/__templateFiles__/', $str_tmpOutput, $str_moduleOutput);
 
 				$str_completeModuleOutput .= "\r\n".preg_replace('/__moduleName__/', $str_moduleName, $str_moduleOutput);

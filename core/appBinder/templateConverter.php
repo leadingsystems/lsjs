@@ -2,7 +2,6 @@
 
 class lsjs_templateConverter {
 	protected $str_moduleName = '';
-	protected $str_templatesPath = '';
 	protected $arr_templateFiles = array();
 	protected $str_pathToTemplateBasisFile = '';
 	protected $bln_debugMode = false;
@@ -10,14 +9,14 @@ class lsjs_templateConverter {
 	protected $str_patternForSingleTemplatePartInBasisFile = '/\'__templateName__\'.*?\}/s';
 	
 	public $arr_templatesContent = array();
+	public $arr_templatesPaths = array();
 	protected $str_jsOutput = '';
 	
 	protected $int_maxNumTemplateInsertionRecursions = 3;
 	public $int_processedInsertions = 0;
 	
-	public function __construct($str_moduleName, $str_templatesPath, $arr_templateFiles, $str_pathToTemplateBasisFile, $bln_debugMode = false) {
+	public function __construct($str_moduleName, $arr_templateFiles, $str_pathToTemplateBasisFile, $bln_debugMode = false) {
 		$this->str_moduleName = $str_moduleName;
-		$this->str_templatesPath = $str_templatesPath;
 		$this->arr_templateFiles = $arr_templateFiles;
 		$this->str_pathToTemplateBasisFile = $str_pathToTemplateBasisFile;
 		$this->bln_debugMode = $bln_debugMode;
@@ -48,6 +47,7 @@ class lsjs_templateConverter {
 		foreach($this->arr_templateFiles as $str_filePath) {
 			$str_templateName = pathinfo($str_filePath, PATHINFO_FILENAME);
 			$this->arr_templatesContent[$str_templateName] = lsjsBinder_file_get_contents($str_filePath);
+			$this->arr_templatesPaths[$str_templateName] = $str_filePath;
 		}
 	}
 	
@@ -163,7 +163,7 @@ class lsjs_templateConverter {
 			$str_templateInfoBegin = '';
 			$str_templateInfoEnd = '';
 			if ($this->bln_debugMode) {
-				$str_templatesPathWithoutDirectoryUpPrefix = str_replace('../', '', $this->str_templatesPath);
+				$str_templatesPathWithoutDirectoryUpPrefix = str_replace('../', '', $this->arr_templatesPaths[$str_templateName]);
 				$str_templateInfoBegin = '<!-- BEGIN LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
 				$str_templateInfoEnd = '<!-- END LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
 			}
