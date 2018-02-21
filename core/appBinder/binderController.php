@@ -30,7 +30,8 @@ class lsjs_binderController {
 	const c_str_templatesPath = 'resources/lsjs/app/modules/%s/templates';
 	
 	protected $str_pathToApp = '../../app';
-	
+	protected $str_pathToAppCustomization = '';
+
 	protected $str_useBlackOrWhitelist = '';
 	protected $arr_moduleBlackOrWhitelist = array();
 	
@@ -49,7 +50,6 @@ class lsjs_binderController {
 	
 	public function __construct() {
 		$this->processGetParameters();
-		$GLOBALS['lsjs']['appBinder']['str_pathToApp'] = $this->str_pathToApp;
 		$this->readAllFiles();
 	}
 	
@@ -143,6 +143,9 @@ class lsjs_binderController {
 		
 		if ($this->bln_includeAppModules) {
 			$this->arr_files['appModuleFiles'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
+			if ($this->str_pathToAppCustomization) {
+				$this->arr_files['appCustomizationModuleFiles'] = $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules);
+			}
 		}
 		
 		$this->arr_files['masterStyleFiles'] = $this->readFiles($this->str_pathToApp.'/'.self::c_str_pathToMasterStyles);
@@ -187,7 +190,7 @@ class lsjs_binderController {
 				'arr_children' => array()
 			);
 		}
-		
+
 		foreach(lsjsBinder_scandir($str_pathToModules) as $str_filename) {
 			if (
 					$str_filename === '.' || $str_filename === '..'
@@ -370,6 +373,29 @@ class lsjs_binderController {
 	public function getFileList() {
 		return $this->arr_files;
 	}
+
+	/*
+	 * Since passing a url as a get parameter can cause the request to be blocked when there are many "folder up" parts
+	 * in the url (false positive for apache parent directory attack), we use a special keyword followed by a number
+	 * (e.g. _dup7_) to name the number of "folder ups" and then translate it into the correct "../../../.." part.
+	 */
+	protected function replaceDirectoryUpAbbreviation($str_url) {
+		$str_url = preg_replace_callback(
+			'/_dup([0-9]+?)_/',
+			function($arr_matches) {
+				$arr_dirUp = array();
+				for ($i = 1; $i <= $arr_matches[1]; $i++) {
+					$arr_dirUp[] = '..';
+				}
+				$str_dirUpPrefix = implode('/', $arr_dirUp);
+
+				return $str_dirUpPrefix;
+			},
+			$str_url
+		);
+
+		return $str_url;
+	}
 	
 	protected function processGetParameters() {
 		if (isset($_GET['debug']) && $_GET['debug']) {
@@ -377,26 +403,13 @@ class lsjs_binderController {
 		}
 
 		if (isset($_GET['pathToApp']) && $_GET['pathToApp']) {
-			/*
-			 * Since passing a url as a get parameter can cause the request to be blocked when there are many "folder up" parts
-			 * in the url (false positive for apache parent directory attack), we use a special keyword followed by a number
-			 * (e.g. _dup7_) to name the number of "folder ups" and then translate it into the correct "../../../.." part.
-			 */
-			$this->str_pathToApp = preg_replace_callback(
-				'/_dup([0-9]+?)_/',
-				function($arr_matches) {
-					$arr_dirUp = array();
-					for ($i = 1; $i <= $arr_matches[1]; $i++) {
-						$arr_dirUp[] = '..';
-					}
-					$str_dirUpPrefix = implode('/', $arr_dirUp);
-
-					return $str_dirUpPrefix;
-				},
-				$_GET['pathToApp']
-			);
+			$this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToApp']);
 		}
 		
+		if (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
+			$this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
+		}
+
 		if (isset($_GET['whitelist']) && $_GET['whitelist']) {
 			$this->setModuleWhitelist($_GET['whitelist']);
 		}

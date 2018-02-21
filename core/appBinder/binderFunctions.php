@@ -2,11 +2,10 @@
 
 /*
  * This function is mostly an alias for file_get_contents. The specialty is,
- * that, if the globally stored app path is the first part of the file path,
- * the working directory will be changed to the app path and the file will then
- * be read from this position. This is done to prevent file paths that are too
- * long because of a "../../.." part from exceeding the path limit (260 characters
- * in windows)
+ * that the working directory will be changed to a directory closer to the file
+ * and the file will then be read from this position.
+ * This is done to prevent file paths that are too long because of a "../../.." part
+ * from exceeding the path limit (260 characters in windows)
  */
 function lsjsBinder_file_get_contents($str_filePath) {
 	if (!$str_filePath) {
@@ -35,25 +34,34 @@ function lsjsBinder_scandir($str_filePath) {
 	return $var_return;
 }
 
+function lsjsBinder_getPathPartWithMax250Characters($str_pathInput) {
+	if (preg_match('/(.{1,255}\/)[^\/]*/', $str_pathInput, $arr_matches)) {
+		return $arr_matches[1];
+	}
+	return null;
+}
+
 function lsjsBinder_appPathFix_before($str_filePath) {
-	$GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToAppDir'] = false;
+	$GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToDir'] = false;
 	
 	$GLOBALS['lsjs']['appBinder']['appPathFix']['str_currentDir'] = getcwd();
 	if ($GLOBALS['lsjs']['appBinder']['appPathFix']['str_currentDir'] === false) {
 		throw new Exception('getcwd() seems not to be supported.');
 	}
-	
-	if (strpos($str_filePath, $GLOBALS['lsjs']['appBinder']['str_pathToApp']) === 0) {
-		$str_filePath = str_replace($GLOBALS['lsjs']['appBinder']['str_pathToApp'].'/', '', $str_filePath);
-		chdir($GLOBALS['lsjs']['appBinder']['str_pathToApp']);
-		$GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToAppDir'] = true;
+
+	$str_pathToJumpTo = lsjsBinder_getPathPartWithMax250Characters($str_filePath);
+
+	if ($str_pathToJumpTo && is_dir($str_pathToJumpTo)) {
+		$str_filePath = str_replace($str_pathToJumpTo, '', $str_filePath);
+		chdir($str_pathToJumpTo);
+		$GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToDir'] = true;
 	}
-	
+
 	return $str_filePath;
 }
 
 function lsjsBinder_appPathFix_after() {
-	if ($GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToAppDir']) {
+	if ($GLOBALS['lsjs']['appBinder']['appPathFix']['bln_switchedToDir']) {
 		chdir($GLOBALS['lsjs']['appBinder']['appPathFix']['str_currentDir']);
 	}
 	
