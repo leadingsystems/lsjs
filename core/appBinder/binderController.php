@@ -142,13 +142,104 @@ class lsjs_binderController {
 		}
 		
 		if ($this->bln_includeAppModules) {
-			$this->arr_files['appModuleFiles'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
-			if ($this->str_pathToAppCustomization) {
-				$this->arr_files['appCustomizationModuleFiles'] = $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules);
-			}
+			$this->arr_files['appOriginalModuleFiles'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
+			$this->arr_files['appCustomizationModuleFiles'] = $this->str_pathToAppCustomization ? $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
+
+			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
 		}
 		
 		$this->arr_files['masterStyleFiles'] = $this->readFiles($this->str_pathToApp.'/'.self::c_str_pathToMasterStyles);
+	}
+
+	/*
+	 * the original module files array and the "customization module files" array have to be combined in such a way
+	 * that the resulting array contains all modules that are defined in the two input array and that the content
+	 * of the "customization module files" array is prioritized if there are overlaps.
+	 */
+	protected function combineOriginalAndCustomizationModuleFiles() {
+		$arr_combinedModuleFiles = $this->arr_files['appOriginalModuleFiles'];
+		foreach ($this->arr_files['appCustomizationModuleFiles'] as $str_moduleName => $arr_customizationModuleFiles) {
+			/*
+			 * If there's a module defined in the customization files array that does not exist in the original files
+			 * array, then we add it as a whole ...
+			 */
+			if (!key_exists($str_moduleName, $arr_combinedModuleFiles)) {
+				$arr_combinedModuleFiles[$str_moduleName] = $arr_customizationModuleFiles;
+			}
+
+			/*
+			 * ... but if the original files array already defines this module, we have to combine the module files
+			 * and prioritize module files contained in the customization files array while still keeping files from
+			 * the original files array that are not overriden by the customization files array.
+			 */
+			else {
+				if ($arr_customizationModuleFiles['viewFile']) {
+					$arr_combinedModuleFiles[$str_moduleName]['viewFile'] = $arr_customizationModuleFiles['viewFile'];
+				}
+
+				if ($arr_customizationModuleFiles['controllerFile']) {
+					$arr_combinedModuleFiles[$str_moduleName]['controllerFile'] = $arr_customizationModuleFiles['controllerFile'];
+				}
+
+				$arr_combinedModuleFiles[$str_moduleName]['templateFiles'] = $this->combineOriginalAndCustomizationFileArrays(
+					$arr_combinedModuleFiles[$str_moduleName]['templateFiles'],
+					$arr_customizationModuleFiles['templateFiles']
+				);
+
+				$arr_combinedModuleFiles[$str_moduleName]['modelFiles'] = $this->combineOriginalAndCustomizationFileArrays(
+					$arr_combinedModuleFiles[$str_moduleName]['modelFiles'],
+					$arr_customizationModuleFiles['modelFiles']
+				);
+
+				$arr_combinedModuleFiles[$str_moduleName]['styleFiles'] = $this->combineOriginalAndCustomizationFileArrays(
+					$arr_combinedModuleFiles[$str_moduleName]['styleFiles'],
+					$arr_customizationModuleFiles['styleFiles']
+				);
+			}
+		}
+		return $arr_combinedModuleFiles;
+	}
+
+	protected function combineOriginalAndCustomizationFileArrays($arr_original, $arr_customization) {
+		$arr_keysOfPositionsAlreadyDealtWith = array();
+
+		$arr_combined = $arr_original;
+		/*
+		 * Remove the front part of the file paths, which is different for the original files and the
+		 * customization files, in order make the two arrays more easily comparable.
+		 */
+		array_walk(
+			$arr_combined,
+			function(&$str_filename) {
+				$str_filename = str_replace($this->str_pathToApp, '', $str_filename);
+			}
+		);
+
+		array_walk(
+			$arr_customization,
+			function(&$str_filename) {
+				$str_filename = str_replace($this->str_pathToAppCustomization, '', $str_filename);
+			}
+		);
+
+		foreach ($arr_customization as $str_customizationFilename) {
+			$int_keyForPositionToReplace = array_search($str_customizationFilename, $arr_combined);
+			if ($int_keyForPositionToReplace !== false) {
+				$arr_combined[$int_keyForPositionToReplace] = $this->str_pathToAppCustomization.$str_customizationFilename;
+				$arr_keysOfPositionsAlreadyDealtWith[] = $int_keyForPositionToReplace;
+			} else {
+				$arr_combined[] = $this->str_pathToAppCustomization.$str_customizationFilename;
+				$arr_keysOfPositionsAlreadyDealtWith[] = count($arr_combined) - 1;
+			}
+		}
+
+		foreach ($arr_combined as $int_key => $str_filename) {
+			if (!in_array($int_key, $arr_keysOfPositionsAlreadyDealtWith)) {
+				$arr_combined[$int_key] = $this->str_pathToApp.$str_filename;
+			}
+		}
+
+		return $arr_combined;
 	}
 	
 	protected function readCssFiles() {
@@ -203,11 +294,17 @@ class lsjs_binderController {
 						
 			/*
 			 * ->
-			 * If a module folder doesn't contain a controller file, we assume that
-			 * the folder is a module group folder and therefore we look for modules
-			 * inside.
+			 * If a module folder doesn't contain any of the usual module content (view file, controller file, templates
+			 * folder, models folder or styles folder), we assume that the folder is a module group folder and therefore
+			 * we look for modules inside.
 			 */
-			if (!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_controllerFileName)) {
+			if (
+					!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_controllerFileName)
+				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_viewFileName)
+				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToTemplates)
+				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToModels)
+				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToStyles)
+			) {
 				$arr_modules = $this->readModules($str_pathToModules.'/'.$str_moduleName, $arr_modules, $arr_moduleStructure[$bln_isRootCall ? 'allModules' : $str_pathToModules]['arr_children']);
 				continue;
 			}
@@ -245,8 +342,8 @@ class lsjs_binderController {
 	
 	protected function readModuleFolders($str_modulePath) {
 		return array(
-			'viewFile' => $str_modulePath.'/'.self::c_str_viewFileName,
-			'controllerFile' => $str_modulePath.'/'.self::c_str_controllerFileName,
+			'viewFile' => file_exists($str_modulePath.'/'.self::c_str_viewFileName) ? $str_modulePath.'/'.self::c_str_viewFileName : '',
+			'controllerFile' => file_exists($str_modulePath.'/'.self::c_str_controllerFileName) ? $str_modulePath.'/'.self::c_str_controllerFileName : '',
 			'modelFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToModels),
 			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates),
 			'styleFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToStyles)
