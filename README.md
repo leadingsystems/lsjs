@@ -8,7 +8,7 @@ FIXME: Add explanation
 
 - MVC (-ish)
 
-- powerful templating system that is designe especially for people who like the way that
+- powerful templating system that is designed especially for people who like the way that
 PHP code can be used to create HTML output and want the same, easy way to create HTML
 output with JS.
 
@@ -26,8 +26,8 @@ combine the scripts and stylesheets of the LSJS core or an app (which are struct
 in folders) in one single file. No JS file or CSS file of the LSJS core or an app
 will ever be referenced directly.
 
-Example _01 doesn't use any of the cool LSJS features. It simply shows how to
-include an LSJS app in your website.
+Example _01 doesn't use any of the cool LSJS features (only the very simple messageBox
+core module). It simply shows how to include an LSJS app in your website.
 
 Please open: http://yourdomain.com/assets/lsjs/examples/_01/index.html
 
@@ -102,7 +102,7 @@ and
   
 `<!-- END LSJS TEMPLATE: modules/messageBox/templates/main.html/main.html -->`
 
-##### Using module customization
+##### Using app customization
 If we use a third party LSJS app on our website, we might want to change its look or
 behaviour but we can't (or at least we definitely shouldn't) change the original
 app code because future updates would be a real problem or even become impossible.
@@ -153,3 +153,65 @@ to see what the module originally did.
 If you switch between the original and the customized version, take a look in the
 generated HTML source and see how the location of the template that we can see
 due to the activated debug mode changes.
+
+##### Using core module customization
+Customizing core modules in an update-safe way basically works as customizing app
+modules which was described earlier in this document.
+
+Using the GET parameter `pathToCoreCustomization` the folder containing the customized
+files can be specified. This folder needs to contain a folder called "modules" in
+which customizing works exactly the same way as it does with app modules.
+
+Please open example _03 to see it in action: http://yourdomain.com/assets/lsjs/examples/_03/index.html
+
+#### Using the LSJS templating system
+LSJS comes with a powerful templating system which is designed especially for people who
+like the way that PHP code can be used to create HTML output and want the same, easy way
+to create HTML output with JS.
+
+LSJS templates are HTML files in which you can embed JS code like this
+
+```
+<div>
+    <?
+    var	i,
+        str_text = 'Hello template!';
+    
+    for (i = 0; i <= 5; i++) {
+        ?>
+        <h3>This template says: <?= str_text =?></h3>
+        <?
+    }
+    ?>
+</div>
+```
+
+You've probably never seen this in JS but in PHP this is standard:
+
+```
+<div>
+    <?php
+    $str_text = 'Hello template!';
+    
+    for ($i = 0; $i <= 5; $i++) {
+        ?>
+        <h3>This template says: <?= str_text ?></h3>
+        <?php
+    }
+    ?>
+</div>
+```
+
+There's not much to know about the syntax in LSJS templates:
+
+- `<?` begins a JS code block
+- `?>` ends a JS code block
+- ```<?= 'some text or some ' + variable ?>``` prints some text or some variable
+
+_Hint: Since LSJS templates will be transformed into regular JS code string
+concatenations by binder.php you have to escape single quotes if you want to use
+them inside a template:_
+
+```<?= This won\'t be a problem =?>```
+
+```<?= But this doesn't work =?>```

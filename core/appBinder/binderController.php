@@ -31,6 +31,7 @@ class lsjs_binderController {
 	
 	protected $str_pathToApp = '';
 	protected $str_pathToAppCustomization = '';
+	protected $str_pathToCoreCustomization = '';
 
 	protected $str_useBlackOrWhitelist = '';
 	protected $arr_moduleBlackOrWhitelist = array();
@@ -130,7 +131,12 @@ class lsjs_binderController {
 		}
 
 		if ($this->bln_includeCoreModules) {
-			$this->arr_files['coreModuleFiles'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
+			$this->arr_files['coreModuleFiles_original'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
+			$this->arr_files['coreModuleFiles_customization'] =
+					$this->str_pathToCoreCustomization
+				?	$this->readModules($this->str_pathToCoreCustomization.'/'.self::c_str_pathToModules)
+				:	array();
+			$this->arr_files['coreModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles('core');
 		}
 
 		if (!file_exists($this->str_pathToApp)) {
@@ -142,8 +148,8 @@ class lsjs_binderController {
 		}
 		
 		if ($this->bln_includeAppModules) {
-			$this->arr_files['appOriginalModuleFiles'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
-			$this->arr_files['appCustomizationModuleFiles'] = $this->str_pathToAppCustomization ? $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
+			$this->arr_files['appModuleFiles_original'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
+			$this->arr_files['appModuleFiles_customization'] = $this->str_pathToAppCustomization ? $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
 
 			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
 		}
@@ -161,9 +167,9 @@ class lsjs_binderController {
 	 * that the resulting array contains all modules that are defined in the two input array and that the content
 	 * of the "customization module files" array is prioritized if there are overlaps.
 	 */
-	protected function combineOriginalAndCustomizationModuleFiles() {
-		$arr_combinedModuleFiles = $this->arr_files['appOriginalModuleFiles'];
-		foreach ($this->arr_files['appCustomizationModuleFiles'] as $str_moduleName => $arr_customizationModuleFiles) {
+	protected function combineOriginalAndCustomizationModuleFiles($str_mode = 'app') {
+		$arr_combinedModuleFiles = $str_mode === 'app' ? $this->arr_files['appModuleFiles_original'] : $this->arr_files['coreModuleFiles_original'];
+		foreach (($str_mode === 'app' ? $this->arr_files['appModuleFiles_customization'] : $this->arr_files['coreModuleFiles_customization']) as $str_moduleName => $arr_customizationModuleFiles) {
 			/*
 			 * If there's a module defined in the customization files array that does not exist in the original files
 			 * array, then we add it as a whole ...
@@ -188,25 +194,31 @@ class lsjs_binderController {
 
 				$arr_combinedModuleFiles[$str_moduleName]['templateFiles'] = $this->combineOriginalAndCustomizationFileArrays(
 					$arr_combinedModuleFiles[$str_moduleName]['templateFiles'],
-					$arr_customizationModuleFiles['templateFiles']
+					$arr_customizationModuleFiles['templateFiles'],
+					$str_mode
 				);
 
 				$arr_combinedModuleFiles[$str_moduleName]['modelFiles'] = $this->combineOriginalAndCustomizationFileArrays(
 					$arr_combinedModuleFiles[$str_moduleName]['modelFiles'],
-					$arr_customizationModuleFiles['modelFiles']
+					$arr_customizationModuleFiles['modelFiles'],
+					$str_mode
 				);
 
 				$arr_combinedModuleFiles[$str_moduleName]['styleFiles'] = $this->combineOriginalAndCustomizationFileArrays(
 					$arr_combinedModuleFiles[$str_moduleName]['styleFiles'],
-					$arr_customizationModuleFiles['styleFiles']
+					$arr_customizationModuleFiles['styleFiles'],
+					$str_mode
 				);
 			}
 		}
 		return $arr_combinedModuleFiles;
 	}
 
-	protected function combineOriginalAndCustomizationFileArrays($arr_original, $arr_customization) {
+	protected function combineOriginalAndCustomizationFileArrays($arr_original, $arr_customization, $str_mode = 'app') {
 		$arr_keysOfPositionsAlreadyDealtWith = array();
+
+		$str_customizationPathToUse = $str_mode === 'app' ? $this->str_pathToAppCustomization : $this->str_pathToCoreCustomization;
+		$str_originalPathToUse = $str_mode === 'app' ? $this->str_pathToApp : self::c_str_pathToCore;
 
 		$arr_combined = $arr_original;
 		/*
@@ -215,32 +227,32 @@ class lsjs_binderController {
 		 */
 		array_walk(
 			$arr_combined,
-			function(&$str_filename) {
-				$str_filename = str_replace($this->str_pathToApp, '', $str_filename);
+			function(&$str_filename) use ($str_originalPathToUse) {
+				$str_filename = str_replace($str_originalPathToUse, '', $str_filename);
 			}
 		);
 
 		array_walk(
 			$arr_customization,
-			function(&$str_filename) {
-				$str_filename = str_replace($this->str_pathToAppCustomization, '', $str_filename);
+			function(&$str_filename) use ($str_customizationPathToUse) {
+				$str_filename = str_replace($str_customizationPathToUse, '', $str_filename);
 			}
 		);
 
 		foreach ($arr_customization as $str_customizationFilename) {
 			$int_keyForPositionToReplace = array_search($str_customizationFilename, $arr_combined);
 			if ($int_keyForPositionToReplace !== false) {
-				$arr_combined[$int_keyForPositionToReplace] = $this->str_pathToAppCustomization.$str_customizationFilename;
+				$arr_combined[$int_keyForPositionToReplace] = $str_customizationPathToUse.$str_customizationFilename;
 				$arr_keysOfPositionsAlreadyDealtWith[] = $int_keyForPositionToReplace;
 			} else {
-				$arr_combined[] = $this->str_pathToAppCustomization.$str_customizationFilename;
+				$arr_combined[] = $str_customizationPathToUse.$str_customizationFilename;
 				$arr_keysOfPositionsAlreadyDealtWith[] = count($arr_combined) - 1;
 			}
 		}
 
 		foreach ($arr_combined as $int_key => $str_filename) {
 			if (!in_array($int_key, $arr_keysOfPositionsAlreadyDealtWith)) {
-				$arr_combined[$int_key] = $this->str_pathToApp.$str_filename;
+				$arr_combined[$int_key] = $str_originalPathToUse.$str_filename;
 			}
 		}
 
@@ -514,6 +526,10 @@ class lsjs_binderController {
 		
 		if (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
 			$this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
+		}
+
+		if (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization']) {
+			$this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
 		}
 
 		if (isset($_GET['whitelist']) && $_GET['whitelist']) {

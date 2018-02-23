@@ -1,0 +1,11 @@
+<div class="msgBoxInside">
+	<h2>I\'m the customized messageBox!</h2>
+	<div class="msg"><?= arg.__models.options.data.str_msg =?></div>
+	<?
+		Object.each(arg.__models.options.data.obj_buttons, function(obj_buttonSettings, str_buttonLabel) {
+			?>
+			<button data-lsjs-element="btn_<?= str_buttonLabel =?>" class="btn_<?= str_buttonLabel =?>"><?= obj_buttonSettings.str_label =?></button>
+			<?
+		});
+	?>
+</div>
