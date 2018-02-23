@@ -212,6 +212,6 @@ _Hint: Since LSJS templates will be transformed into regular JS code string
 concatenations by binder.php you have to escape single quotes if you want to use
 them inside a template:_
 
-```<?= This won\'t be a problem =?>```
+```<p>This won\'t be a problem</p>```
 
-```<?= But this doesn't work =?>```
+```<p>But this doesn't work</p>```
