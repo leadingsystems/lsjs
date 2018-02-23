@@ -1,8 +1,6 @@
 Leading Systems LSJS
 =================================
 
-[Test](#usingModuleCustomization)
-
 #### What is LSJS and what is it good for?
 FIXME: Add explanation
 
@@ -104,7 +102,6 @@ and
   
 `<!-- END LSJS TEMPLATE: modules/messageBox/templates/main.html/main.html -->`
 
-<a name="usingModuleCustomization"></a>
 ##### Using module customization
 If we use a third party LSJS app on our website, we might want to change its look or
 behaviour but we can't (or at least we definitely shouldn't) change the original
