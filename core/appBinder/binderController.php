@@ -148,7 +148,12 @@ class lsjs_binderController {
 			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
 		}
 		
-		$this->arr_files['masterStyleFiles'] = $this->readFiles($this->str_pathToApp.'/'.self::c_str_pathToMasterStyles);
+		$this->arr_files['masterStyleFiles_original'] = $this->readFiles($this->str_pathToApp.'/'.self::c_str_pathToMasterStyles);
+		$this->arr_files['masterStyleFiles_customization'] = $this->readFiles($this->str_pathToAppCustomization.'/'.self::c_str_pathToMasterStyles);
+		$this->arr_files['masterStyleFiles'] = $this->combineOriginalAndCustomizationFileArrays(
+			$this->arr_files['masterStyleFiles_original'],
+			$this->arr_files['masterStyleFiles_customization']
+		);
 	}
 
 	/*

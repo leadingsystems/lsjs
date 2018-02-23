@@ -132,8 +132,16 @@ loading binder.php in the example's index.html, the customization is applied.
 
 Please open: http://yourdomain.com/assets/lsjs/examples/_02/index.html
 
-You will already see the modified output. The module's controller is also customized
-and prints `customized controller works in module "helloWorld"` to the console.
+You will already see the modified output.
+
+The module's controller is also customized and prints `customized controller works in module "helloWorld"`
+to the console.
+
+The app's styles are customized as well. If the stylesheet in the customization app folder
+had the same filename as the one in the original app folder, the original style file
+would be completely overridden. Instead, in this example we chose to put a stylesheet
+with a different file name in the customization app folder with the effect that both
+are being used simultaneously.
 
 Open the example's index.html and remove the GET parameter `pathToAppCustomization`
 to see what the module originally did.
