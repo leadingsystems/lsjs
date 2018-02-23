@@ -60,8 +60,8 @@ class lsjs_binderController {
 		$this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
 		$this->str_output = preg_replace('/__lsjs__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs'])), $this->str_output);
 		$this->str_output = preg_replace('/__lsjs_templateHandler__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs_templateHandler'])), $this->str_output);
-		$this->str_output = preg_replace('/__app__/', (!$this->bln_includeApp ? '' : $this->file_get_contents_envelope($this->arr_files['mainAppFile'])), $this->str_output);
-				
+		$this->str_output = preg_replace('/__app__/', (!$this->bln_includeApp || !isset($this->arr_files['mainAppFile']) ? '' : $this->file_get_contents_envelope($this->arr_files['mainAppFile'])), $this->str_output);
+
 		$this->generateModuleOutput('core');
 		$this->generateModuleOutput('app');
 		
