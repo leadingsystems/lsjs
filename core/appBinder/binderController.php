@@ -129,16 +129,16 @@ class lsjs_binderController {
 			);
 		}
 
+		if ($this->bln_includeCoreModules) {
+			$this->arr_files['coreModuleFiles'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
+		}
+
 		if (!file_exists($this->str_pathToApp)) {
 			return;
 		}
 
 		if ($this->bln_includeApp) {
 			$this->arr_files['mainAppFile'] = $this->str_pathToApp.'/'.self::c_str_appFileName;
-		}
-		
-		if ($this->bln_includeCoreModules) {
-			$this->arr_files['coreModuleFiles'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
 		}
 		
 		if ($this->bln_includeAppModules) {
