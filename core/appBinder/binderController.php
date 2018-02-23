@@ -247,6 +247,10 @@ class lsjs_binderController {
 	}
 	
 	protected function readModules($str_pathToModules, $arr_modules = array(), &$arr_moduleStructure = null) {
+		if (!is_dir($str_pathToModules)) {
+			return array();
+		}
+
 		$bln_isRootCall = false;
 		
 		if ($arr_moduleStructure === null) {
