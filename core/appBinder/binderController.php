@@ -29,7 +29,7 @@ class lsjs_binderController {
 	
 	const c_str_templatesPath = 'resources/lsjs/app/modules/%s/templates';
 	
-	protected $str_pathToApp = '../../app';
+	protected $str_pathToApp = '';
 	protected $str_pathToAppCustomization = '';
 
 	protected $str_useBlackOrWhitelist = '';
@@ -121,10 +121,6 @@ class lsjs_binderController {
 	}
 	
 	protected function readAllFiles() {
-		if (!file_exists($this->str_pathToApp)) {
-			throw new Exception(__METHOD__.': app folder "'.$this->str_pathToApp.'" does not exist.');
-		}
-		
 		if ($this->bln_includeCore) {
 			$this->arr_files['mainCoreFiles'] = array(
 				'lsjs' => self::c_str_pathToCore.'/'.self::c_str_lsjsFileName,
@@ -132,7 +128,11 @@ class lsjs_binderController {
 				'ls_version' => self::c_str_pathToCore.'/'.self::c_str_lsVersionFileName
 			);
 		}
-		
+
+		if (!file_exists($this->str_pathToApp)) {
+			return;
+		}
+
 		if ($this->bln_includeApp) {
 			$this->arr_files['mainAppFile'] = $this->str_pathToApp.'/'.self::c_str_appFileName;
 		}
