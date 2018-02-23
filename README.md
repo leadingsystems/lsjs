@@ -144,6 +144,9 @@ would be completely overridden. Instead, in this example we chose to put a style
 with a different file name in the customization app folder with the effect that both
 are being used simultaneously.
 
+Even the main app file, app.js, is customized and prints "customized app.js" works
+to the console.
+
 Open the example's index.html and remove the GET parameter `pathToAppCustomization`
 to see what the module originally did.
 
