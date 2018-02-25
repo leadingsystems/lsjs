@@ -215,3 +215,16 @@ them inside a template:_
 ```<p>This won\'t be a problem</p>```
 
 ```<p>But this doesn't work</p>```
+
+#### Cache and Minifier
+By default, LSJS minifies and caches its output in order to optimize page loading speed.
+Both options can be deactivated because during development you probably don't want
+to use them.
+
+Add the GET parameter `no-minifier=1` to your binder.php URL to deactivate the minifier.
+
+Add the GET parameter `no-cache=1` to your binder.php URL to deactivate caching.
+
+If you use caching, simply delete the folder named "cache" from your LSJS folder if
+you want to get changes you've made to your app. The next time, you're loading
+binder.php using the cache, LSJS will recreate the cache folder with the updated contents.

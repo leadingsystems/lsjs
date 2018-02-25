@@ -11,7 +11,9 @@ class lsjs_binderController {
 	const c_str_pathToStyles = 'styles';
 	const c_str_pathToTemplates = 'templates';
 	const c_str_pathToMasterStyles = 'styles';
-	
+
+	const c_str_pathToCache = 'cache';
+
 	const c_str_viewFileName = 'view.js';
 	const c_str_controllerFileName = 'controller.js';
 	
@@ -28,7 +30,9 @@ class lsjs_binderController {
 	const c_str_moduleBasisFileName = 'moduleBasis.js';
 	
 	const c_str_templatesPath = 'resources/lsjs/app/modules/%s/templates';
-	
+
+	protected $str_cacheHash = '';
+
 	protected $str_pathToApp = '';
 	protected $str_pathToAppCustomization = '';
 	protected $str_pathToCoreCustomization = '';
@@ -42,6 +46,8 @@ class lsjs_binderController {
 	protected $bln_includeApp = true;
 	protected $bln_includeMasterStyleFiles = true;
 	protected $bln_debugMode = false;
+	protected $bln_useMinifier = true;
+	protected $bln_useCache = true;
 
 
 	protected $arr_files = array();
@@ -50,12 +56,28 @@ class lsjs_binderController {
 	protected $str_output = '';
 	
 	public function __construct() {
+		$this->createCacheFolderIfNotExists();
 		$this->processGetParameters();
 		$this->readAllFiles();
+	}
+
+	protected function createCacheFolderIfNotExists() {
+		if (!is_dir(self::c_str_pathToCache)) {
+			mkdir(self::c_str_pathToCache);
+		}
 	}
 	
 	public function outputJS() {
 		header("Content-Type: application/javascript");
+
+		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.js';
+
+		if ($this->bln_useCache) {
+			if (file_exists($str_pathToCacheFile)) {
+				echo "/* FROM CACHE */\r\n" . file_get_contents($str_pathToCacheFile);
+				exit;
+			}
+		}
 		
 		$this->str_output = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
 		$this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
@@ -65,14 +87,45 @@ class lsjs_binderController {
 
 		$this->generateModuleOutput('core');
 		$this->generateModuleOutput('app');
-		
+
+		if ($this->bln_useMinifier) {
+			$minifier_path = '../../../../vendor/matthiasmullie';
+			require_once $minifier_path . '/minify/src/Minify.php';
+			require_once $minifier_path . '/minify/src/CSS.php';
+			require_once $minifier_path . '/minify/src/JS.php';
+			require_once $minifier_path . '/minify/src/Exception.php';
+			require_once $minifier_path . '/minify/src/Exceptions/BasicException.php';
+			require_once $minifier_path . '/minify/src/Exceptions/FileImportException.php';
+			require_once $minifier_path . '/minify/src/Exceptions/IOException.php';
+			require_once $minifier_path . '/path-converter/src/ConverterInterface.php';
+			require_once $minifier_path . '/path-converter/src/Converter.php';
+
+
+			$obj_minifier = new \MatthiasMullie\Minify\JS();
+			$obj_minifier->add($this->str_output);
+			$this->str_output = $obj_minifier->minify();
+		}
+
+		if ($this->bln_useCache) {
+			file_put_contents($str_pathToCacheFile, $this->str_output);
+		}
+
 		echo $this->str_output;
 		exit;
 	}
 	
 	public function outputCSS() {
 		header("Content-Type: text/css");
-		
+
+		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.css';
+
+		if ($this->bln_useCache) {
+			if (file_exists($str_pathToCacheFile)) {
+				echo "/* FROM CACHE */\r\n" . file_get_contents($str_pathToCacheFile);
+				exit;
+			}
+		}
+
 		if ($this->bln_includeMasterStyleFiles) {
 			foreach ($this->arr_files['masterStyleFiles'] as $str_filePath) {
 				if (!file_exists($str_filePath)) {
@@ -88,7 +141,29 @@ class lsjs_binderController {
 		
 		$this->addModuleStylesheetsToOutput('core');
 		$this->addModuleStylesheetsToOutput('app');
-		
+
+		if ($this->bln_useMinifier) {
+			$minifier_path = '../../../../vendor/matthiasmullie';
+			require_once $minifier_path . '/minify/src/Minify.php';
+			require_once $minifier_path . '/minify/src/CSS.php';
+			require_once $minifier_path . '/minify/src/JS.php';
+			require_once $minifier_path . '/minify/src/Exception.php';
+			require_once $minifier_path . '/minify/src/Exceptions/BasicException.php';
+			require_once $minifier_path . '/minify/src/Exceptions/FileImportException.php';
+			require_once $minifier_path . '/minify/src/Exceptions/IOException.php';
+			require_once $minifier_path . '/path-converter/src/ConverterInterface.php';
+			require_once $minifier_path . '/path-converter/src/Converter.php';
+
+
+			$obj_minifier = new \MatthiasMullie\Minify\CSS();
+			$obj_minifier->add($this->str_output);
+			$this->str_output = $obj_minifier->minify();
+		}
+
+		if ($this->bln_useCache) {
+			file_put_contents($str_pathToCacheFile, $this->str_output);
+		}
+
 		echo $this->str_output;
 		exit;
 	}
@@ -516,30 +591,60 @@ class lsjs_binderController {
 	}
 	
 	protected function processGetParameters() {
+		$str_cacheStringRaw = '';
+
 		if (isset($_GET['debug']) && $_GET['debug']) {
 			$this->bln_debugMode = true;
 		}
+		$str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
+
+
+		if (isset($_GET['no-cache']) && $_GET['no-cache']) {
+			$this->bln_useCache = false;
+		}
+		$str_cacheStringRaw .= $this->bln_useCache ? '1' : '0';
+
+
+		if (isset($_GET['no-minifier']) && $_GET['no-minifier']) {
+			$this->bln_useMinifier = false;
+		}
+		$str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
+
 
 		if (isset($_GET['pathToApp']) && $_GET['pathToApp']) {
 			$this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToApp']);
 		}
-		
+		$str_cacheStringRaw .= $this->str_pathToApp;
+
+
 		if (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
 			$this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
 		}
+		$str_cacheStringRaw .= $this->str_pathToAppCustomization;
+
 
 		if (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization']) {
 			$this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
 		}
+		$str_cacheStringRaw .= $this->str_pathToCoreCustomization;
+
 
 		if (isset($_GET['whitelist']) && $_GET['whitelist']) {
 			$this->setModuleWhitelist($_GET['whitelist']);
+			$str_cacheStringRaw .= $_GET['whitelist'];
+		} else {
+			$str_cacheStringRaw .= '-no-whitelist-';
 		}
-		
+
+
 		if (isset($_GET['blacklist']) && $_GET['blacklist']) {
 			$this->setModuleBlacklist($_GET['blacklist']);
+			$str_cacheStringRaw .= $_GET['blacklist'];
+		} else {
+			$str_cacheStringRaw .= '-no-blacklist-';
 		}
-		
+
+
 		if (isset($_GET['includeCore'])) {
 			if ($_GET['includeCore'] == 'yes') {
 				$this->bln_includeCore = true;
@@ -547,6 +652,8 @@ class lsjs_binderController {
 				$this->bln_includeCore = false;
 			}
 		}
+		$str_cacheStringRaw .= $this->bln_includeCore ? '1' : '0';
+
 		
 		if (isset($_GET['includeCoreModules'])) {
 			if ($_GET['includeCoreModules'] == 'yes') {
@@ -555,7 +662,9 @@ class lsjs_binderController {
 				$this->bln_includeCoreModules = false;
 			}
 		}
-		
+		$str_cacheStringRaw .= $this->bln_includeCoreModules ? '1' : '0';
+
+
 		if (isset($_GET['includeAppModules'])) {
 			if ($_GET['includeAppModules'] == 'yes') {
 				$this->bln_includeAppModules = true;
@@ -563,7 +672,9 @@ class lsjs_binderController {
 				$this->bln_includeAppModules = false;
 			}
 		}
-		
+		$str_cacheStringRaw .= $this->bln_includeAppModules ? '1' : '0';
+
+
 		if (isset($_GET['includeApp'])) {
 			if ($_GET['includeApp'] == 'yes') {
 				$this->bln_includeApp = true;
@@ -571,6 +682,8 @@ class lsjs_binderController {
 				$this->bln_includeApp = false;
 			}
 		}
+		$str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
+
 		
 		if (isset($_GET['includeMasterStyleFiles'])) {
 			if ($_GET['includeMasterStyleFiles'] == 'yes') {
@@ -579,5 +692,8 @@ class lsjs_binderController {
 				$this->bln_includeMasterStyleFiles = false;
 			}
 		}
+		$str_cacheStringRaw .= $this->bln_includeMasterStyleFiles ? '1' : '0';
+
+		$this->str_cacheHash = md5($str_cacheStringRaw);
 	}
 }
