@@ -12,7 +12,7 @@ class lsjs_binderController {
 	const c_str_pathToTemplates = 'templates';
 	const c_str_pathToMasterStyles = 'styles';
 
-	const c_str_pathToCache = 'cache';
+	const c_str_pathToCache = '../../cache';
 
 	const c_str_viewFileName = 'view.js';
 	const c_str_controllerFileName = 'controller.js';
