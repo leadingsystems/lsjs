@@ -4,6 +4,31 @@ Leading Systems LSJS
 #### What is LSJS and what is it good for?
 FIXME: Add explanation
 
+LSJS helps you to write powerful JS applications and organize your application code in
+a way that will make your work a lot easier.
+
+Every app you write using LSJS has a main app file called "app.js". Your main app file
+coordinates everything but is not responsible for the actual functionality. This is
+where LSJS modules come into play.
+
+_Example: Let's say you have a website with a nice slideshow effect, a table in which you can
+sort elements using drag and drop and a news ticker which load new entries via AJAX. In this case you would write three modules, e.g. "my-slideshow", "fancy-table", "new-ticker".
+In your main app file you would load these modules but the slideshow functionality etc. is
+completely located in your modules._
+
+A module is not only a single JS file. It's a folder holding separate JS files for your
+models, the view, the controller and of course the templates.
+
+Organizing everything in well structured files and folders makes things easy for you but
+of course LSJS doesn't deliver your application to the browser that way. LSJS comes
+with a binder script which combines all your work in one single file and it also optimizes,
+minimizes and caches it.
+
+Besides the powerful templating engine, LSJS offers you bi-directional data-binding
+and much more.
+
+
+
 - Nice way to organize and modularize JS applications
 
 - MVC (-ish)
