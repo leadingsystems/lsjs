@@ -1,9 +1,18 @@
-Leading Systems LSJS
-=================================
+# Leading Systems LSJS
+
+**LSJS was designed and is being used as the javascript framework behind the e-commerce
+system Merconis.**
+
+**However, LSJS can be used without Merconis and already is being used this way in a couple
+of web applications. Since at this time we can't offer support for LSJS unless it's
+used in a Merconis project, standalone usage is currently not recommended.**
+
+**In the future we might actively promote standalone usage of LSJS, so if you are
+interested in using it, we'd definitely like to hear from you.**
+
+#
 
 #### What is LSJS and what is it good for?
-FIXME: Add explanation
-
 LSJS helps you to write powerful JS applications and organize your application code in
 a way that will make your work a lot easier.
 
@@ -24,20 +33,8 @@ of course LSJS doesn't deliver your application to the browser that way. LSJS co
 with a binder script which combines all your work in one single file and it also optimizes,
 minimizes and caches it.
 
-Besides the powerful templating engine, LSJS offers you bi-directional data-binding
-and much more.
-
-
-
-- Nice way to organize and modularize JS applications
-
-- MVC (-ish)
-
-- powerful templating system that is designed especially for people who like the way that
-PHP code can be used to create HTML output and want the same, easy way to create HTML
-output with JS.
-
-- useful core modules
+Besides the powerful templating engine, LSJS offers you an MVC architecture, bi-directional
+data-binding, helpful core modules and much more.
 
 #### How to use LSJS
 The following explanation can easily be followed with the little example projects
