@@ -1,6 +1,14 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 2.0.6 (2018-02-26)
+
+ * Implement caching and minification
+
+
+##### 2.0.5 (2018-02-25)
+
+
 ##### 2.0.4 (2018-02-22)
 
  * Module customization is now possible using the GET parameter
