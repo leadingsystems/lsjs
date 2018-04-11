@@ -133,7 +133,7 @@ Therefore, LSJS offers an easy way to customize the modules of an app.
 
 Just like the path to an app can be specified as a GET parameter when referencing
 binder.php, using the GET parameter `pathToAppCustomization` the location of 
-customized versions of the app modules can specified.
+customized versions of the app modules can be specified.
 
 The given customization path needs to point to a directory which contains the
 customized files in exactly the same structure as in the original app.
