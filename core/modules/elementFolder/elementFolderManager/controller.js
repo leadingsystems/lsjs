@@ -25,9 +25,32 @@
  *
  *
  * Add the following attribute to yet another element inside the above mentioned
- * outer DOM element in order to us it as the toggler's content:
+ * outer DOM element in order to use it as the toggler's content:
  *
  * data-lsjs-element="elementFolderContent"
+ *
+ *
+ *
+ * Using the attribute "data-lsjs-elementFolderOptions" the default options for an
+ * elementFolder instance can be overridden. Since "elementFolder" leveragesf the "unfold" module
+ * all options supported by the "unfold" module can be used here.
+ *
+ * The following example shows how to create an elementFolder instance that starts closed
+ * although by default it would start open.
+ *
+ * <section
+ * 		data-lsjs-component="elementFolder"
+ * 		data-lsjs-elementFolderOptions="
+ * 			{
+ * 				str_initialCookieStatus: 'closed'
+ * 			}
+ * 		"
+ * 		id="someId"
+ * >
+ * 		<div data-lsjs-element="elementFolderToggler">TOGGLE</div>
+ * 		<div data-lsjs-element="elementFolderContent">CONTENT</div>
+ * </section>
+ *
  *
  * TODO: Write a detailed functionality and usage description. Until then, the options models of the manager and
  * the instance submodule can be consulted for further information.
