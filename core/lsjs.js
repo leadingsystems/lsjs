@@ -53,6 +53,11 @@ Request.cajax = new Class({
 	},
 
 	initialize: function(options){
+
+		if (options.url !== undefined && options.url !== null) {
+            options.url = options.url + '?' + 'cajaxCall=' + (new Date).getTime();
+        }
+
 		this.parent(options);
 	},
 
