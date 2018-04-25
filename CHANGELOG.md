@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 2.0.7 (2018-04-25)
+
+
 ##### 2.0.6 (2018-02-26)
 
  * Implement caching and minification
