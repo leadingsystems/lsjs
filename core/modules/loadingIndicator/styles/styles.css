@@ -12,6 +12,7 @@
     bottom: 0px;
     left: 0px;
     background-color: rgba(0,0,0,0.3);
+    z-index: 100000;
 }
 
 .main.loadingIndicator div {
