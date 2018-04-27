@@ -1,6 +1,11 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 2.0.8 (2018-04-28)
+
+ * Fix loading indicator z-index
+
+
 ##### 2.0.7 (2018-04-25)
 
 
