@@ -1238,7 +1238,8 @@ var classdef_lsjs_module = {
 						obj_binding.el_bound.setProperty('checked', false);
 					}
 				} else {
-                    if (typeOf(var_valueToSet) === 'element') {
+                    if (typeOf(var_valueToSet) === 'element')
+                        obj_binding.el_bound.empty();
                         obj_binding.el_bound.adopt(var_valueToSet);
                     } else {
                         obj_binding.el_bound.setProperty('html', var_valueToSet);
