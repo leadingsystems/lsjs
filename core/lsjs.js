@@ -1238,8 +1238,12 @@ var classdef_lsjs_module = {
 						obj_binding.el_bound.setProperty('checked', false);
 					}
 				} else {
-					obj_binding.el_bound.setProperty('html', var_valueToSet);
-				}				
+                    if (typeOf(var_valueToSet) === 'element') {
+                        obj_binding.el_bound.adopt(var_valueToSet);
+                    } else {
+                        obj_binding.el_bound.setProperty('html', var_valueToSet);
+                    }
+				}
 			}.bind(this));
 		}.bind(this));
 	},
