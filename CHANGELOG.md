@@ -1,6 +1,14 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 2.0.10 (2019-06-25)
+
+ * Add touch navi module
+
+
+##### 2.0.9 (2019-05-24)
+
+
 ##### 2.0.8 (2018-04-28)
 
  * Fix loading indicator z-index
