@@ -11,7 +11,8 @@ var obj_classdef_model = {
 		this.data = {
 			str_togglerSelector: '#lsOcNaviToggler',
 			str_naviSelector: '#lsOcNavi',
-			str_contentSelector: ''
+			str_contentSelector: '',
+			bln_useFoldedNaviInside: true
 		};
 	},
 	
