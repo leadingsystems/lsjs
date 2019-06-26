@@ -12,6 +12,7 @@ var obj_classdef_model = {
 			var_naviSelector: null,
 			var_touchableHyperlinkSelector: 'li > .submenu',
 			bln_autoTouchParent: true,
+			str_classToSetForTouchedElements: 'touched',
 		};
 	},
 

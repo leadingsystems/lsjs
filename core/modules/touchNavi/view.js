@@ -5,8 +5,13 @@
 // #################################
 
 	var obj_classdef = 	{
+		els_touchableHyperlinks: null,
+		el_body: null,
+
 		start: function() {
-			var els_touchableHyperlinks;
+			var self = this;
+
+			this.el_body = $$('body')[0];
 
 			this.__el_container =
 				(
@@ -23,18 +28,36 @@
 
 			this.__el_container.addClass('useTouchNavi');
 
-			els_touchableHyperlinks = this.__el_container.getElements(this.__models.options.data.var_touchableHyperlinkSelector);
+			this.els_touchableHyperlinks = this.__el_container.getElements(this.__models.options.data.var_touchableHyperlinkSelector);
 
-            els_touchableHyperlinks.addEvent(
+			if (typeOf(this.els_touchableHyperlinks) !== 'elements') {
+				/*
+				 * Do nothing if there are no touchable hyperlinks
+				 */
+				return;
+			}
+
+            this.els_touchableHyperlinks.addEvent(
             	'click',
 				function(event) {
-            		if (!this.hasClass('touched')) {
+            		if (!self.el_body.hasClass('user-is-touching')) {
+            			// console.log('nobdy touched me :-(');
+            			return;
+					}
+            		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
 						event.preventDefault();
-						this.addClass('touched');
-						this.getParent().addClass('touched');
+
+						/*
+						 * Remove the touched class on all other touchable hyperlinks to make sure it can never
+						 * be set on two elements.
+						 */
+						this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements).removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+
+						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
+						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
 					} else {
-						this.removeClass('touched');
-						this.getParent().removeClass('touched');
+						this.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+						this.getParent().removeClass(self.__models.options.data.str_classToSetForTouchedElements);
 					}
 				}
 			)
