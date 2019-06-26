@@ -1,9 +1,10 @@
 Leading Systems LSJS changelog
 ===========================================
 
-##### 2.0.10 (2019-06-25)
+##### 2.0.10 (2019-06-26)
 
  * Add touch navi module
+ * Add touch detector module
 
 
 ##### 2.0.9 (2019-05-24)
