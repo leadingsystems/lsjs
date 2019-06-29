@@ -28,6 +28,10 @@
 
 			this.__el_container.addClass('useTouchNavi');
 
+			if (this.__models.options.data.bln_useTouchBehaviourOnNonTouchDevices) {
+                this.__el_container.addClass('useTouchNaviOnNonTouchDevices');
+            }
+
 			this.els_touchableHyperlinks = this.__el_container.getElements(this.__models.options.data.var_touchableHyperlinkSelector);
 
 			if (typeOf(this.els_touchableHyperlinks) !== 'elements') {
@@ -40,13 +44,16 @@
             this.els_touchableHyperlinks.addEvent(
             	'click',
 				function(event) {
-            		if (!self.__models.options.data.bln_useTouchBehaviourForNonTouchDevices && !self.el_body.hasClass('user-is-touching')) {
+            		if (!self.__models.options.data.bln_useTouchBehaviourOnNonTouchDevices && !self.el_body.hasClass('user-is-touching')) {
             			// console.log('nobdy touched me :-(');
             			return;
 					}
-            		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
-						event.preventDefault();
 
+					if (!self.__models.options.data.bln_followLinkOnSecondTouch || !this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
+                        event.preventDefault();
+					}
+
+            		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
 						/*
 						 * Remove the touched class on all other touchable hyperlinks to make sure it can never
 						 * be set on two elements.
