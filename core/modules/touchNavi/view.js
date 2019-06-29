@@ -40,7 +40,7 @@
             this.els_touchableHyperlinks.addEvent(
             	'click',
 				function(event) {
-            		if (!self.el_body.hasClass('user-is-touching')) {
+            		if (!self.__models.options.data.bln_useTouchBehaviourForNonTouchDevices && !self.el_body.hasClass('user-is-touching')) {
             			// console.log('nobdy touched me :-(');
             			return;
 					}
