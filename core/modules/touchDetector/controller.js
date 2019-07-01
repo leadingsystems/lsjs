@@ -18,20 +18,48 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = {
 	bound_touchStartListener: null,
+	bound_tabListener: null,
+	bound_mouseListener: null,
 
 	start: function() {
 		this.bound_touchStartListener = this.touchStartListener.bind(this);
+		this.bound_tabListener = this.tabListener.bind(this);
+		this.bound_mouseListener = this.mouseListener.bind(this);
 
         window.addEvent(
             'touchstart',
             this.bound_touchStartListener
         );
+
+        window.addEvent(
+            'keydown',
+            this.bound_tabListener
+        );
     },
 
 	touchStartListener: function() {
-        console.log('touching');
         $$('body')[0].addClass('user-is-touching');
         window.removeEvent('touchstart', this.bound_touchStartListener);
+	},
+
+	tabListener: function() {
+        $$('body')[0].addClass('user-is-tabbing');
+        window.removeEvent('keydown', this.bound_tabListener);
+
+        window.addEvent(
+            'mousedown',
+            this.bound_mouseListener
+        );
+	},
+
+	mouseListener: function() {
+        $$('body')[0].removeClass('user-is-tabbing');
+        window.removeEvent('mousedown', this.bound_mouseListener);
+
+        window.addEvent(
+            'keydown',
+            this.bound_tabListener
+        );
 	}
 };
 
