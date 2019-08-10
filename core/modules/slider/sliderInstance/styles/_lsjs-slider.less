@@ -1,0 +1,66 @@
+.lsjs-slider {
+  .navigation-arrow-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    z-index: 1;
+
+    .arrow {
+      margin: auto;
+      opacity: .5;
+
+      &::after {
+        .fa-icon;
+        .fas;
+        font-size: 4rem;
+        color: @ls-color-white;
+        text-shadow: 0 0 1rem @ls-color-black;
+      }
+    }
+
+    &.left {
+      left: 1rem;
+
+      .arrow {
+        &::after {
+          content: @fa-var-chevron-left;
+        }
+      }
+    }
+
+    &.right {
+      right: 1rem;
+
+      .arrow {
+        &::after {
+          content: @fa-var-chevron-right;
+        }
+      }
+    }
+  }
+
+  &:hover {
+    .navigation-arrow-container {
+      .arrow {
+        opacity: 1;
+      }
+    }
+  }
+
+  &:not(.left-possible) {
+    .left {
+      .arrow {
+        display: none;
+      }
+    }
+  }
+
+  &:not(.right-possible) {
+    .right {
+      .arrow {
+        display: none;
+      }
+    }
+  }
+}

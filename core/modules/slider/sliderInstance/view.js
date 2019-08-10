@@ -6,17 +6,44 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = 	{
 	el_container: null,
-	el_slidingArea: null,
 	els_items: null,
-	el_currentlyDragging: null,
+	el_slidingArea: null,
+    el_navigationArrowLeft: null,
+    el_navigationArrowRight: null,
 
 	float_requiredSlidingAreaWidth: 0,
     float_requiredSlidingAreaHeight: 0,
 
+    float_visibleWidth: 0,
+
     arr_allItemOffsets: [],
+    arr_slideOffsets: [],
+
+    int_currentSlideKey: 0,
+
+    bln_leftPossible: true,
+    bln_rightPossible: true,
+
+    obj_dragData: {
+        dragStartPosition:  {
+            x: null
+        },
+        dragOffsetPosition: {
+            x: 0
+        },
+        dragDirection: {
+            x: 'left'
+        }
+    },
+
+    bln_currentlyDragging: false,
+
+    bln_skipDrag: false,
 
 	start: function() {
 	    this.determineGivenElements();
+
+	    this.addNavigationArrows();
 
 		this.initializeSlider();
 
@@ -33,10 +60,39 @@ var obj_classdef = 	{
         this.el_container = this.__el_container;
         this.el_container.setStyle('overflow', 'hidden');
         this.el_container.addClass('lsjs-slider');
+        if (this.el_container.getStyle('position') === 'static') {
+            this.el_container.setStyle('position', 'relative');
+        }
         this.els_items = this.el_container.getElements('> *');
     },
 
+    addNavigationArrows: function() {
+	    this.el_navigationArrowLeft = new Element('div.arrow');
+	    this.el_navigationArrowRight = new Element('div.arrow');
+
+	    this.el_container.adopt(
+	        new Element('div.navigation-arrow-container.left').adopt(
+                this.el_navigationArrowLeft
+            ),
+	        new Element('div.navigation-arrow-container.right').adopt(
+                this.el_navigationArrowRight
+            )
+        );
+
+	    this.el_navigationArrowLeft.addEvent(
+	        'mousedown',
+            this.jumpLeft.bind(this)
+        );
+
+	    this.el_navigationArrowRight.addEvent(
+	        'mousedown',
+            this.jumpRight.bind(this)
+        );
+    },
+
 	initializeSlider: function() {
+	    this.int_currentSlideKey = 0;
+
 		this.storeItemSizeInformation();
 
         /*
@@ -48,13 +104,20 @@ var obj_classdef = 	{
 
         this.insertSlidingArea();
 
+        this.getVisibleWidth();
+
         this.getItemOffsets();
+
+        this.getSlideOffsets();
+
+        this.determineCurrentSlideKey();
 	},
 
 	reinitializeSlider: function() {
 	    this.removeSlidingArea();
 		this.unsetItemsFixedWidth();
 		this.removeAllItemOffsets();
+        this.removeAllSlideOffsets();
 		this.initializeSlider();
 	},
 
@@ -75,6 +138,10 @@ var obj_classdef = 	{
         this.el_container.adopt(this.els_items);
     },
 
+    getVisibleWidth: function() {
+	    this.float_visibleWidth = this.el_container.clientWidth;
+    },
+
 	storeItemSizeInformation: function() {
         Array.each(
             this.els_items,
@@ -89,6 +156,7 @@ var obj_classdef = 	{
                         	'itemSizeInformation',
 							{
 							    float_marginLeft: obj_computedSize['margin-left'],
+                                float_widthIncludingMarginLeft: this.offsetWidth + obj_computedSize['margin-left'],
                                 float_completeWidthIncludingMargins: this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
 								float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
 								float_originalWidth: this.getComputedSize().width
@@ -181,17 +249,48 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
-
     },
 
     removeAllItemOffsets: function() {
         this.arr_allItemOffsets = [];
     },
 
-    getClosestItemOffset: function() {
-        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+    getSlideOffsets: function() {
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                var int_numCurrentSlide = this.arr_slideOffsets.length;
+                var obj_currenSlideCoordinates = {
+                    float_xFrom: int_numCurrentSlide * this.float_visibleWidth,
+                    float_xTo: int_numCurrentSlide * this.float_visibleWidth + this.float_visibleWidth
+                };
 
-	    var float_closestOffset = obj_dragData.dragDirection.x === 'left' ? this.arr_allItemOffsets[this.arr_allItemOffsets.length - 1] : 0;
+                var float_itemOffset = el_item.offsetLeft - el_item.retrieve('itemSizeInformation').float_marginLeft;
+
+                var obj_itemCoordinates = {
+                    float_xFrom: float_itemOffset,
+                    float_xTo: float_itemOffset + el_item.retrieve('itemSizeInformation').float_widthIncludingMarginLeft
+                }
+
+                if (obj_itemCoordinates.float_xTo > obj_currenSlideCoordinates.float_xFrom) {
+                    this.arr_slideOffsets.push(float_itemOffset);
+                }
+            }.bind(this)
+        );
+
+        this.arr_slideOffsets.sort(
+            function(a, b) {
+                return a - b;
+            }
+        );
+    },
+
+    removeAllSlideOffsets: function() {
+        this.arr_slideOffsets = [];
+    },
+
+    getClosestItemOffset: function() {
+	    var float_closestOffset = this.obj_dragData.dragDirection.x === 'left' ? this.arr_allItemOffsets[this.arr_allItemOffsets.length - 1] : 0;
 
         var bln_alreadyFoundClosestOffset = false;
 
@@ -202,17 +301,17 @@ var obj_classdef = 	{
                     return;
                 }
 
-                if (obj_dragData.dragDirection.x === 'left') {
-                    if (float_itemOffset > obj_dragData.dragOffsetPosition.x * -1) {
+                if (this.obj_dragData.dragDirection.x === 'left') {
+                    if (float_itemOffset > this.obj_dragData.dragOffsetPosition.x * -1) {
                         float_closestOffset = float_itemOffset;
                         bln_alreadyFoundClosestOffset = true;
                     }
                 } else {
-                    if (float_itemOffset < obj_dragData.dragOffsetPosition.x * -1) {
+                    if (float_itemOffset < this.obj_dragData.dragOffsetPosition.x * -1) {
                         float_closestOffset = float_itemOffset;
                     }
                 }
-            }
+            }.bind(this)
         );
 
         return float_closestOffset;
@@ -251,78 +350,118 @@ var obj_classdef = 	{
     },
 
     dragStart: function(event) {
-        this.el_currentlyDragging = this.el_slidingArea;
-
-        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
-
-        if (obj_dragData === undefined || obj_dragData === null) {
-            obj_dragData = {
-                dragStartPosition:  {
-                    x: null
-                },
-                dragOffsetPosition: {
-                    x: 0
-                },
-                dragDirection: {
-                    x: 'left'
-                }
-            };
+	    if (this.bln_skipDrag) {
+	        return;
         }
+        
+	    this.bln_currentlyDragging = true;
 
-        obj_dragData.dragStartPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.dragOffsetPosition.x;
-
-        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
+        this.obj_dragData.dragStartPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - this.obj_dragData.dragOffsetPosition.x;
 
         this.deactivateSlidingAreaTransitionAnimation();
     },
 
     dragEnd: function(event) {
-        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+        if (this.bln_skipDrag) {
+            this.bln_skipDrag = false;
+            return;
+        }
 
-        obj_dragData.dragOffsetPosition.x = this.getClosestItemOffset() * -1;
+        this.obj_dragData.dragOffsetPosition.x = this.getClosestItemOffset() * -1;
 
         this.activateSlidingAreaTransitionAnimation();
 
         this.performDragMove();
 
-        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
-
-        this.el_currentlyDragging = null;
+        this.bln_currentlyDragging = false;
     },
 
     drag: function(event) {
-        if (this.el_currentlyDragging === null) {
+        if (!this.bln_currentlyDragging) {
             return;
         }
 
         event.preventDefault();
 
-        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+        var float_oldDragOffsetPositionX = this.obj_dragData.dragOffsetPosition.x;
 
-        var float_oldDragOffsetPositionX = obj_dragData.dragOffsetPosition.x;
+        this.obj_dragData.dragOffsetPosition.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - this.obj_dragData.dragStartPosition.x;
 
-        obj_dragData.dragOffsetPosition.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.dragStartPosition.x;
-
-        if (float_oldDragOffsetPositionX < obj_dragData.dragOffsetPosition.x) {
-            obj_dragData.dragDirection.x = 'right';
+        if (float_oldDragOffsetPositionX < this.obj_dragData.dragOffsetPosition.x) {
+            this.obj_dragData.dragDirection.x = 'right';
         }
 
-        if (float_oldDragOffsetPositionX > obj_dragData.dragOffsetPosition.x) {
-            obj_dragData.dragDirection.x = 'left';
+        if (float_oldDragOffsetPositionX > this.obj_dragData.dragOffsetPosition.x) {
+            this.obj_dragData.dragDirection.x = 'left';
         }
-
-        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
 
         this.performDragMove();
     },
 
     performDragMove: function() {
-        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
-
-        this.el_currentlyDragging.setStyle(
+        this.el_slidingArea.setStyle(
             'transform',
-            'translate3d(' + obj_dragData.dragOffsetPosition.x + 'px, 0, 0'
+            'translate3d(' + this.obj_dragData.dragOffsetPosition.x + 'px, 0, 0'
         );
+
+        this.determineCurrentSlideKey();
+    },
+
+    jumpLeft: function() {
+	    this.bln_skipDrag = true;
+
+	    if (!this.bln_leftPossible) {
+	        return;
+        }
+
+        this.obj_dragData.dragOffsetPosition.x = this.arr_slideOffsets[(this.int_currentSlideKey - 1)] * -1;
+        this.performDragMove();
+    },
+
+    jumpRight: function() {
+        this.bln_skipDrag = true;
+
+	    if (!this.bln_rightPossible) {
+	        return;
+        }
+
+        this.obj_dragData.dragOffsetPosition.x = this.arr_slideOffsets[(this.int_currentSlideKey + 1)] * -1;
+        this.performDragMove();
+    },
+
+    determineCurrentSlideKey: function() {
+        Array.each(
+            this.arr_slideOffsets,
+            function(float_slideOffset, int_slideKey) {
+                if (
+                    this.obj_dragData.dragOffsetPosition.x * -1 >= float_slideOffset
+                    && this.obj_dragData.dragOffsetPosition.x * -1 < float_slideOffset + this.float_visibleWidth
+                ) {
+                    this.int_currentSlideKey = int_slideKey;
+                }
+            }.bind(this)
+        );
+
+        this.determineMovingPossibilites();
+    },
+
+    determineMovingPossibilites: function() {
+        this.bln_rightPossible = true;
+        this.bln_leftPossible = true;
+
+        this.el_container.addClass('left-possible');
+        this.el_container.addClass('right-possible');
+
+        if (this.int_currentSlideKey === this.arr_slideOffsets.length - 1) {
+            this.bln_rightPossible = false;
+            this.el_container.removeClass('right-possible');
+        }
+
+        if (this.obj_dragData.dragOffsetPosition.x >= 0) {
+            this.bln_leftPossible = false;
+            this.el_container.removeClass('left-possible');
+        }
+
     }
 };
 
