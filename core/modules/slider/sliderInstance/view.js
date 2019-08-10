@@ -58,38 +58,28 @@ var obj_classdef = 	{
 	},
 
 	dragStart: function(event) {
-		this.el_currentlyDragging = event.target;
+		this.el_currentlyDragging = this.el_slidingArea;
 
 		var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
 
 		if (obj_dragData === undefined || obj_dragData === null) {
             obj_dragData = {
-				initial:  {
-					x: null,
-					y: null
+				dragStartPosition:  {
+					x: null
 				},
-				current:  {
-					x: null,
-					y: null
-				},
-				offsets: {
-					x: 0,
-					y: 0
+				dragOffsetPosition: {
+					x: 0
 				}
 			};
 		}
 
-		obj_dragData.initial.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.offsets.x;
-		obj_dragData.initial.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY) - obj_dragData.offsets.y;
+		obj_dragData.dragStartPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.dragOffsetPosition.x;
 
         this.el_currentlyDragging.store('obj_dragData', obj_dragData);
 	},
 
 	dragEnd: function(event) {
         var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
-
-        obj_dragData.initial.x = obj_dragData.current.x;
-        obj_dragData.initial.y = obj_dragData.current.y;
 
         this.el_currentlyDragging.store('obj_dragData', obj_dragData);
 
@@ -105,11 +95,7 @@ var obj_classdef = 	{
 
         var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
 
-        obj_dragData.current.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.initial.x;
-        obj_dragData.current.y = (event.type === 'touchmove' ? event.event.touches[0].clientY : event.event.clientY) - obj_dragData.initial.y;
-
-        obj_dragData.offsets.x = obj_dragData.current.x;
-        obj_dragData.offsets.y = obj_dragData.current.y;
+        obj_dragData.dragOffsetPosition.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.dragStartPosition.x;
 
         this.el_currentlyDragging.store('obj_dragData', obj_dragData);
 
@@ -121,7 +107,7 @@ var obj_classdef = 	{
 
         this.el_currentlyDragging.setStyle(
 			'transform',
-			'translate3d(' + obj_dragData.current.x + 'px, ' + obj_dragData.current.y + 'px, 0'
+			'translate3d(' + obj_dragData.dragOffsetPosition.x + 'px, 0, 0'
 		);
 	},
 
