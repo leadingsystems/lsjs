@@ -11,10 +11,12 @@ var obj_classdef = 	{
 	el_currentlyDragging: null,
 
 	float_completeWidthOfAllItems: 0,
+    float_maxHeightOfAllItems: 0,
 
 	start: function() {
         this.el_container = this.__el_container;
         this.el_container.setStyle('overflow', 'hidden');
+        this.el_container.addClass('lsjs-slider');
         this.els_items = this.el_container.getElements('> *');
 
 		this.initializeElements();
@@ -109,6 +111,8 @@ var obj_classdef = 	{
 	},
 
 	initializeElements: function() {
+		this.storeItemSizeInformation();
+
         /*
          * In order to allow the web designer to style items with a width relative to the original parent element
          * (i.e. before inserting the sliding area element that the web designer doesn't know anything about)
@@ -116,11 +120,12 @@ var obj_classdef = 	{
          */
         this.setItemsToFixedWidth();
 
-        this.el_slidingArea = new Element('div.slidingArea');
+        this.el_slidingArea = new Element('div.sliding-area');
         this.el_slidingArea.inject(this.el_container);
         this.el_slidingArea.adopt(this.els_items);
 
-        this.float_completeWidthOfAllItems = this.getCompleteWidthOfAllItems();
+        this.getCompleteWidthOfAllItems();
+        this.getMaxHeightOfAllItems();
 
         this.setSlidingAreaSize();
 	},
@@ -133,18 +138,37 @@ var obj_classdef = 	{
 		this.initializeElements();
 	},
 
+	storeItemSizeInformation: function() {
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                el_item.measure(
+                    function() {
+                        var obj_computedSize = this.getComputedSize({
+                            styles: ['margin']
+                        });
+
+                        this.store(
+                        	'itemSizeInformation',
+							{
+                                float_completeWidthIncludingMargins: this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
+								float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
+								float_originalWidth: this.getComputedSize().width
+							}
+						);
+                    }
+                );
+            }
+        );
+	},
+
 	setItemsToFixedWidth: function() {
 		Array.each(
 			this.els_items,
 			function(el_item) {
 				el_item.measure(
 					function() {
-						var obj_computedSize = this.getComputedSize({
-							styles: ['margin']
-						});
-
-						this.store('float_completeWidthIncludingMargins', this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right']);
-						this.setStyle('width', this.getComputedSize().width)
+						this.setStyle('width', this.retrieve('itemSizeInformation').float_originalWidth);
                     }
 				);
 			}
@@ -162,19 +186,38 @@ var obj_classdef = 	{
 	
 	setSlidingAreaSize: function() {
 		this.el_slidingArea.setStyles({
-			'width': this.float_completeWidthOfAllItems + 'px'
+			'width': this.float_completeWidthOfAllItems + 'px',
+			'height': this.float_maxHeightOfAllItems + 'px'
 		})
 	},
 
 	getCompleteWidthOfAllItems: function() {
 		var float_completeWidth = 0;
+
 		Array.each(
 			this.els_items,
 			function(el_item) {
-				float_completeWidth += el_item.retrieve('float_completeWidthIncludingMargins');
+				float_completeWidth += el_item.retrieve('itemSizeInformation').float_completeWidthIncludingMargins;
 			}.bind(this)
 		);
-		return float_completeWidth;
+
+        this.float_completeWidthOfAllItems = float_completeWidth;
+	},
+
+	getMaxHeightOfAllItems: function() {
+		var float_maxHeight = 0;
+
+		Array.each(
+            this.els_items,
+            function(el_item) {
+            	var float_itemHeight = el_item.retrieve('itemSizeInformation').float_completeHeightIncludingMargins;
+            	if (float_maxHeight < float_itemHeight) {
+                    float_maxHeight = float_itemHeight;
+				}
+            }.bind(this)
+        );
+
+        this.float_maxHeightOfAllItems = float_maxHeight;
 	}
 };
 
