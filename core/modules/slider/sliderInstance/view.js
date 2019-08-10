@@ -8,6 +8,7 @@ var obj_classdef = 	{
 	el_container: null,
 	el_slidingArea: null,
 	els_items: null,
+	el_currentlyDragging: null,
 
 	float_completeWidthOfAllItems: 0,
 
@@ -21,6 +22,89 @@ var obj_classdef = 	{
         window.addEvent(
         	'resize',
 			this.reinitializeSlider.bind(this)
+		);
+
+        this.el_container.addEvent(
+        	'mousedown',
+			this.dragStart.bind(this)
+		);
+
+        this.el_container.addEvent(
+        	'mouseup',
+			this.dragEnd.bind(this)
+		);
+
+        this.el_container.addEvent(
+        	'mousemove',
+			this.drag.bind(this)
+		);
+	},
+
+	dragStart: function(event) {
+		this.el_currentlyDragging = event.target;
+
+		var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+
+		if (obj_dragData === undefined || obj_dragData === null) {
+            obj_dragData = {
+				initial:  {
+					x: null,
+					y: null
+				},
+				current:  {
+					x: null,
+					y: null
+				},
+				offsets: {
+					x: 0,
+					y: 0
+				}
+			};
+		}
+
+		obj_dragData.initial.x = event.client.x - obj_dragData.offsets.x;
+		obj_dragData.initial.y = event.client.y - obj_dragData.offsets.y;
+
+        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
+	},
+
+	dragEnd: function(event) {
+        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+
+        obj_dragData.initial.x = obj_dragData.current.x;
+        obj_dragData.initial.y = obj_dragData.current.y;
+
+        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
+
+        this.el_currentlyDragging = null;
+	},
+
+	drag: function(event) {
+		if (this.el_currentlyDragging === null) {
+			return;
+		}
+
+		event.preventDefault();
+
+        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+
+        obj_dragData.current.x = event.client.x - obj_dragData.initial.x;
+        obj_dragData.current.y = event.client.y - obj_dragData.initial.y;
+
+        obj_dragData.offsets.x = obj_dragData.current.x;
+        obj_dragData.offsets.y = obj_dragData.current.y;
+
+        this.el_currentlyDragging.store('obj_dragData', obj_dragData);
+
+        this.performDragMove();
+	},
+
+	performDragMove: function() {
+        var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
+
+        this.el_currentlyDragging.setStyle(
+			'transform',
+			'translate3d(' + obj_dragData.current.x + 'px, ' + obj_dragData.current.y + 'px, 0'
 		);
 	},
 
