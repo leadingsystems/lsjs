@@ -40,6 +40,21 @@ var obj_classdef = 	{
         	'mousemove',
 			this.drag.bind(this)
 		);
+
+        this.el_container.addEvent(
+        	'touchstart',
+			this.dragStart.bind(this)
+		);
+
+        this.el_container.addEvent(
+        	'touchend',
+			this.dragEnd.bind(this)
+		);
+
+        this.el_container.addEvent(
+        	'touchmove',
+			this.drag.bind(this)
+		);
 	},
 
 	dragStart: function(event) {
@@ -64,8 +79,8 @@ var obj_classdef = 	{
 			};
 		}
 
-		obj_dragData.initial.x = event.client.x - obj_dragData.offsets.x;
-		obj_dragData.initial.y = event.client.y - obj_dragData.offsets.y;
+		obj_dragData.initial.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.offsets.x;
+		obj_dragData.initial.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY) - obj_dragData.offsets.y;
 
         this.el_currentlyDragging.store('obj_dragData', obj_dragData);
 	},
@@ -90,8 +105,8 @@ var obj_classdef = 	{
 
         var obj_dragData = this.el_currentlyDragging.retrieve('obj_dragData');
 
-        obj_dragData.current.x = event.client.x - obj_dragData.initial.x;
-        obj_dragData.current.y = event.client.y - obj_dragData.initial.y;
+        obj_dragData.current.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - obj_dragData.initial.x;
+        obj_dragData.current.y = (event.type === 'touchmove' ? event.event.touches[0].clientY : event.event.clientY) - obj_dragData.initial.y;
 
         obj_dragData.offsets.x = obj_dragData.current.x;
         obj_dragData.offsets.y = obj_dragData.current.y;
