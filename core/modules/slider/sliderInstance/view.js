@@ -290,6 +290,9 @@ var obj_classdef = 	{
     },
 
     getClosestItemOffset: function() {
+	    /*
+	     * Depending on the drag direction, we set the closest offset to the first or last item by default
+	     */
 	    var float_closestOffset = this.obj_dragData.dragDirection.x === 'left' ? this.arr_allItemOffsets[this.arr_allItemOffsets.length - 1] : 0;
 
         var bln_alreadyFoundClosestOffset = false;
@@ -313,6 +316,15 @@ var obj_classdef = 	{
                 }
             }.bind(this)
         );
+
+        /*
+         * Make sure that the offset can not be beyond the last slide's offset
+         */
+        if (
+            float_closestOffset > this.arr_slideOffsets[this.arr_slideOffsets.length - 1]
+        ) {
+            float_closestOffset = this.arr_slideOffsets[this.arr_slideOffsets.length - 1];
+        }
 
         return float_closestOffset;
     },
@@ -452,7 +464,7 @@ var obj_classdef = 	{
         this.el_container.addClass('left-possible');
         this.el_container.addClass('right-possible');
 
-        if (this.int_currentSlideKey === this.arr_slideOffsets.length - 1) {
+        if (this.obj_dragData.dragOffsetPosition.x <= (this.float_requiredSlidingAreaWidth - this.float_visibleWidth) * -1) {
             this.bln_rightPossible = false;
             this.el_container.removeClass('right-possible');
         }
