@@ -12,6 +12,7 @@ var obj_classdef = 	{
     el_navigationArrowRight: null,
 
 
+	float_slidingAreaMovingPositionX: null,
 	float_requiredSlidingAreaWidth: null,
     float_requiredSlidingAreaHeight: null,
     float_visibleWidth: null,
@@ -105,6 +106,7 @@ var obj_classdef = 	{
 	},
 
     resetVariables: function() {
+        this.float_slidingAreaMovingPositionX = 0;
         this.float_requiredSlidingAreaWidth = 0;
         this.float_requiredSlidingAreaHeight = 0;
 
@@ -384,11 +386,9 @@ var obj_classdef = 	{
             return;
         }
 
-        this.obj_dragData.dragOffsetPosition.x = this.getClosestItemOffset() * -1;
-
         this.activateSlidingAreaTransitionAnimation();
 
-        this.performDragMove();
+        this.moveSlidingAreaTo(this.getClosestItemOffset());
 
         this.bln_currentlyDragging = false;
     },
@@ -412,13 +412,16 @@ var obj_classdef = 	{
             this.obj_dragData.dragDirection.x = 'left';
         }
 
-        this.performDragMove();
+        this.moveSlidingAreaTo(this.obj_dragData.dragOffsetPosition.x * -1);
     },
 
-    performDragMove: function() {
+    moveSlidingAreaTo: function(float_targetPositionX) {
+        this.float_slidingAreaMovingPositionX = float_targetPositionX;
+        this.obj_dragData.dragOffsetPosition.x = this.float_slidingAreaMovingPositionX * -1;
+
         this.el_slidingArea.setStyle(
             'transform',
-            'translate3d(' + this.obj_dragData.dragOffsetPosition.x + 'px, 0, 0'
+            'translate3d(' + (this.float_slidingAreaMovingPositionX * -1) + 'px, 0, 0'
         );
 
         this.determineCurrentSlideKey();
@@ -431,8 +434,7 @@ var obj_classdef = 	{
 	        return;
         }
 
-        this.obj_dragData.dragOffsetPosition.x = this.arr_slideOffsets[(this.int_currentSlideKey - 1)] * -1;
-        this.performDragMove();
+        this.moveSlidingAreaTo(this.arr_slideOffsets[(this.int_currentSlideKey - 1)]);
     },
 
     jumpRight: function() {
@@ -442,8 +444,7 @@ var obj_classdef = 	{
 	        return;
         }
 
-        this.obj_dragData.dragOffsetPosition.x = this.arr_slideOffsets[(this.int_currentSlideKey + 1)] * -1;
-        this.performDragMove();
+        this.moveSlidingAreaTo(this.arr_slideOffsets[(this.int_currentSlideKey + 1)]);
     },
 
     determineCurrentSlideKey: function() {
@@ -451,8 +452,8 @@ var obj_classdef = 	{
             this.arr_slideOffsets,
             function(float_slideOffset, int_slideKey) {
                 if (
-                    this.obj_dragData.dragOffsetPosition.x * -1 >= float_slideOffset
-                    && this.obj_dragData.dragOffsetPosition.x * -1 < float_slideOffset + this.float_visibleWidth
+                    this.float_slidingAreaMovingPositionX >= float_slideOffset
+                    && this.float_slidingAreaMovingPositionX < float_slideOffset + this.float_visibleWidth
                 ) {
                     this.int_currentSlideKey = int_slideKey;
                 }
@@ -469,12 +470,12 @@ var obj_classdef = 	{
         this.el_container.addClass('left-possible');
         this.el_container.addClass('right-possible');
 
-        if (this.obj_dragData.dragOffsetPosition.x <= (this.float_requiredSlidingAreaWidth - this.float_visibleWidth) * -1) {
+        if (this.float_slidingAreaMovingPositionX >= this.float_requiredSlidingAreaWidth - this.float_visibleWidth) {
             this.bln_rightPossible = false;
             this.el_container.removeClass('right-possible');
         }
 
-        if (this.obj_dragData.dragOffsetPosition.x >= 0) {
+        if (this.float_slidingAreaMovingPositionX <= 0) {
             this.bln_leftPossible = false;
             this.el_container.removeClass('left-possible');
         }
