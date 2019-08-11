@@ -66,12 +66,12 @@ var obj_classdef = 	{
         );
 
 	    this.el_navigationArrowLeft.addEvent(
-	        'mousedown',
+	        'click',
             this.jumpLeft.bind(this)
         );
 
 	    this.el_navigationArrowRight.addEvent(
-	        'mousedown',
+	        'click',
             this.jumpRight.bind(this)
         );
     },
@@ -129,7 +129,8 @@ var obj_classdef = 	{
             },
             dragDirection: {
                 x: 'left'
-            }
+            },
+            bln_dragged: false
         };
 
         this.bln_currentlyDragging = false;
@@ -337,35 +338,37 @@ var obj_classdef = 	{
     },
 
     dragInitialize: function() {
-        this.el_container.addEvent(
-            'mousedown',
-            this.dragStart.bind(this)
-        );
+	    if (this.check_isTouchDevice()) {
+            this.el_container.addEvent(
+                'touchstart',
+                this.dragStart.bind(this)
+            );
 
-        this.el_container.addEvent(
-            'mouseup',
-            this.dragEnd.bind(this)
-        );
+            this.el_container.addEvent(
+                'touchend',
+                this.dragEnd.bind(this)
+            );
 
-        this.el_container.addEvent(
-            'mousemove',
-            this.drag.bind(this)
-        );
+            this.el_container.addEvent(
+                'touchmove',
+                this.drag.bind(this)
+            );
+        } else {
+            this.el_container.addEvent(
+                'mousedown',
+                this.dragStart.bind(this)
+            );
 
-        this.el_container.addEvent(
-            'touchstart',
-            this.dragStart.bind(this)
-        );
+            this.el_container.addEvent(
+                'mouseup',
+                this.dragEnd.bind(this)
+            );
 
-        this.el_container.addEvent(
-            'touchend',
-            this.dragEnd.bind(this)
-        );
-
-        this.el_container.addEvent(
-            'touchmove',
-            this.drag.bind(this)
-        );
+            this.el_container.addEvent(
+                'mousemove',
+                this.drag.bind(this)
+            );
+        }
     },
 
     dragStart: function(event) {
@@ -381,7 +384,7 @@ var obj_classdef = 	{
     },
 
     dragEnd: function(event) {
-        if (this.bln_skipDrag) {
+        if (this.bln_skipDrag || !this.obj_dragData.bln_dragged) {
             this.bln_skipDrag = false;
             return;
         }
@@ -397,6 +400,8 @@ var obj_classdef = 	{
         if (!this.bln_currentlyDragging) {
             return;
         }
+
+        this.obj_dragData.bln_dragged = true;
 
         event.preventDefault();
 
@@ -434,7 +439,7 @@ var obj_classdef = 	{
 	        return;
         }
 
-        this.moveSlidingAreaTo(this.arr_slideOffsets[(this.int_currentSlideKey - 1)]);
+        this.moveSlidingAreaTo(this.arr_slideOffsets[this.int_currentSlideKey === 0 ? this.int_currentSlideKey : (this.int_currentSlideKey - 1)]);
     },
 
     jumpRight: function() {
@@ -480,6 +485,10 @@ var obj_classdef = 	{
             this.el_container.removeClass('left-possible');
         }
 
+    },
+
+    check_isTouchDevice: function() {
+        return 'ontouchstart' in document.documentElement;
     }
 };
 
