@@ -11,34 +11,19 @@ var obj_classdef = 	{
     el_navigationArrowLeft: null,
     el_navigationArrowRight: null,
 
-	float_requiredSlidingAreaWidth: 0,
-    float_requiredSlidingAreaHeight: 0,
 
-    float_visibleWidth: 0,
+	float_requiredSlidingAreaWidth: null,
+    float_requiredSlidingAreaHeight: null,
+    float_visibleWidth: null,
+    arr_allItemOffsets: null,
+    arr_slideOffsets: null,
+    int_currentSlideKey: null,
+    bln_leftPossible: null,
+    bln_rightPossible: null,
+    bln_currentlyDragging: null,
+    bln_skipDrag: null,
+    obj_dragData: null,
 
-    arr_allItemOffsets: [],
-    arr_slideOffsets: [],
-
-    int_currentSlideKey: 0,
-
-    bln_leftPossible: true,
-    bln_rightPossible: true,
-
-    obj_dragData: {
-        dragStartPosition:  {
-            x: null
-        },
-        dragOffsetPosition: {
-            x: 0
-        },
-        dragDirection: {
-            x: 'left'
-        }
-    },
-
-    bln_currentlyDragging: false,
-
-    bln_skipDrag: false,
 
 	start: function() {
 	    this.determineGivenElements();
@@ -91,7 +76,7 @@ var obj_classdef = 	{
     },
 
 	initializeSlider: function() {
-	    this.int_currentSlideKey = 0;
+	    this.resetVariables();
 
 		this.storeItemSizeInformation();
 
@@ -116,10 +101,38 @@ var obj_classdef = 	{
 	reinitializeSlider: function() {
 	    this.removeSlidingArea();
 		this.unsetItemsFixedWidth();
-		this.removeAllItemOffsets();
-        this.removeAllSlideOffsets();
 		this.initializeSlider();
 	},
+
+    resetVariables: function() {
+        this.float_requiredSlidingAreaWidth = 0;
+        this.float_requiredSlidingAreaHeight = 0;
+
+        this.float_visibleWidth = 0;
+
+        this.arr_allItemOffsets = [];
+        this.arr_slideOffsets = [];
+
+        this.int_currentSlideKey = 0;
+
+        this.bln_leftPossible = true;
+        this.bln_rightPossible = true;
+
+        this.obj_dragData = {
+            dragStartPosition:  {
+                x: null
+            },
+            dragOffsetPosition: {
+                x: 0
+            },
+            dragDirection: {
+                x: 'left'
+            }
+        };
+
+        this.bln_currentlyDragging = false;
+        this.bln_skipDrag = false;
+    },
 
     insertSlidingArea: function() {
         this.el_slidingArea = new Element('div.sliding-area');
@@ -251,10 +264,6 @@ var obj_classdef = 	{
         );
     },
 
-    removeAllItemOffsets: function() {
-        this.arr_allItemOffsets = [];
-    },
-
     getSlideOffsets: function() {
         Array.each(
             this.els_items,
@@ -283,10 +292,6 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
-    },
-
-    removeAllSlideOffsets: function() {
-        this.arr_slideOffsets = [];
     },
 
     getClosestItemOffset: function() {
