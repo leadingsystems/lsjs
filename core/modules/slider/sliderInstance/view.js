@@ -344,12 +344,12 @@ var obj_classdef = 	{
                 this.dragStart.bind(this)
             );
 
-            this.el_slidingArea.addEvent(
+            this.el_container.addEvent(
                 'touchend',
                 this.dragEnd.bind(this)
             );
 
-            this.el_slidingArea.addEvent(
+            this.el_container.addEvent(
                 'touchmove',
                 this.drag.bind(this)
             );
@@ -359,12 +359,12 @@ var obj_classdef = 	{
                 this.dragStart.bind(this)
             );
 
-            this.el_slidingArea.addEvent(
+            this.el_container.addEvent(
                 'mouseup',
                 this.dragEnd.bind(this)
             );
 
-            this.el_slidingArea.addEvent(
+            this.el_container.addEvent(
                 'mousemove',
                 this.drag.bind(this)
             );
