@@ -19,6 +19,7 @@ var obj_classdef = 	{
     arr_allItemOffsets: null,
     arr_slideOffsets: null,
     int_currentSlideKey: null,
+    bln_currentlyInTheMiddleOfTheSlide: null,
     bln_leftPossible: null,
     bln_rightPossible: null,
     bln_currentlyDragging: null,
@@ -96,6 +97,8 @@ var obj_classdef = 	{
 
         this.determineCurrentSlideKey();
 
+        this.determineMovingPossibilites();
+
         this.dragInitialize();
 	},
 
@@ -116,6 +119,8 @@ var obj_classdef = 	{
         this.arr_slideOffsets = [];
 
         this.int_currentSlideKey = 0;
+
+        this.bln_currentlyInTheMiddleOfTheSlide = false;
 
         this.bln_leftPossible = true;
         this.bln_rightPossible = true;
@@ -265,16 +270,12 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
-
-        console.log(this.arr_allItemOffsets);
     },
 
     getSlideOffsets: function() {
         Array.each(
             this.els_items,
             function(el_item) {
-                console.log(el_item.getProperty('class'));
-
                 /*
                  * Determine the xFrom and xTo coordinates of the last slide. If there was no last slide, both are 0
                  */
@@ -290,9 +291,6 @@ var obj_classdef = 	{
                     float_xTo: this.arr_slideOffsets.length === 0 ? 0 : (this.arr_slideOffsets[this.arr_slideOffsets.length - 1] + this.float_visibleWidth)
                 };
 
-                console.log('last slide coordinates');
-                console.log(obj_lastSlideCoordinates);
-
                 /*
                  * We determine each item's xFrom and xTo coordinate because we need those to find out whether we
                  * need a new slide for this item.
@@ -307,20 +305,14 @@ var obj_classdef = 	{
                     float_xTo: float_itemXFrom + el_item.retrieve('itemSizeInformation').float_widthIncludingMarginLeft
                 };
 
-                console.log('item coordinates');
-                console.log(obj_itemCoordinates);
-
                 /*
                  * Now, we look if the item that we are currently trying to fit into an already existing slide has an
                  * xTo coordinate that is beyond the last slider's xTo coordinate. If that is the the case, we push
                  * another slide to the slides offset array using the item's xFrom coordinate as the slide's offset.
                  */
-                console.log('obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo: ' + (obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo ? 'true' : 'false'));
                 if (obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo) {
                     this.arr_slideOffsets.push(obj_itemCoordinates.float_xFrom);
-                    console.log('ADDING SLIDE');
                 }
-                console.log('=====================');
             }.bind(this)
         );
 
@@ -329,8 +321,6 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
-
-        console.log(this.arr_slideOffsets);
     },
 
     getClosestItemOffset: function() {
@@ -425,9 +415,18 @@ var obj_classdef = 	{
             return;
         }
 
+        if (!this.bln_currentlyDragging) {
+            return;
+        }
+
         this.activateSlidingAreaTransitionAnimation();
 
         this.moveSlidingAreaTo(this.getClosestItemOffset());
+
+
+        this.determineCurrentSlideKey();
+
+        this.determineMovingPossibilites();
 
         this.bln_currentlyDragging = false;
     },
@@ -464,8 +463,6 @@ var obj_classdef = 	{
             'transform',
             'translate3d(' + (this.float_slidingAreaMovingPositionX * -1) + 'px, 0, 0'
         );
-
-        this.determineCurrentSlideKey();
     },
 
     jumpLeft: function() {
@@ -475,7 +472,15 @@ var obj_classdef = 	{
 	        return;
         }
 
-        this.moveSlidingAreaTo(this.arr_slideOffsets[this.int_currentSlideKey === 0 ? this.int_currentSlideKey : (this.int_currentSlideKey - 1)]);
+        /*
+         * We move the sliding area to the current slide minus 1 unless we are currently in the middle of the current
+         * slide in which case we move to the beginning of the current slide.
+         */
+        this.moveSlidingAreaTo(this.arr_slideOffsets[this.int_currentSlideKey === 0 ? this.int_currentSlideKey : (this.int_currentSlideKey - (this.bln_currentlyInTheMiddleOfTheSlide ? 0 : 1))]);
+
+        this.determineCurrentSlideKey();
+
+        this.determineMovingPossibilites();
     },
 
     jumpRight: function() {
@@ -486,9 +491,15 @@ var obj_classdef = 	{
         }
 
         this.moveSlidingAreaTo(this.arr_slideOffsets[(this.int_currentSlideKey + 1)]);
+
+        this.determineCurrentSlideKey();
+
+        this.determineMovingPossibilites();
     },
 
     determineCurrentSlideKey: function() {
+        this.bln_currentlyInTheMiddleOfTheSlide = false;
+
         Array.each(
             this.arr_slideOffsets,
             function(float_slideOffset, int_slideKey) {
@@ -497,11 +508,10 @@ var obj_classdef = 	{
                     && this.float_slidingAreaMovingPositionX < float_slideOffset + this.float_visibleWidth
                 ) {
                     this.int_currentSlideKey = int_slideKey;
+                    this.bln_currentlyInTheMiddleOfTheSlide = this.float_slidingAreaMovingPositionX !== float_slideOffset;
                 }
             }.bind(this)
         );
-
-        this.determineMovingPossibilites();
     },
 
     determineMovingPossibilites: function() {
