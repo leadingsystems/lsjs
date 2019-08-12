@@ -12,9 +12,9 @@ var obj_classdef = {
 		 * create an instance for each element found.
 		 */
 		if (this.__models.options.data.el_domReference !== undefined && typeOf(this.__models.options.data.el_domReference) === 'element') {
-			els_toEnhance = this.__models.options.data.el_domReference.getElements(this.__models.options.data.sliderContainerSelector);
+			els_toEnhance = this.__models.options.data.el_domReference.getElements(this.__models.options.data.str_sliderContainerSelector);
 		} else {
-			els_toEnhance = $$(this.__models.options.data.sliderContainerSelector);
+			els_toEnhance = $$(this.__models.options.data.str_sliderContainerSelector);
 		}
 		
 		Array.each(els_toEnhance, function(el_container) {

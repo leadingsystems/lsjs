@@ -10,7 +10,13 @@ var obj_classdef_model = {
 		 */
 		this.data = {
 			el_domReference: null,
-			sliderContainerSelector: '.lsSlider',
+
+			str_sliderContainerSelector: '.lsSlider',
+
+			/*
+			 * If the last slide doesn't have enough content to fill the slider's visible area, only slide to the point where the whole visible area is still filled
+			 */
+			bln_lastSlideFilled: true
 		};
 	},
 	

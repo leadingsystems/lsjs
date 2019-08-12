@@ -1,5 +1,5 @@
 (function() {
-	
+
 // ### ENTER MODULE NAME HERE ######
 var str_moduleName = '__moduleName__';
 // #################################
@@ -78,6 +78,10 @@ var obj_classdef = 	{
     },
 
     addNavigationDots: function() {
+	    if (this.arr_slideOffsets.length <= 1) {
+	        return;
+        }
+
 	    this.el_navigationDotsContainer = new Element('div.navigation-dots-container');
 
         Array.each(
@@ -104,6 +108,10 @@ var obj_classdef = 	{
     },
 
     removeNavigationDots: function() {
+        if (this.arr_slideOffsets.length <= 1) {
+            return;
+        }
+
         this.el_navigationDotsContainer.destroy();
     },
 
@@ -213,12 +221,15 @@ var obj_classdef = 	{
                         this.store(
                         	'itemSizeInformation',
 							{
-							    float_marginLeft: obj_computedSize['margin-left'],
+                                float_marginLeft: obj_computedSize['margin-left'],
+                                float_marginRight: obj_computedSize['margin-right'],
+                                float_paddingLeft: obj_computedSize['padding-left'],
+                                float_paddingRight: obj_computedSize['padding-right'],
                                 float_widthIncludingMarginLeft: this.offsetWidth + obj_computedSize['margin-left'],
                                 float_completeWidthIncludingMargins: this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
-								float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
-								float_originalWidth: this.getComputedSize().width
-							}
+                                float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
+                                float_originalWidth: this.getComputedSize().width
+                            }
 						);
                     }
                 );
@@ -232,7 +243,13 @@ var obj_classdef = 	{
 			function(el_item) {
 				el_item.measure(
 					function() {
-						this.setStyle('width', this.retrieve('itemSizeInformation').float_originalWidth);
+                        this.setStyles({
+                            'width': this.retrieve('itemSizeInformation').float_originalWidth,
+                            'margin-left': this.retrieve('itemSizeInformation').float_marginLeft,
+                            'margin-right': this.retrieve('itemSizeInformation').float_marginRight,
+                            'padding-left': this.retrieve('itemSizeInformation').float_paddingLeft,
+                            'padding-right': this.retrieve('itemSizeInformation').float_paddingRight
+                        });
                     }
 				);
 			}
@@ -247,7 +264,7 @@ var obj_classdef = 	{
             }
         );
 	},
-	
+
 	setSlidingAreaSize: function() {
 		this.el_slidingArea.setStyles({
 			'width': this.float_requiredSlidingAreaWidth + 'px',
@@ -323,7 +340,7 @@ var obj_classdef = 	{
                     float_xFrom: this.arr_slideOffsets.length === 0 ? 0 : this.arr_slideOffsets[this.arr_slideOffsets.length - 1],
 
                     /*
-                     * float_xTo is 0 if there was no last slide or the last slide's offset plus the sliders visible width
+                     * float_xTo is 0 if there was no last slide or the last slide's offset plus the slider's visible width
                      */
                     float_xTo: this.arr_slideOffsets.length === 0 ? 0 : (this.arr_slideOffsets[this.arr_slideOffsets.length - 1] + this.float_visibleWidth)
                 };
@@ -352,6 +369,17 @@ var obj_classdef = 	{
                 }
             }.bind(this)
         );
+
+        /*
+         * If the last slide is not as wide as the slider's visible width, we move it's offset further left to
+         * make it this wide.
+         */
+        if (this.__module.__parentModule.__models.options.data.bln_lastSlideFilled) {
+            if (this.float_requiredSlidingAreaWidth - this.arr_slideOffsets[this.arr_slideOffsets.length - 1] < this.float_visibleWidth) {
+                this.arr_slideOffsets[this.arr_slideOffsets.length - 1] = this.float_requiredSlidingAreaWidth - this.float_visibleWidth;
+            }
+        }
+
 
         this.arr_slideOffsets.sort(
             function(a, b) {
@@ -438,7 +466,7 @@ var obj_classdef = 	{
 	    if (this.bln_skipDrag) {
 	        return;
         }
-        
+
 	    this.bln_currentlyDragging = true;
 
         this.obj_dragData.dragStartPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - this.obj_dragData.dragOffsetPosition.x;
@@ -550,8 +578,10 @@ var obj_classdef = 	{
             }.bind(this)
         );
 
-        this.els_navigationDots.removeClass('active');
-        this.els_navigationDots[this.int_currentSlideKey].addClass('active');
+        if (this.els_navigationDots.length) {
+            this.els_navigationDots.removeClass('active');
+            this.els_navigationDots[this.int_currentSlideKey].addClass('active');
+        }
     },
 
     determineMovingPossibilites: function() {
