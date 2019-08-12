@@ -10,6 +10,8 @@ var obj_classdef = 	{
 	el_slidingArea: null,
     el_navigationArrowLeft: null,
     el_navigationArrowRight: null,
+    el_navigationDotsContainer: null,
+    els_navigationDots: null,
 
 
 	float_slidingAreaMovingPositionX: null,
@@ -75,7 +77,37 @@ var obj_classdef = 	{
         );
     },
 
-	initializeSlider: function() {
+    addNavigationDots: function() {
+	    this.el_navigationDotsContainer = new Element('div.navigation-dots-container');
+
+        Array.each(
+            this.arr_slideOffsets,
+            function(float_slideOffset, int_slideKey) {
+                this.els_navigationDots.push(new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey));
+            }.bind(this)
+        );
+
+        this.el_container.adopt(
+            this.el_navigationDotsContainer.adopt(
+                this.els_navigationDots
+            )
+        );
+
+        this.els_navigationDots.addEvent(
+            'click',
+            function(event) {
+                this.moveSlidingAreaTo(this.arr_slideOffsets[event.target.getProperty('data-misc-slide')]);
+                this.determineCurrentSlideKey();
+                this.determineMovingPossibilites();
+            }.bind(this)
+        );
+    },
+
+    removeNavigationDots: function() {
+        this.el_navigationDotsContainer.destroy();
+    },
+
+    initializeSlider: function() {
 	    this.resetVariables();
 
 		this.storeItemSizeInformation();
@@ -95,6 +127,8 @@ var obj_classdef = 	{
 
         this.getSlideOffsets();
 
+        this.addNavigationDots();
+
         this.determineCurrentSlideKey();
 
         this.determineMovingPossibilites();
@@ -104,6 +138,7 @@ var obj_classdef = 	{
 
 	reinitializeSlider: function() {
 	    this.removeSlidingArea();
+	    this.removeNavigationDots();
 		this.unsetItemsFixedWidth();
 		this.initializeSlider();
 	},
@@ -117,6 +152,8 @@ var obj_classdef = 	{
 
         this.arr_allItemOffsets = [];
         this.arr_slideOffsets = [];
+
+        this.els_navigationDots = new Elements();
 
         this.int_currentSlideKey = 0;
 
@@ -512,6 +549,9 @@ var obj_classdef = 	{
                 }
             }.bind(this)
         );
+
+        this.els_navigationDots.removeClass('active');
+        this.els_navigationDots[this.int_currentSlideKey].addClass('active');
     },
 
     determineMovingPossibilites: function() {

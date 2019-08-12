@@ -1,5 +1,8 @@
 .lsjs-slider {
-  cursor: ew-resize;
+
+  .sliding-area {
+    cursor: ew-resize;
+  }
 
   .navigation-arrow-container {
     position: absolute;
@@ -63,6 +66,39 @@
     .right {
       .arrow {
         display: none;
+      }
+    }
+  }
+
+  .navigation-dots-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 2;
+
+    .navigation-dot {
+      display: inline-block;
+      margin-left: 1rem;
+      margin-right: 1rem;
+      cursor: pointer;
+
+      color: @ls-color-white;
+      text-shadow: 0 0 .2rem @ls-color-black;
+
+      &.active {
+        &::after {
+          font-size: 2rem;
+        }
+      }
+
+      &::after {
+        .fa-icon;
+        .fas;
+        content: @fa-var-circle;
+        font-size: 1rem;
+        vertical-align: middle;
       }
     }
   }
