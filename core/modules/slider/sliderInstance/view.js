@@ -33,8 +33,6 @@ var obj_classdef = 	{
 
 		this.initializeSlider();
 
-		this.dragInitialize();
-
         window.addEvent(
         	'resize',
 			this.reinitializeSlider.bind(this)
@@ -97,6 +95,8 @@ var obj_classdef = 	{
         this.getSlideOffsets();
 
         this.determineCurrentSlideKey();
+
+        this.dragInitialize();
 	},
 
 	reinitializeSlider: function() {
@@ -339,32 +339,32 @@ var obj_classdef = 	{
 
     dragInitialize: function() {
 	    if (this.check_isTouchDevice()) {
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'touchstart',
                 this.dragStart.bind(this)
             );
 
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'touchend',
                 this.dragEnd.bind(this)
             );
 
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'touchmove',
                 this.drag.bind(this)
             );
         } else {
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'mousedown',
                 this.dragStart.bind(this)
             );
 
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'mouseup',
                 this.dragEnd.bind(this)
             );
 
-            this.el_container.addEvent(
+            this.el_slidingArea.addEvent(
                 'mousemove',
                 this.drag.bind(this)
             );
