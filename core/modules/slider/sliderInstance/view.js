@@ -265,28 +265,62 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
+
+        console.log(this.arr_allItemOffsets);
     },
 
     getSlideOffsets: function() {
         Array.each(
             this.els_items,
             function(el_item) {
-                var int_numCurrentSlide = this.arr_slideOffsets.length;
-                var obj_currenSlideCoordinates = {
-                    float_xFrom: int_numCurrentSlide * this.float_visibleWidth,
-                    float_xTo: int_numCurrentSlide * this.float_visibleWidth + this.float_visibleWidth
+                console.log(el_item.getProperty('class'));
+
+                /*
+                 * Determine the xFrom and xTo coordinates of the last slide. If there was no last slide, both are 0
+                 */
+                var obj_lastSlideCoordinates = {
+                    /*
+                     * float_xFrom is 0 if there was no last slide or the last slide's offset
+                     */
+                    float_xFrom: this.arr_slideOffsets.length === 0 ? 0 : this.arr_slideOffsets[this.arr_slideOffsets.length - 1],
+
+                    /*
+                     * float_xTo is 0 if there was no last slide or the last slide's offset plus the sliders visible width
+                     */
+                    float_xTo: this.arr_slideOffsets.length === 0 ? 0 : (this.arr_slideOffsets[this.arr_slideOffsets.length - 1] + this.float_visibleWidth)
                 };
 
-                var float_itemOffset = el_item.offsetLeft - el_item.retrieve('itemSizeInformation').float_marginLeft;
+                console.log('last slide coordinates');
+                console.log(obj_lastSlideCoordinates);
+
+                /*
+                 * We determine each item's xFrom and xTo coordinate because we need those to find out whether we
+                 * need a new slide for this item.
+                 *
+                 * An item's xFrom coordinate is the item's actual offsetLeft minus it's marginLeft.
+                 * An item's xTo coordinate is the item's xFrom coordinate plus it's left margin and it's width
+                 */
+                var float_itemXFrom = el_item.offsetLeft - el_item.retrieve('itemSizeInformation').float_marginLeft;
 
                 var obj_itemCoordinates = {
-                    float_xFrom: float_itemOffset,
-                    float_xTo: float_itemOffset + el_item.retrieve('itemSizeInformation').float_widthIncludingMarginLeft
-                }
+                    float_xFrom: float_itemXFrom,
+                    float_xTo: float_itemXFrom + el_item.retrieve('itemSizeInformation').float_widthIncludingMarginLeft
+                };
 
-                if (obj_itemCoordinates.float_xTo > obj_currenSlideCoordinates.float_xFrom) {
-                    this.arr_slideOffsets.push(float_itemOffset);
+                console.log('item coordinates');
+                console.log(obj_itemCoordinates);
+
+                /*
+                 * Now, we look if the item that we are currently trying to fit into an already existing slide has an
+                 * xTo coordinate that is beyond the last slider's xTo coordinate. If that is the the case, we push
+                 * another slide to the slides offset array using the item's xFrom coordinate as the slide's offset.
+                 */
+                console.log('obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo: ' + (obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo ? 'true' : 'false'));
+                if (obj_itemCoordinates.float_xTo > obj_lastSlideCoordinates.float_xTo) {
+                    this.arr_slideOffsets.push(obj_itemCoordinates.float_xFrom);
+                    console.log('ADDING SLIDE');
                 }
+                console.log('=====================');
             }.bind(this)
         );
 
@@ -295,6 +329,8 @@ var obj_classdef = 	{
                 return a - b;
             }
         );
+
+        console.log(this.arr_slideOffsets);
     },
 
     getClosestItemOffset: function() {
