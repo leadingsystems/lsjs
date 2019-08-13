@@ -594,20 +594,24 @@ var obj_classdef = 	{
                 this.drag.bind(this)
             );
         } else {
-            this.el_slidingArea.addEvent(
-                'mousedown',
-                this.dragStart.bind(this)
-            );
+	        if (this.__module.__parentModule.__models.options.data.bln_mouseDragOnNonTouchDeviceActive) {
+	            this.el_container.addClass('mouse-drag-active');
 
-            this.el_container.addEvent(
-                'mouseup',
-                this.dragEnd.bind(this)
-            );
+                this.el_slidingArea.addEvent(
+                    'mousedown',
+                    this.dragStart.bind(this)
+                );
 
-            this.el_container.addEvent(
-                'mousemove',
-                this.drag.bind(this)
-            );
+                this.el_container.addEvent(
+                    'mouseup',
+                    this.dragEnd.bind(this)
+                );
+
+                this.el_container.addEvent(
+                    'mousemove',
+                    this.drag.bind(this)
+                );
+            }
         }
     },
 
@@ -672,6 +676,7 @@ var obj_classdef = 	{
         this.determineMovingPossibilites();
 
         this.bln_currentlyDragging = false;
+        this.el_container.removeClass('dragging');
     },
 
     drag: function(event) {
@@ -695,6 +700,7 @@ var obj_classdef = 	{
              */
             if (float_horizontalDragDistance > float_verticalDragDistance) {
                 this.bln_currentlyDragging = true;
+                this.el_container.addClass('dragging');
                 this.obj_dragData.dragStartPosition.x = this.obj_dragData.firstPointerPosition.x - this.obj_dragData.dragOffsetPosition.x;
 
                 this.deactivateSlidingAreaTransitionAnimation();

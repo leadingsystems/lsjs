@@ -18,6 +18,12 @@ var obj_classdef_model = {
 			 */
 			bln_lastSlideFilled: true,
 
+
+			/*
+			 * True if the slider's dragging functionality should be active on non-touch devices
+			 */
+			bln_mouseDragOnNonTouchDeviceActive: true,
+
 			/*
 			 * This value defines how far the user has to drag a slide in order to actually move to the next slide.
 			 * Decimal values between 0 and 1 are interpreted as a factor multiplied with the visible slider width

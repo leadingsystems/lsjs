@@ -1,7 +1,15 @@
 .lsjs-slider {
 
-  .sliding-area {
-    cursor: ew-resize;
+  &.mouse-drag-active {
+    .sliding-area {
+      cursor: grab;
+    }
+
+    &.dragging {
+      .sliding-area {
+        cursor: grabbing;
+      }
+    }
   }
 
   .navigation-arrow-container {
