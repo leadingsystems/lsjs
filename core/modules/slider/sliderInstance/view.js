@@ -423,7 +423,6 @@ var obj_classdef = 	{
 	setSlidingAreaSize: function() {
 		this.el_slidingArea.setStyles({
 			'width': this.float_requiredSlidingAreaWidth + 'px',
-			'height': this.float_requiredSlidingAreaHeight + 'px',
             'position': 'relative'
 		})
 	},

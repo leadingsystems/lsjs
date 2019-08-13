@@ -1,4 +1,11 @@
 .lsjs-slider {
+  .sliding-area {
+    &::after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  }
 
   &.mouse-drag-active {
     .sliding-area {
