@@ -14,6 +14,7 @@ var obj_classdef = 	{
     els_navigationDots: null,
 
 
+    float_windowWidth: null,
 	float_slidingAreaMovingPositionX: null,
 	float_requiredSlidingAreaWidth: null,
     float_requiredSlidingAreaHeight: null,
@@ -24,6 +25,7 @@ var obj_classdef = 	{
     bln_currentlyInTheMiddleOfTheSlide: null,
     bln_leftPossible: null,
     bln_rightPossible: null,
+    bln_dragStartRequested: null,
     bln_currentlyDragging: null,
     bln_skipDrag: null,
     obj_dragData: null,
@@ -145,6 +147,13 @@ var obj_classdef = 	{
 	},
 
 	reinitializeSlider: function() {
+        /*
+         * Only reinitialize the slider if the window's width changed. Changes in height are irrelevant.
+         */
+	    if (this.float_windowWidth === window.innerWidth) {
+	        return;
+        }
+
 	    this.removeSlidingArea();
 	    this.removeNavigationDots();
 		this.unsetItemsFixedWidth();
@@ -152,6 +161,8 @@ var obj_classdef = 	{
 	},
 
     resetVariables: function() {
+	    this.float_windowWidth = window.innerWidth;
+
         this.float_slidingAreaMovingPositionX = 0;
         this.float_requiredSlidingAreaWidth = 0;
         this.float_requiredSlidingAreaHeight = 0;
@@ -171,6 +182,10 @@ var obj_classdef = 	{
         this.bln_rightPossible = true;
 
         this.obj_dragData = {
+            firstPointerPosition: {
+                x: null,
+                y: null
+            },
             dragStartPosition:  {
                 x: null
             },
@@ -183,6 +198,7 @@ var obj_classdef = 	{
             bln_dragged: false
         };
 
+        this.bln_dragStartRequested = false;
         this.bln_currentlyDragging = false;
         this.bln_skipDrag = false;
     },
@@ -467,11 +483,10 @@ var obj_classdef = 	{
 	        return;
         }
 
-	    this.bln_currentlyDragging = true;
+        this.bln_dragStartRequested = true;
 
-        this.obj_dragData.dragStartPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX) - this.obj_dragData.dragOffsetPosition.x;
-
-        this.deactivateSlidingAreaTransitionAnimation();
+        this.obj_dragData.firstPointerPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX);
+        this.obj_dragData.firstPointerPosition.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY);
     },
 
     dragEnd: function(event) {
@@ -497,13 +512,42 @@ var obj_classdef = 	{
     },
 
     drag: function(event) {
+	    /*
+	     * Check if the pointer was moved more horizontal than vertical and only then start actually dragging
+	     */
+        if (this.bln_dragStartRequested) {
+            var float_verticalDragDistance = this.obj_dragData.firstPointerPosition.y - (event.type === 'touchmove' ? event.event.touches[0].clientY : event.event.clientY);
+            var float_horizontalDragDistance = this.obj_dragData.firstPointerPosition.x - (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX);
+
+            if (float_verticalDragDistance < 0) {
+                float_verticalDragDistance = float_verticalDragDistance * -1;
+            }
+
+            if (float_horizontalDragDistance < 0) {
+                float_horizontalDragDistance = float_horizontalDragDistance * -1;
+            }
+
+            /*
+             * The pointer went sideways, so we actually start dragging
+             */
+            if (float_horizontalDragDistance > float_verticalDragDistance) {
+                this.bln_currentlyDragging = true;
+                this.obj_dragData.dragStartPosition.x = this.obj_dragData.firstPointerPosition.x - this.obj_dragData.dragOffsetPosition.x;
+
+                this.deactivateSlidingAreaTransitionAnimation();
+
+            }
+
+            this.bln_dragStartRequested = false;
+        }
+
         if (!this.bln_currentlyDragging) {
             return;
         }
 
-        this.obj_dragData.bln_dragged = true;
-
         event.preventDefault();
+
+        this.obj_dragData.bln_dragged = true;
 
         var float_oldDragOffsetPositionX = this.obj_dragData.dragOffsetPosition.x;
 
