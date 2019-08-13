@@ -49,7 +49,18 @@ var obj_classdef_model = {
             /*
              * True if autoplay should pause when the pointer hovers the slider
              */
-            bln_autoplayPauseOnHover: true
+            bln_autoplayPauseOnHover: true,
+
+			/*
+			 * True if the dot navigation should be used
+			 */
+			bln_dotNavigationActive: true,
+
+			/*
+			 * Maximum number of slides that the dot navigation should be used for. If the slider has more slides,
+			 * the dot navigation will not be used
+			 */
+			int_dotNavigationMaxNumberOfSlides: 10
 		};
 	},
 	

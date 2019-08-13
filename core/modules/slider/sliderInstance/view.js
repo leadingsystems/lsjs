@@ -85,7 +85,11 @@ var obj_classdef = 	{
     },
 
     addNavigationDots: function() {
-	    if (this.arr_slideOffsets.length <= 1) {
+	    if (
+            !this.__module.__parentModule.__models.options.data.bln_dotNavigationActive
+	        || this.arr_slideOffsets.length <= 1
+	        || this.arr_slideOffsets.length > this.__module.__parentModule.__models.options.data.int_dotNavigationMaxNumberOfSlides
+        ) {
 	        return;
         }
 
@@ -120,7 +124,7 @@ var obj_classdef = 	{
     },
 
     removeNavigationDots: function() {
-        if (this.arr_slideOffsets.length <= 1) {
+        if (typeOf(this.el_navigationDotsContainer) !== 'element') {
             return;
         }
 
