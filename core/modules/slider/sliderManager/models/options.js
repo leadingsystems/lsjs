@@ -16,7 +16,14 @@ var obj_classdef_model = {
 			/*
 			 * If the last slide doesn't have enough content to fill the slider's visible area, only slide to the point where the whole visible area is still filled
 			 */
-			bln_lastSlideFilled: true
+			bln_lastSlideFilled: true,
+
+			/*
+			 * This value defines how far the user has to drag a slide in order to actually move to the next slide.
+			 * Decimal values between 0 and 1 are interpreted as a factor multiplied with the visible slider width
+			 * whereas any number greater than 1 is interpreted as an absolute pixel value
+			 */
+			float_minDragToSlide: 0.15
 		};
 	},
 	

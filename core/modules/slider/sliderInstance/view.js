@@ -195,6 +195,8 @@ var obj_classdef = 	{
             dragDirection: {
                 x: 'left'
             },
+            float_slidingAreaMovingPositionXBeforeDrag: 0,
+            float_horizontalDragDistance: 0,
             bln_dragged: false
         };
 
@@ -487,6 +489,9 @@ var obj_classdef = 	{
 
         this.obj_dragData.firstPointerPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX);
         this.obj_dragData.firstPointerPosition.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY);
+
+        this.obj_dragData.float_slidingAreaMovingPositionXBeforeDrag = this.float_slidingAreaMovingPositionX;
+        this.obj_dragData.float_horizontalDragDistance = 0;
     },
 
     dragEnd: function(event) {
@@ -503,7 +508,17 @@ var obj_classdef = 	{
 
         this.activateSlidingAreaTransitionAnimation();
 
-        this.moveSlidingAreaTo(this.getClosestItemOffset());
+        /*
+         * Move the sliding area either to the closest item offset or to the previous offset if the drag
+         * was too small
+         */
+        if (this.obj_dragData.float_horizontalDragDistance < 0) {
+            this.obj_dragData.float_horizontalDragDistance = this.obj_dragData.float_horizontalDragDistance * -1;
+        }
+        var float_newSlidingAreaOffset = this.obj_dragData.float_horizontalDragDistance > (this.__module.__parentModule.__models.options.data.float_minDragToSlide < 1 ? (this.float_visibleWidth * this.__module.__parentModule.__models.options.data.float_minDragToSlide) : this.__module.__parentModule.__models.options.data.float_minDragToSlide) ? this.getClosestItemOffset() : this.obj_dragData.float_slidingAreaMovingPositionXBeforeDrag;
+
+
+        this.moveSlidingAreaTo(float_newSlidingAreaOffset);
 
 
         this.determineCurrentSlideKey();
@@ -562,6 +577,8 @@ var obj_classdef = 	{
         if (float_oldDragOffsetPositionX > this.obj_dragData.dragOffsetPosition.x) {
             this.obj_dragData.dragDirection.x = 'left';
         }
+
+        this.obj_dragData.float_horizontalDragDistance = this.obj_dragData.firstPointerPosition.x - (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX);
 
         this.moveSlidingAreaTo(this.obj_dragData.dragOffsetPosition.x * -1);
     },
