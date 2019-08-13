@@ -13,6 +13,8 @@ var obj_classdef = 	{
     el_navigationDotsContainer: null,
     els_navigationDots: null,
 
+    bln_pointerInside: false,
+
     int_autoplayIntervalCallbackId: null,
 
 
@@ -46,7 +48,6 @@ var obj_classdef = 	{
         	'resize',
 			this.reinitializeSlider.bind(this)
 		);
-
 	},
 
     determineGivenElements: function() {
@@ -127,6 +128,20 @@ var obj_classdef = 	{
     },
 
     initializeOnce: function() {
+	    this.el_container.addEvent(
+	        'mouseenter',
+            function() {
+                this.bln_pointerInside = true;
+            }.bind(this)
+        );
+
+	    this.el_container.addEvent(
+	        'mouseleave',
+            function() {
+                this.bln_pointerInside = false;
+            }.bind(this)
+        );
+
 	    if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
 	        this.el_container.addClass('autoplay-active');
 
@@ -175,7 +190,13 @@ var obj_classdef = 	{
         this.dragInitialize();
 
         if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
-            if (this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+            if (
+                this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly
+                && (
+                    !this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover
+                    || !this.bln_pointerInside
+                )
+            ) {
                 this.startAutoplay();
             } else {
                 this.stopAutoplay();
@@ -244,7 +265,13 @@ var obj_classdef = 	{
         if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
             this.stopAutoplay();
 
-            if (this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+            if (
+                this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly
+                && (
+                    !this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover
+                    || !this.bln_pointerInside
+                )
+            ) {
                 this.startAutoplay();
             }
         }
@@ -599,7 +626,14 @@ var obj_classdef = 	{
     },
 
     dragEnd: function(event) {
-        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive && this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+        if (
+            this.__module.__parentModule.__models.options.data.bln_autoplayActive
+            && this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly
+            && (
+                !this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover
+                || !this.bln_pointerInside
+            )
+        ) {
             this.startAutoplay();
         }
 
