@@ -52,11 +52,7 @@ var obj_classdef = 	{
 
     determineGivenElements: function() {
         this.el_container = this.__el_container;
-        this.el_container.setStyle('overflow', 'hidden');
         this.el_container.addClass('lsjs-slider');
-        if (this.el_container.getStyle('position') === 'static') {
-            this.el_container.setStyle('position', 'relative');
-        }
         this.els_items = this.el_container.getElements('> *');
     },
 
@@ -166,7 +162,7 @@ var obj_classdef = 	{
     },
 
     initializeSlider: function() {
-	    this.resetVariables();
+        this.resetVariables();
 
 		this.storeItemSizeInformation();
 
@@ -175,6 +171,7 @@ var obj_classdef = 	{
          * (i.e. before inserting the sliding area element that the web designer doesn't know anything about)
          * we have to set the calculated width as a fixed width and we have to do it before we insert the sliding area.
          */
+        this.setContainerToFixedWidth();
         this.setItemsToFixedWidth();
 
         this.insertSlidingArea();
@@ -223,6 +220,7 @@ var obj_classdef = 	{
 	    this.removeSlidingArea();
 	    this.removeNavigationDots();
 		this.unsetItemsFixedWidth();
+		this.unsetContainerFixedWidth();
 		this.initializeSlider();
 	},
 
@@ -364,7 +362,7 @@ var obj_classdef = 	{
                 el_item.measure(
                     function() {
                         var obj_computedSize = this.getComputedSize({
-                            styles: ['margin']
+                            styles: ['margin', 'padding']
                         });
 
                         this.store(
@@ -377,7 +375,7 @@ var obj_classdef = 	{
                                 float_widthIncludingMarginLeft: this.offsetWidth + obj_computedSize['margin-left'],
                                 float_completeWidthIncludingMargins: this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
                                 float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
-                                float_originalWidth: this.getComputedSize().width
+                                float_originalWidth: obj_computedSize['width']
                             }
 						);
                     }
@@ -386,21 +384,29 @@ var obj_classdef = 	{
         );
 	},
 
-	setItemsToFixedWidth: function() {
+    setContainerToFixedWidth: function() {
+        this.el_container.setStyles({
+            'overflow': 'hidden',
+            'width': this.el_container.getComputedSize().width,
+            'position': this.el_container.getStyle('position') === 'static' ? 'relative' : this.el_container.getStyle('position'),
+        });
+    },
+
+    unsetContainerFixedWidth: function() {
+	    this.el_container.removeProperty('style');
+    },
+
+    setItemsToFixedWidth: function() {
 		Array.each(
 			this.els_items,
 			function(el_item) {
-				el_item.measure(
-					function() {
-                        this.setStyles({
-                            'width': this.retrieve('itemSizeInformation').float_originalWidth,
-                            'margin-left': this.retrieve('itemSizeInformation').float_marginLeft,
-                            'margin-right': this.retrieve('itemSizeInformation').float_marginRight,
-                            'padding-left': this.retrieve('itemSizeInformation').float_paddingLeft,
-                            'padding-right': this.retrieve('itemSizeInformation').float_paddingRight
-                        });
-                    }
-				);
+				el_item.setStyles({
+                    'width': el_item.retrieve('itemSizeInformation').float_originalWidth,
+                    'margin-left': el_item.retrieve('itemSizeInformation').float_marginLeft,
+                    'margin-right': el_item.retrieve('itemSizeInformation').float_marginRight,
+                    'padding-left': el_item.retrieve('itemSizeInformation').float_paddingLeft,
+                    'padding-right': el_item.retrieve('itemSizeInformation').float_paddingRight
+                });
 			}
 		);
 	},
