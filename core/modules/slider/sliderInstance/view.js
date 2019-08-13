@@ -13,6 +13,8 @@ var obj_classdef = 	{
     el_navigationDotsContainer: null,
     els_navigationDots: null,
 
+    int_autoplayIntervalCallbackId: null,
+
 
     float_windowWidth: null,
 	float_slidingAreaMovingPositionX: null,
@@ -35,6 +37,8 @@ var obj_classdef = 	{
 	    this.determineGivenElements();
 
 	    this.addNavigationArrows();
+
+	    this.initializeOnce();
 
 		this.initializeSlider();
 
@@ -117,6 +121,20 @@ var obj_classdef = 	{
         this.el_navigationDotsContainer.destroy();
     },
 
+    initializeOnce: function() {
+	    if (this.__module.__parentModule.__models.options.data.bln_autoplayActive && this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover) {
+            this.el_container.addEvent(
+                'mouseover',
+                this.stopAutoplay.bind(this)
+            );
+
+            this.el_container.addEvent(
+                'mouseleave',
+                this.startAutoplay.bind(this)
+            );
+        }
+    },
+
     initializeSlider: function() {
 	    this.resetVariables();
 
@@ -144,6 +162,10 @@ var obj_classdef = 	{
         this.determineMovingPossibilites();
 
         this.dragInitialize();
+
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.startAutoplay();
+        }
 	},
 
 	reinitializeSlider: function() {
@@ -154,11 +176,41 @@ var obj_classdef = 	{
 	        return;
         }
 
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.stopAutoplay();
+        }
+
 	    this.removeSlidingArea();
 	    this.removeNavigationDots();
 		this.unsetItemsFixedWidth();
 		this.initializeSlider();
 	},
+
+    startAutoplay: function() {
+        this.int_autoplayIntervalCallbackId = window.setInterval(
+            this.autoplayMoveToNextSlide.bind(this),
+            this.__module.__parentModule.__models.options.data.int_autoplayInterval
+        );
+    },
+
+    stopAutoplay: function() {
+	    if (!this.int_autoplayIntervalCallbackId) {
+	        return;
+        }
+
+        window.clearInterval(this.int_autoplayIntervalCallbackId);
+        this.int_autoplayIntervalCallbackId = null;
+    },
+
+    autoplayMoveToNextSlide: function() {
+	    var int_keyOfSlideToMoveTo = 0;
+	    if (this.int_currentSlideKey < this.arr_slideOffsets.length - 1) {
+	        int_keyOfSlideToMoveTo = this.int_currentSlideKey + 1;
+        }
+        this.moveSlidingAreaTo(this.arr_slideOffsets[int_keyOfSlideToMoveTo]);
+        this.determineCurrentSlideKey();
+        this.determineMovingPossibilites();
+    },
 
     resetVariables: function() {
 	    this.float_windowWidth = window.innerWidth;
@@ -292,7 +344,7 @@ var obj_classdef = 	{
 	},
 
     activateSlidingAreaTransitionAnimation: function() {
-        this.el_slidingArea.setStyle('transition', 'all 0.25s ease 0s');
+        this.el_slidingArea.setStyle('transition', 'all ' + this.__module.__parentModule.__models.options.data.float_slidingAnimationDuration + 's ease 0s');
     },
 
     deactivateSlidingAreaTransitionAnimation: function() {
@@ -481,6 +533,10 @@ var obj_classdef = 	{
     },
 
     dragStart: function(event) {
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.stopAutoplay();
+        }
+
 	    if (this.bln_skipDrag) {
 	        return;
         }
@@ -495,6 +551,10 @@ var obj_classdef = 	{
     },
 
     dragEnd: function(event) {
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.startAutoplay();
+        }
+
         this.bln_dragStartRequested = false;
 
         if (this.bln_skipDrag || !this.obj_dragData.bln_dragged) {

@@ -23,7 +23,28 @@ var obj_classdef_model = {
 			 * Decimal values between 0 and 1 are interpreted as a factor multiplied with the visible slider width
 			 * whereas any number greater than 1 is interpreted as an absolute pixel value
 			 */
-			float_minDragToSlide: 0.15
+			float_minDragToSlide: 0.1,
+
+            /*
+             * This value defines how many seconds the sliding animation (i.e. moving from one slide to another) takes.
+             * Decimal values are allowed.
+             */
+            float_slidingAnimationDuration: 0.4,
+
+            /*
+             * True if the autoplay functionality should be used
+             */
+            bln_autoplayActive: true,
+
+            /*
+             * The time in milliseconds between to slides in autoplay mode
+             */
+            int_autoplayInterval: 5000,
+
+            /*
+             * True if autoplay should pause when the pointer hovers the slider
+             */
+            bln_autoplayPauseOnHover: true
 		};
 	},
 	
