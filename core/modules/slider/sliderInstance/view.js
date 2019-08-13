@@ -490,6 +490,8 @@ var obj_classdef = 	{
     },
 
     dragEnd: function(event) {
+        this.bln_dragStartRequested = false;
+
         if (this.bln_skipDrag || !this.obj_dragData.bln_dragged) {
             this.bln_skipDrag = false;
             return;
