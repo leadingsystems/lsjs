@@ -79,15 +79,20 @@
     z-index: 2;
 
     .navigation-dot {
+      position: relative;
       display: inline-block;
       margin-left: 1rem;
       margin-right: 1rem;
       cursor: pointer;
-
-      color: @ls-color-white;
-      text-shadow: 0 0 .2rem @ls-color-black;
+      height: 1rem;
+      width: 1rem;
+      font-size: 1rem;
+      vertical-align: middle;
 
       &.active {
+        width: 2rem;
+        height: 2rem;
+
         &::after {
           font-size: 2rem;
         }
@@ -97,8 +102,48 @@
         .fa-icon;
         .fas;
         content: @fa-var-circle;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
         font-size: 1rem;
-        vertical-align: middle;
+        color: @ls-color-white;
+        text-shadow: 0 0 .2rem @ls-color-black;
+      }
+    }
+  }
+
+  &.autoplay-active {
+    .navigation-dot {
+      &.active {
+        &::before {
+          .fa-icon;
+          .fas;
+          content: @fa-var-pause;
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          text-align: center;
+          padding-top: .5rem;
+          padding-left: 0;
+          z-index: 1;
+          font-size: 1rem;
+          color: @ls-color-black;
+        }
+      }
+    }
+
+    &.paused {
+      .navigation-dot {
+        &.active {
+          &::before {
+            content: @fa-var-play;
+            padding-left: .2rem;
+          }
+        }
       }
     }
   }

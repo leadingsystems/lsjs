@@ -37,9 +37,14 @@ var obj_classdef_model = {
             bln_autoplayActive: true,
 
             /*
+             * True if autoplay should start playing, false if it should started paused
+             */
+            bln_autoplayStartInstantly: false,
+
+            /*
              * The time in milliseconds between to slides in autoplay mode
              */
-            int_autoplayInterval: 5000,
+            int_autoplayInterval: 4000,
 
             /*
              * True if autoplay should pause when the pointer hovers the slider

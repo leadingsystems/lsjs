@@ -106,6 +106,11 @@ var obj_classdef = 	{
         this.els_navigationDots.addEvent(
             'click',
             function(event) {
+                if (this.__module.__parentModule.__models.options.data.bln_autoplayActive && event.target.getProperty('data-misc-slide') == this.int_currentSlideKey) {
+                    this.toggleAutoplay();
+                    return;
+                }
+
                 this.moveSlidingAreaTo(this.arr_slideOffsets[event.target.getProperty('data-misc-slide')]);
                 this.determineCurrentSlideKey();
                 this.determineMovingPossibilites();
@@ -122,16 +127,22 @@ var obj_classdef = 	{
     },
 
     initializeOnce: function() {
-	    if (this.__module.__parentModule.__models.options.data.bln_autoplayActive && this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover) {
-            this.el_container.addEvent(
-                'mouseover',
-                this.stopAutoplay.bind(this)
-            );
+	    if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+	        this.el_container.addClass('autoplay-active');
 
-            this.el_container.addEvent(
-                'mouseleave',
-                this.startAutoplay.bind(this)
-            );
+	        if (this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover) {
+                this.el_container.addEvent(
+                    'mouseenter',
+                    this.stopAutoplay.bind(this)
+                );
+
+                if (this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+                    this.el_container.addEvent(
+                        'mouseleave',
+                        this.startAutoplay.bind(this)
+                    );
+                }
+            }
         }
     },
 
@@ -164,7 +175,11 @@ var obj_classdef = 	{
         this.dragInitialize();
 
         if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
-            this.startAutoplay();
+            if (this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+                this.startAutoplay();
+            } else {
+                this.stopAutoplay();
+            }
         }
 	},
 
@@ -187,6 +202,13 @@ var obj_classdef = 	{
 	},
 
     startAutoplay: function() {
+        this.el_container.removeClass('paused');
+        this.el_container.addClass('playing');
+
+	    if (this.int_autoplayIntervalCallbackId) {
+	        return;
+
+        }
         this.int_autoplayIntervalCallbackId = window.setInterval(
             this.autoplayMoveToNextSlide.bind(this),
             this.__module.__parentModule.__models.options.data.int_autoplayInterval
@@ -194,12 +216,38 @@ var obj_classdef = 	{
     },
 
     stopAutoplay: function() {
+        this.el_container.removeClass('playing');
+        this.el_container.addClass('paused');
+
 	    if (!this.int_autoplayIntervalCallbackId) {
 	        return;
         }
 
         window.clearInterval(this.int_autoplayIntervalCallbackId);
         this.int_autoplayIntervalCallbackId = null;
+    },
+
+    toggleAutoplay: function() {
+        if (this.int_autoplayIntervalCallbackId) {
+            this.stopAutoplay();
+        } else {
+            this.startAutoplay();
+        }
+
+    },
+
+    stopAndRestartAutoplay: function() {
+        /*
+         * We stop and restart autoplay to make sure that the next automatic slide after an explicit jump
+         * waits the whole autoplay interval. If autoplay is set to not start instantly, we don't restart.
+         */
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.stopAutoplay();
+
+            if (this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
+                this.startAutoplay();
+            }
+        }
     },
 
     autoplayMoveToNextSlide: function() {
@@ -551,7 +599,7 @@ var obj_classdef = 	{
     },
 
     dragEnd: function(event) {
-        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive && this.__module.__parentModule.__models.options.data.bln_autoplayStartInstantly) {
             this.startAutoplay();
         }
 
@@ -654,6 +702,8 @@ var obj_classdef = 	{
     },
 
     jumpLeft: function() {
+        this.stopAndRestartAutoplay();
+
 	    this.bln_skipDrag = true;
 
 	    if (!this.bln_leftPossible) {
@@ -672,6 +722,8 @@ var obj_classdef = 	{
     },
 
     jumpRight: function() {
+        this.stopAndRestartAutoplay();
+
         this.bln_skipDrag = true;
 
 	    if (!this.bln_rightPossible) {
