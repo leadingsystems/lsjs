@@ -54,7 +54,7 @@ var obj_classdef = 	{
     determineGivenElements: function() {
 	    this.el_body = $$('body')[0];
         this.el_container = this.__el_container;
-        this.el_container.addClass('lsjs-slider');
+        this.el_container.addClass('lsjs-slider-applied');
         this.els_items = this.el_container.getElements('> *');
     },
 

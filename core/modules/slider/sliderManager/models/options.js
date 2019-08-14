@@ -11,7 +11,7 @@ var obj_classdef_model = {
 		this.data = {
 			el_domReference: null,
 
-			str_sliderContainerSelector: '.lsSlider',
+			str_sliderContainerSelector: '.lsjs-slider',
 
 			/*
 			 * If the last slide doesn't have enough content to fill the slider's visible area, only slide to the point where the whole visible area is still filled
