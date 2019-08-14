@@ -5,7 +5,8 @@ var str_moduleName = '__moduleName__';
 // #################################
 
 var obj_classdef = 	{
-	el_container: null,
+    el_body: null,
+    el_container: null,
 	els_items: null,
 	el_slidingArea: null,
     el_navigationArrowLeft: null,
@@ -51,6 +52,7 @@ var obj_classdef = 	{
 	},
 
     determineGivenElements: function() {
+	    this.el_body = $$('body')[0];
         this.el_container = this.__el_container;
         this.el_container.addClass('lsjs-slider');
         this.els_items = this.el_container.getElements('> *');
@@ -360,7 +362,7 @@ var obj_classdef = 	{
 
         if (str_containerDisplayStyle === 'flex') {
             console.warn('LSJS SLIDER: The slider container is a flexbox which is not recommended. The container has now been set to "display: block;" and all elements have been set to "float: left;"');
-
+            console.warn(this.el_container);
             this.el_container.setStyle('display', 'block');
 
             Array.each(
@@ -632,6 +634,10 @@ var obj_classdef = 	{
     },
 
     dragInitialize: function() {
+	    if (this.arr_slideOffsets.length <= 1) {
+	        return;
+        }
+
 	    if (this.check_isTouchDevice()) {
             this.el_slidingArea.addEvent(
                 'touchstart',
@@ -656,12 +662,17 @@ var obj_classdef = 	{
                     this.dragStart.bind(this)
                 );
 
-                this.el_container.addEvent(
+                this.el_body.addEvent(
                     'mouseup',
                     this.dragEnd.bind(this)
                 );
 
-                this.el_container.addEvent(
+                this.el_body.addEvent(
+                    'mouseleave',
+                    this.dragEnd.bind(this)
+                );
+
+                this.el_body.addEvent(
                     'mousemove',
                     this.drag.bind(this)
                 );
