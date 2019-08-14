@@ -66,7 +66,12 @@ var obj_classdef_model = {
 			 * Maximum number of slides that the dot navigation should be used for. If the slider has more slides,
 			 * the dot navigation will not be used
 			 */
-			int_dotNavigationMaxNumberOfSlides: 10
+			int_dotNavigationMaxNumberOfSlides: 10,
+
+            /*
+             * True if warnings should be logged in the developer console
+             */
+            bln_showConsoleWarnings: true
 		};
 	},
 	

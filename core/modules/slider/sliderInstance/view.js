@@ -358,11 +358,14 @@ var obj_classdef = 	{
     },
 
 	storeItemSizeInformation: function() {
+        var self = this;
 	    var str_containerDisplayStyle = this.el_container.getStyle('display');
 
         if (str_containerDisplayStyle === 'flex') {
-            console.warn('LSJS SLIDER: The slider container is a flexbox which is not recommended. The container has now been set to "display: block;" and all elements have been set to "float: left;"');
-            console.warn(this.el_container);
+            if (this.__module.__parentModule.__models.options.data.bln_showConsoleWarnings) {
+                console.warn('LSJS SLIDER: The slider container is a flexbox which is not recommended. The container has now been set to "display: block;" and all elements have been set to "float: left;"');
+                console.warn(this.el_container);
+            }
             this.el_container.setStyle('display', 'block');
 
             Array.each(
@@ -390,26 +393,28 @@ var obj_classdef = 	{
                     function() {
                         var arr_itemStyles = this.getStyles('display', 'float');
 
-                        if (
-                            arr_itemStyles['display'] !== 'inline'
-                            && arr_itemStyles['display'] !== 'inline-block'
-                            && arr_itemStyles['float'] === 'none'
-                        ) {
-                            console.warn('LSJS SLIDER: Element may not be able to align horizontally which is necessary for the slider to render correctly. Please make sure that all items in the slider align horizontally, e.g. by setting the display style of the elements to "inline" or "inline-block" or by floating the elements.');
-                            console.warn(el_item);
-                        }
+                        if (self.__module.__parentModule.__models.options.data.bln_showConsoleWarnings) {
+                            if (
+                                arr_itemStyles['display'] !== 'inline'
+                                && arr_itemStyles['display'] !== 'inline-block'
+                                && arr_itemStyles['float'] === 'none'
+                            ) {
+                                console.warn('LSJS SLIDER: Element may not be able to align horizontally which is necessary for the slider to render correctly. Please make sure that all items in the slider align horizontally, e.g. by setting the display style of the elements to "inline" or "inline-block" or by floating the elements.');
+                                console.warn(el_item);
+                            }
 
-                        if (
-                            arr_itemStyles['float'] !== 'none'
-                            && !this.offsetHeight
-                        ) {
-                            console.warn('LSJS SLIDER: Element has "float" set to "' + arr_itemStyles['float'] + '" but has zero height. This elements might might not be aligned as expected and the slider might not render correctly.')
-                            console.warn(el_item);
-                        }
+                            if (
+                                arr_itemStyles['float'] !== 'none'
+                                && !this.offsetHeight
+                            ) {
+                                console.warn('LSJS SLIDER: Element has "float" set to "' + arr_itemStyles['float'] + '" but has zero height. This elements might might not be aligned as expected and the slider might not render correctly.')
+                                console.warn(el_item);
+                            }
 
-                        if (!this.offsetWidth) {
-                            console.warn('LSJS SLIDER: Element has zero width. The required width of the sliding area can therefore not be calculated correctly. This can happen if the element\'s size depends on a resource that hasn\'t been loaded yet (e.g. an image). Please make sure to explicitly set a width for such elements.');
-                            console.warn(el_item);
+                            if (!this.offsetWidth) {
+                                console.warn('LSJS SLIDER: Element has zero width. The required width of the sliding area can therefore not be calculated correctly. This can happen if the element\'s size depends on a resource that hasn\'t been loaded yet (e.g. an image). Please make sure to explicitly set a width for such elements.');
+                                console.warn(el_item);
+                            }
                         }
 
                         var obj_computedSize = this.getComputedSize({
