@@ -24,8 +24,10 @@ var obj_classdef = 	{
     str_originalViewportSettings: '',
     str_zoomImageUrl: '',
 
-    float_currentZoomFactor: .5,
-    
+    float_currentZoomFactor: 0.5,
+    float_minZoomFactor: 0.0001,
+    float_maxZoomFactor: 1.2,
+
     obj_bigImageNaturalSize: {
         width: 0,
         height: 0
@@ -44,6 +46,21 @@ var obj_classdef = 	{
     obj_positionOffset: {
         x: 0,
         y: 0
+    },
+
+    obj_dragData: {
+        firstPointerPosition: {
+            x: null,
+            y: null
+        },
+        dragStartPosition:  {
+            x: null,
+            y: null
+        },
+        dragOffsetPosition: {
+            x: 0,
+            y: 0
+        }
     },
     
 	start: function() {
@@ -89,17 +106,19 @@ var obj_classdef = 	{
     },
 
     zoomIn: function() {
-        this.float_currentZoomFactor += .1;
-        this.setZoomFactor();
+        this.float_currentZoomFactor = this.float_currentZoomFactor / 0.75;
+        if (this.float_currentZoomFactor > this.float_maxZoomFactor) {
+            this.float_currentZoomFactor = this.float_maxZoomFactor;
+        }
+        this.setZoomFactorAndPositionOffset();
     },
 
     zoomOut: function() {
-        this.float_currentZoomFactor -= .1;
-        this.setZoomFactor();
-    },
-
-    setZoomFactorAndPositionOffset: function() {
-        this.el_bigImage.setStyle('transform', 'scale(' + this.float_currentZoomFactor + ') translate3d(' + this.obj_positionOffset.x + 'px, ' + this.obj_positionOffset.y + 'px, 0)');
+        this.float_currentZoomFactor = this.float_currentZoomFactor * 0.75;
+        if (this.float_currentZoomFactor < this.float_minZoomFactor) {
+            this.float_currentZoomFactor = this.float_minZoomFactor;
+        }
+        this.setZoomFactorAndPositionOffset();
     },
 
     insertOverlay: function() {
@@ -143,6 +162,8 @@ var obj_classdef = 	{
         );
 
         this.el_body.addClass('lsjs-image-zoomer-open');
+
+        this.dragInitialize();
     },
 
     initializeZoomImageAfterLoad: function() {
@@ -155,8 +176,6 @@ var obj_classdef = 	{
         this.obj_proportionalityFactor.y = this.obj_overlaySize.height / this.obj_bigImageNaturalSize.height;
 
         this.float_currentZoomFactor = this.obj_proportionalityFactor.x < this.obj_proportionalityFactor.y ? this.obj_proportionalityFactor.x : this.obj_proportionalityFactor.y;
-
-        this.determineNecessaryOffset();
 
         this.setZoomFactorAndPositionOffset();
         lsjs.loadingIndicator.__controller.hide();
@@ -184,12 +203,20 @@ var obj_classdef = 	{
         );
     },
 
+    setZoomFactorAndPositionOffset: function() {
+        this.determineNecessaryOffset();
+        this.el_bigImage.setStyle('transform', 'scale(' + this.float_currentZoomFactor + ') translate3d(' + this.obj_positionOffset.x + 'px, ' + this.obj_positionOffset.y + 'px, 0)');
+    },
+
     determineNecessaryOffset: function() {
         var float_bigImageScaledWidth = this.obj_bigImageNaturalSize.width * this.float_currentZoomFactor;
         var float_bigImageScaledHeight = this.obj_bigImageNaturalSize.height * this.float_currentZoomFactor;
 
         this.obj_positionOffset.x = (((this.obj_bigImageNaturalSize.width - float_bigImageScaledWidth) / 2) - ((this.obj_overlaySize.width - float_bigImageScaledWidth) / 2)) * -1 / this.float_currentZoomFactor;
         this.obj_positionOffset.y = (((this.obj_bigImageNaturalSize.height - float_bigImageScaledHeight) / 2) - ((this.obj_overlaySize.height - float_bigImageScaledHeight) / 2)) * -1 / this.float_currentZoomFactor;
+
+        this.obj_positionOffset.x = this.obj_positionOffset.x + (this.obj_dragData.dragOffsetPosition.x / this.float_currentZoomFactor);
+        this.obj_positionOffset.y = this.obj_positionOffset.y + (this.obj_dragData.dragOffsetPosition.y / this.float_currentZoomFactor);
     },
 
     removeOverlay: function() {
@@ -205,6 +232,71 @@ var obj_classdef = 	{
 
     check_isTouchDevice: function() {
         this.bln_isTouchDevice = ('ontouchstart' in document.documentElement);
+    },
+
+    dragInitialize: function() {
+        if (this.check_isTouchDevice()) {
+            this.el_overlay.addEvent(
+                'touchstart',
+                this.dragStart.bind(this)
+            );
+
+            this.el_overlay.addEvent(
+                'touchend',
+                this.dragEnd.bind(this)
+            );
+
+            this.el_overlay.addEvent(
+                'touchmove',
+                this.drag.bind(this)
+            );
+        } else {
+            this.el_overlay.addEvent(
+                'mousedown',
+                this.dragStart.bind(this)
+            );
+
+            this.el_overlay.addEvent(
+                'mouseup',
+                this.dragEnd.bind(this)
+            );
+
+            this.el_overlay.addEvent(
+                'mouseleave',
+                this.dragEnd.bind(this)
+            );
+
+            this.el_overlay.addEvent(
+                'mousemove',
+                this.drag.bind(this)
+            );
+        }
+    },
+
+    dragStart: function(event) {
+        this.bln_currentlyDragging = true;
+
+        this.obj_dragData.firstPointerPosition.x = (event.type === 'touchstart' ? event.event.touches[0].clientX : event.event.clientX);
+        this.obj_dragData.dragStartPosition.x = this.obj_dragData.firstPointerPosition.x - this.obj_dragData.dragOffsetPosition.x;
+
+        this.obj_dragData.firstPointerPosition.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY);
+        this.obj_dragData.dragStartPosition.y = this.obj_dragData.firstPointerPosition.y - this.obj_dragData.dragOffsetPosition.y;
+    },
+
+    dragEnd: function(event) {
+        this.bln_currentlyDragging = false;
+    },
+
+    drag: function(event) {
+        if (!this.bln_currentlyDragging) {
+            return;
+        }
+
+        this.obj_dragData.dragOffsetPosition.x = (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX) - this.obj_dragData.dragStartPosition.x;
+
+        this.obj_dragData.dragOffsetPosition.y = (event.type === 'touchmove' ? event.event.touches[0].clientY : event.event.clientY) - this.obj_dragData.dragStartPosition.y;
+
+        this.setZoomFactorAndPositionOffset();
     }
 };
 
