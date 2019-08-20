@@ -880,7 +880,11 @@ var obj_classdef = 	{
         this.el_container.addClass('left-possible');
         this.el_container.addClass('right-possible');
 
-        if (this.float_slidingAreaMovingPositionX >= this.float_requiredSlidingAreaWidth - this.float_visibleWidth) {
+        /*
+         * Due to inaccuracies in the calculation of sliding area's required width it might be 1px wider than it should be.
+         * Therefore we subtract 1 before the following comparison.
+         */
+        if (this.float_slidingAreaMovingPositionX >= (this.float_requiredSlidingAreaWidth - 1) - this.float_visibleWidth) {
             this.bln_rightPossible = false;
             this.el_container.removeClass('right-possible');
         }
