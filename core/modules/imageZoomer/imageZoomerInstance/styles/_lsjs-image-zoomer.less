@@ -13,6 +13,24 @@ body {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 99999;
+    z-index: 100000;
+
+    .btn-close {
+      position: fixed;
+      z-index: 100001;
+      top: 2rem;
+      right: 2rem;
+      &::after {
+        .fa-icon;
+        .fas;
+        content: @fa-var-window-close;
+        color: @ls-color-white;
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .lsjs-image-zoomer-applied {
+    cursor: zoom-in;
   }
 }

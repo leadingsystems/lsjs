@@ -11,7 +11,7 @@ var obj_classdef_model = {
 		this.data = {
 			el_domReference: null,
 
-			str_containerSelector: '.lsjs-image-zoomer-applied',
+			str_containerSelector: '.lsjs-image-zoomer',
 
             /*
              * True if warnings should be logged in the developer console
