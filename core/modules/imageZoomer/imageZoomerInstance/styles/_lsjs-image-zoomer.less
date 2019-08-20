@@ -4,20 +4,19 @@ body {
   }
 
   .lsjs-zoomer-overlay {
-    display: flex;
     background-color: rgba(0, 0, 0, 0.9);
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 100000;
+    z-index: 99999;
 
     .btn-close,
     .btn-zoom-in,
     .btn-zoom-out {
       position: fixed;
-      z-index: 100001;
+      z-index: 99999;
       right: 2rem;
       text-shadow: 0 0 0.6rem #000000;
       &::after {
@@ -29,9 +28,6 @@ body {
     }
 
     .big-image {
-      max-width: 100%;
-      max-height: 100%;
-      margin: auto;
       transition: all .5s;
     }
 
