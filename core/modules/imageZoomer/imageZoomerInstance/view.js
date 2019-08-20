@@ -8,20 +8,23 @@ var obj_classdef = 	{
     el_body: null,
     el_container: null,
     el_overlay: null,
+    el_bigImage: null,
     el_btnClose: null,
+    el_btnZoomIn: null,
+    el_btnZoomOut: null,
 
     bln_isTouchDevice: false,
 
     str_originalViewportSettings: '',
     str_zoomImageUrl: '',
 
+    float_currentZoomFactor: .5,
+
 	start: function() {
-        this.check_isTouchDevice()
+        this.check_isTouchDevice();
 	    this.determineGivenElements();
         this.determineZoomImage();
         this.initializeZoomStartEvent();
-
-        console.log(this.str_zoomImageUrl);
 	},
 
     determineGivenElements: function() {
@@ -59,11 +62,25 @@ var obj_classdef = 	{
         this.removeOverlay();
     },
 
+    zoomIn: function() {
+        this.float_currentZoomFactor += .1;
+        this.setZoomFactor();
+    },
+
+    zoomOut: function() {
+        this.float_currentZoomFactor -= .1;
+        this.setZoomFactor();
+    },
+
+    setZoomFactor: function() {
+        this.el_bigImage.setStyle('transform', 'scale(' + this.float_currentZoomFactor + ')');
+    },
+
     insertOverlay: function() {
         this.el_overlay = new Element('div.lsjs-zoomer-overlay');
-        this.el_overlay.setStyles({
-            'background-image': 'url("' + this.str_zoomImageUrl + '")',
-        });
+
+        this.el_bigImage = new Element('img.big-image').setProperty('src', this.str_zoomImageUrl);
+        this.setZoomFactor();
 
         this.el_btnClose = new Element('div.btn-close');
         this.el_btnClose.addEvent(
@@ -71,9 +88,24 @@ var obj_classdef = 	{
             this.zoomEnd.bind(this)
         );
 
+        this.el_btnZoomIn = new Element('div.btn-zoom-in');
+        this.el_btnZoomIn.addEvent(
+            'click',
+            this.zoomIn.bind(this)
+        );
+
+        this.el_btnZoomOut = new Element('div.btn-zoom-out');
+        this.el_btnZoomOut.addEvent(
+            'click',
+            this.zoomOut.bind(this)
+        );
+
         this.el_body.adopt(
             this.el_overlay.adopt(
-                this.el_btnClose
+                this.el_bigImage,
+                this.el_btnClose,
+                this.el_btnZoomIn,
+                this.el_btnZoomOut
             )
         );
 

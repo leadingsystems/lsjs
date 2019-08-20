@@ -4,9 +4,7 @@ body {
   }
 
   .lsjs-zoomer-overlay {
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    display: flex;
     background-color: rgba(0, 0, 0, 0.9);
     position: fixed;
     top: 0;
@@ -15,17 +13,46 @@ body {
     left: 0;
     z-index: 100000;
 
-    .btn-close {
+    .btn-close,
+    .btn-zoom-in,
+    .btn-zoom-out {
       position: fixed;
       z-index: 100001;
-      top: 2rem;
       right: 2rem;
+      text-shadow: 0 0 0.6rem #000000;
       &::after {
         .fa-icon;
         .fas;
-        content: @fa-var-window-close;
         color: @ls-color-white;
         cursor: pointer;
+      }
+    }
+
+    .big-image {
+      max-width: 100%;
+      max-height: 100%;
+      margin: auto;
+      transition: all .5s;
+    }
+
+    .btn-close {
+      top: 2rem;
+      &::after {
+        content: @fa-var-window-close;
+      }
+    }
+
+    .btn-zoom-in {
+      top: 9rem;
+      &::after {
+        content: @fa-var-search-plus;
+      }
+    }
+
+    .btn-zoom-out {
+      top: 14rem;
+      &::after {
+        content: @fa-var-search-minus;
       }
     }
   }
