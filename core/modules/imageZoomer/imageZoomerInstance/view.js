@@ -229,7 +229,7 @@ var obj_classdef = 	{
 
         this.float_currentZoomFactor = this.obj_proportionalityFactor.x < this.obj_proportionalityFactor.y ? this.obj_proportionalityFactor.x : this.obj_proportionalityFactor.y;
 
-        if (this.float_minZoomFactor === null) {
+        if (this.__module.__parentModule.__models.options.data.float_minZoomFactor === null) {
             this.float_minZoomFactor = this.float_currentZoomFactor < 1 ? this.float_currentZoomFactor : 1;
         }
 
