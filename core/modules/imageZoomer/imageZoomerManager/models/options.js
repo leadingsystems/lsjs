@@ -13,6 +13,15 @@ var obj_classdef_model = {
 
 			str_containerSelector: '.lsjs-image-zoomer',
 
+			/*
+			 * If this parameter is set to null, the minimum zoom factor will be determined automatically
+			 */
+            float_minZoomFactor: null,
+
+            float_maxZoomFactor: 1,
+
+            float_zoomFactorStep: 0.1,
+
             /*
              * True if warnings should be logged in the developer console
              */

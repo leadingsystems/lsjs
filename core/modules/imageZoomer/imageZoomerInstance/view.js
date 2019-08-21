@@ -25,8 +25,9 @@ var obj_classdef = 	{
     str_zoomImageUrl: '',
 
     float_currentZoomFactor: 1,
-    float_minZoomFactor: 0.1,
-    float_maxZoomFactor: 1,
+    float_minZoomFactor: null,
+    float_maxZoomFactor: null,
+    float_zoomFactorStep: null,
 
     obj_bigImageNaturalSize: {
         width: 0,
@@ -81,6 +82,10 @@ var obj_classdef = 	{
     },
     
 	start: function() {
+        this.float_minZoomFactor = this.__module.__parentModule.__models.options.data.float_minZoomFactor;
+        this.float_maxZoomFactor = this.__module.__parentModule.__models.options.data.float_maxZoomFactor;
+        this.float_zoomFactorStep = this.__module.__parentModule.__models.options.data.float_zoomFactorStep;
+
         this.check_isTouchDevice();
 	    this.determineGivenElements();
         this.determineZoomImage();
@@ -125,10 +130,9 @@ var obj_classdef = 	{
     zoomIn: function() {
         this.deactivateImageTransitionAnimation();
 
-        this.float_currentZoomFactor = this.float_currentZoomFactor / 0.75;
-        if (this.float_currentZoomFactor > this.float_maxZoomFactor) {
-            this.float_currentZoomFactor = this.float_maxZoomFactor;
-        }
+        this.float_currentZoomFactor = this.float_currentZoomFactor + this.float_zoomFactorStep;
+        this.limitZoomFactor();
+
         this.calculateImageScaledSize();
         this.determineBoundaries();
         this.determineNecessaryOffset();
@@ -139,15 +143,34 @@ var obj_classdef = 	{
     zoomOut: function() {
         this.deactivateImageTransitionAnimation();
 
-        this.float_currentZoomFactor = this.float_currentZoomFactor * 0.75;
-        if (this.float_currentZoomFactor < this.float_minZoomFactor) {
-            this.float_currentZoomFactor = this.float_minZoomFactor;
-        }
+        this.float_currentZoomFactor = this.float_currentZoomFactor - this.float_zoomFactorStep;
+        this.limitZoomFactor();
+
         this.calculateImageScaledSize();
         this.determineBoundaries();
         this.determineNecessaryOffset();
         this.setZoomFactorAndPositionOffset();
         this.checkImageBoundaries();
+    },
+
+    limitZoomFactor: function() {
+        if (this.float_currentZoomFactor > this.float_maxZoomFactor) {
+            this.float_currentZoomFactor = this.float_maxZoomFactor;
+        } else if (this.float_currentZoomFactor < this.float_minZoomFactor) {
+            this.float_currentZoomFactor = this.float_minZoomFactor;
+        }
+
+        if (this.float_currentZoomFactor >= this.float_maxZoomFactor) {
+            this.el_btnZoomIn.removeClass('possible');
+        } else {
+            this.el_btnZoomIn.addClass('possible');
+        }
+
+        if (this.float_currentZoomFactor <= this.float_minZoomFactor) {
+            this.el_btnZoomOut.removeClass('possible');
+        } else {
+            this.el_btnZoomOut.addClass('possible');
+        }
     },
 
     insertOverlay: function() {
@@ -205,6 +228,12 @@ var obj_classdef = 	{
         this.obj_proportionalityFactor.y = this.obj_overlaySize.height / this.obj_bigImageNaturalSize.height;
 
         this.float_currentZoomFactor = this.obj_proportionalityFactor.x < this.obj_proportionalityFactor.y ? this.obj_proportionalityFactor.x : this.obj_proportionalityFactor.y;
+
+        if (this.float_minZoomFactor === null) {
+            this.float_minZoomFactor = this.float_currentZoomFactor < 1 ? this.float_currentZoomFactor : 1;
+        }
+
+        this.limitZoomFactor();
 
         this.calculateImageScaledSize();
         this.determineBoundaries();
