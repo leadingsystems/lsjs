@@ -82,6 +82,8 @@ var obj_classdef = 	{
     },
     
 	start: function() {
+        this.bound_reinitializeZoomImage = this.reinitializeZoomImage.bind(this);
+
         this.float_minZoomFactor = this.__module.__parentModule.__models.options.data.float_minZoomFactor;
         this.float_maxZoomFactor = this.__module.__parentModule.__models.options.data.float_maxZoomFactor;
         this.float_zoomFactorStep = this.__module.__parentModule.__models.options.data.float_zoomFactorStep;
@@ -248,7 +250,7 @@ var obj_classdef = 	{
 
         window.addEvent(
             'resize',
-            this.reinitializeZoomImage.bind(this)
+            this.bound_reinitializeZoomImage
         );
     },
 
@@ -274,6 +276,8 @@ var obj_classdef = 	{
         );
     },
 
+    bound_reinitializeZoomImage: null,
+
     setZoomFactorAndPositionOffset: function() {
         this.obj_positionOffsetDragged.x = this.obj_positionOffset.x + (this.obj_dragData.dragOffsetPosition.x / this.float_currentZoomFactor);
         this.obj_positionOffsetDragged.y = this.obj_positionOffset.y + (this.obj_dragData.dragOffsetPosition.y / this.float_currentZoomFactor);
@@ -294,7 +298,7 @@ var obj_classdef = 	{
     removeOverlay: function() {
         window.removeEvent(
             'resize',
-            this.reinitializeZoomImage.bind(this)
+            this.bound_reinitializeZoomImage
         );
 
         this.el_body.removeClass('lsjs-image-zoomer-open');
