@@ -123,6 +123,8 @@ var obj_classdef = 	{
     },
 
     zoomIn: function() {
+        this.deactivateImageTransitionAnimation();
+
         this.float_currentZoomFactor = this.float_currentZoomFactor / 0.75;
         if (this.float_currentZoomFactor > this.float_maxZoomFactor) {
             this.float_currentZoomFactor = this.float_maxZoomFactor;
@@ -135,6 +137,8 @@ var obj_classdef = 	{
     },
 
     zoomOut: function() {
+        this.deactivateImageTransitionAnimation();
+
         this.float_currentZoomFactor = this.float_currentZoomFactor * 0.75;
         if (this.float_currentZoomFactor < this.float_minZoomFactor) {
             this.float_currentZoomFactor = this.float_minZoomFactor;
@@ -321,12 +325,16 @@ var obj_classdef = 	{
 
         this.obj_dragData.firstPointerPosition.y = (event.type === 'touchstart' ? event.event.touches[0].clientY : event.event.clientY);
         this.obj_dragData.dragStartPosition.y = this.obj_dragData.firstPointerPosition.y - this.obj_dragData.dragOffsetPosition.y;
+
+        this.deactivateImageTransitionAnimation();
     },
 
     dragEnd: function(event) {
         if (!this.bln_currentlyDragging) {
             return;
         }
+
+        this.activateImageTransitionAnimation();
 
         this.el_bigImage.removeClass('dragging');
         this.bln_currentlyDragging = false;
@@ -383,17 +391,6 @@ var obj_classdef = 	{
         var float_imageTopEdgeInsideOffset = float_imageTop - this.obj_stageBoundaries.top;
         var float_imageBottomEdgeInsideOffset = float_imageBottom - this.obj_stageBoundaries.bottom;
 
-        console.log('str_imageStatusLeftEdge: ' + str_imageStatusLeftEdge);
-        console.log('str_imageStatusRightEdge: ' + str_imageStatusRightEdge);
-        console.log('str_imageStatusTopEdge: ' + str_imageStatusTopEdge);
-        console.log('str_imageStatusBottomEdge: ' + str_imageStatusBottomEdge);
-        console.log('---');
-        console.log('float_imageLeftEdgeInsideOffset: ' + float_imageLeftEdgeInsideOffset);
-        console.log('float_imageRightEdgeInsideOffset: ' + float_imageRightEdgeInsideOffset);
-        console.log('float_imageTopEdgeInsideOffset: ' + float_imageTopEdgeInsideOffset);
-        console.log('float_imageBottomEdgeInsideOffset: ' + float_imageBottomEdgeInsideOffset);
-        console.log('=================');
-
         if (
             this.obj_imageScaledSize.width < this.obj_overlaySize.width
         ) {
@@ -424,6 +421,14 @@ var obj_classdef = 	{
         if (bln_needToReposition) {
             this.setZoomFactorAndPositionOffset();
         }
+    },
+
+    activateImageTransitionAnimation: function() {
+        this.el_bigImage.setStyle('transition', 'all .25s ease 0s');
+    },
+
+    deactivateImageTransitionAnimation: function() {
+        this.el_bigImage.setStyle('transition', 'none');
     }
 };
 
