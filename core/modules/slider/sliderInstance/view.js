@@ -349,8 +349,8 @@ var obj_classdef = 	{
     },
 
     removeSlidingArea: function() {
-        this.el_slidingArea.destroy();
         this.el_container.adopt(this.els_items);
+        this.el_slidingArea.destroy();
     },
 
     getVisibleWidth: function() {
