@@ -63,6 +63,11 @@ var obj_classdef_model = {
 			bln_dotNavigationActive: true,
 
 			/*
+			 * True if the dots in the dot navigation should be replaced with preview images if possible
+			 */
+			bln_dotNavigationUseImagesIfPossible: true,
+
+			/*
 			 * Maximum number of slides that the dot navigation should be used for. If the slider has more slides,
 			 * the dot navigation will not be used
 			 */

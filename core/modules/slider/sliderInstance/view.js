@@ -56,6 +56,29 @@ var obj_classdef = 	{
         this.el_container = this.__el_container;
         this.el_container.addClass('lsjs-slider-applied');
         this.els_items = this.el_container.getElements('> *');
+        this.ensureItemMinimumHeight();
+    },
+
+    /*
+     * In some situations it might happen that an element has no height and that could prevent item positions from
+     * being determined correctly. Therefore we set a min-height if necessary.
+     */
+    ensureItemMinimumHeight: function() {
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                if (
+                    !el_item.offsetHeight
+                    && (
+                        el_item.getStyle('min-height') === '0px'
+                        || el_item.getStyle('min-height') === '0'
+                        || el_item.getStyle('min-height') === 'auto'
+                    )
+                ) {
+                    el_item.setStyle('min-height', '1px');
+                }
+            }
+        );
     },
 
     addNavigationArrows: function() {
@@ -82,6 +105,38 @@ var obj_classdef = 	{
         );
     },
 
+    check_dotNavigationImagesArePossible: function() {
+        /*
+         * Image navigation can only be used if there's one item for each slide. Otherwise it would be unclear which
+         * preview image to use for which slide.
+         */
+        if (this.arr_slideOffsets.length !== this.els_items.length) {
+            return false;
+        }
+
+        var bln_previewImageExistForEachItem = true;
+
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                if (!bln_previewImageExistForEachItem) {
+                    return;
+                }
+
+                var el_previewImage = el_item.get('tag') === 'img' ? el_item : el_item.getElement('img');
+
+                if (typeOf(el_previewImage) !== 'element') {
+                    bln_previewImageExistForEachItem = false;
+                    return;
+                }
+
+                el_item.store('previewImageSrc', el_previewImage.getProperty('src'));
+            }
+        );
+
+        return bln_previewImageExistForEachItem;
+    },
+
     addNavigationDots: function() {
 	    if (
             !this.__module.__parentModule.__models.options.data.bln_dotNavigationActive
@@ -91,12 +146,24 @@ var obj_classdef = 	{
 	        return;
         }
 
+        var bln_useDotNavigationImages = this.__module.__parentModule.__models.options.data.bln_dotNavigationUseImagesIfPossible && this.check_dotNavigationImagesArePossible();
+
 	    this.el_navigationDotsContainer = new Element('div.navigation-dots-container');
 
         Array.each(
             this.arr_slideOffsets,
             function(float_slideOffset, int_slideKey) {
-                this.els_navigationDots.push(new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey));
+                var el_navigationDot = new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey);
+
+                if (bln_useDotNavigationImages) {
+                    el_navigationDot.addClass('use-image');
+                    el_navigationDot.setStyles({
+                        'background-image': 'url(' +this.els_items[int_slideKey].retrieve('previewImageSrc') + ')',
+                        'background-size': 'cover'
+                    });
+                }
+
+                this.els_navigationDots.push(el_navigationDot);
             }.bind(this)
         );
 
