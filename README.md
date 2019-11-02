@@ -218,6 +218,28 @@ them inside a template:_
 
 ```<p>But this doesn't work</p>```
 
+##### Template includes
+Templates can be included in other templates. There are three possible ways of doing this:
+
+```
+<div data-lsjs-replaceWithTemplate="sub01"></div>
+```
+
+or
+
+```
+<div data-lsjs-replaceWithElement="arg.__view.el_replacement01"></div>
+```
+
+or
+
+```
+{{template::templatename}}
+```
+
+The last mentioned way to include another template inserts the subtemplate in the main template when the template is converted into actual JS code in the binder's template converter on the PHP side. Therefore, using this including technique you have full access to all variables that are available in the main template even from the subtemplate.
+
+
 #### Cache and Minifier
 By default, LSJS minifies and caches its output in order to optimize page loading speed.
 Both options can be deactivated because during development you probably don't want
