@@ -495,12 +495,12 @@ var obj_classdef = 	{
                                 float_marginRight: obj_computedSize['margin-right'],
                                 float_paddingLeft: obj_computedSize['padding-left'],
                                 float_paddingRight: obj_computedSize['padding-right'],
-                                float_widthIncludingMarginLeft: this.offsetWidth + obj_computedSize['margin-left'],
-                                float_completeWidthIncludingMargins: this.offsetWidth + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
-                                float_completeHeightIncludingMargins: this.offsetHeight + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
+                                float_widthIncludingMarginLeft: obj_computedSize['width'] + obj_computedSize['margin-left'],
+                                float_completeWidthIncludingMargins: obj_computedSize['width'] + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
+                                float_completeHeightIncludingMargins: obj_computedSize['height'] + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
                                 float_originalWidth: obj_computedSize['width']
                             }
-						);
+			);
                     }
                 );
             }
