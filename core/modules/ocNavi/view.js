@@ -50,7 +50,7 @@ var obj_classdef = 	{
 			var_togglerSelector: this.el_toggler,
 			var_contentBoxSelector: this.el_navi,
 			var_wrapperSelector: this.el_body,
-			str_animationMode: 'margin-top',
+			str_animationMode: 'margin-left',
 			str_classOpen: 'lsOcNaviOpen',
 			str_classClosed: 'lsOcNaviClosed',
 			str_classRunning: 'lsOcNaviRunning',
