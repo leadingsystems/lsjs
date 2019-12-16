@@ -6,6 +6,7 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = 	{
 	el_toggler: null,
+    el_togglerContainer: null,
 	el_navi: null,
 	el_body: null,
 	el_content: null,
@@ -19,10 +20,18 @@ var obj_classdef = 	{
 			this.el_navi.inject(this.el_body, 'top');
 		}
 
+		if (this.__models.options.data.str_togglerContainerSelector !== undefined && this.__models.options.data.str_togglerContainerSelector) {
+            this.el_togglerContainer = $$(this.__models.options.data.str_togglerContainerSelector)[0];
+            if (typeOf(this.el_togglerContainer) !== 'element') {
+                this.el_togglerContainer = new Element('div' + this.__models.options.data.str_togglerContainerSelector);
+                this.el_togglerContainer.inject(this.el_body, 'top');
+            }
+        }
+
 		this.el_toggler = $$(this.__models.options.data.str_togglerSelector)[0];
 		if (typeOf(this.el_toggler) !== 'element') {
 			this.el_toggler = new Element('div' + this.__models.options.data.str_togglerSelector);
-			this.el_toggler.inject(this.el_body, 'top');
+			this.el_toggler.inject(typeOf(this.el_togglerContainer) === 'element' ? this.el_togglerContainer : this.el_body, 'top');
 		}
 
 		if (this.__models.options.data.str_contentSelector) {

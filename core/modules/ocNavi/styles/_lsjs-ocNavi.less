@@ -1,26 +1,36 @@
-#lsOcNaviToggler {
-  .fa-icon;
-  .fas;
-
+#lsOcNaviTogglerContainer {
   position: fixed;
-  top: 2.7rem;
-  right: .7rem;
-  font-size: 3rem;
-  cursor: pointer;
-  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 99001;
 
-  &::after {
-    content: @fa-var-bars;
-  }
+  #lsOcNaviToggler {
+    .centered-max-width-container();
+    height: 0;
+    display: none;
 
-  &.lsOcNaviOpen {
-    position: fixed;
+    &::after {
+      position: absolute;
+      .fa-icon;
+      .fas;
+      top: 1rem;
+      right: 1rem;
+      font-size: 3rem;
+      cursor: pointer;
+      content: @fa-var-bars;
+    }
 
-    &:after {
-      content: @fa-var-times;
+    &.lsOcNaviOpen {
+      &::after {
+        content: @fa-var-times;
+      }
     }
   }
+}
+
+#offCanvasContainer {
+  .centered-max-width-container();
 }
 
 #lsOcNavi {
@@ -33,16 +43,38 @@
   padding: 1rem;
   margin-bottom: 2rem !important;
   overflow: hidden;
-  overflow-y: scroll;
   background-color: @ls-color-white;
   box-shadow: 0 .4rem 1rem @ls-color-black;
   z-index: 99000;
 }
 
+#lsOcNaviTogglerContainer {
+  transition-property: opacity;
+  transition-duration: .3s;
+}
+
 body.useOcNavi {
   &.lsOcNaviRunning,
   &.lsOcNaviOpen {
-    overflow: hidden;
+    #lsOcNaviTogglerContainer {
+      opacity: 0;
+      transition-duration: .01s;
+    }
+
+    &.lsOcNaviOpen {
+      &:not(.lsOcNaviRunning) {
+        overflow: hidden;
+        position: fixed;
+
+        #lsOcNaviTogglerContainer {
+          opacity: 1;
+        }
+
+        #lsOcNavi {
+          overflow-y: scroll;
+        }
+      }
+    }
   }
 
   /*
@@ -50,7 +82,7 @@ body.useOcNavi {
    * the ocNavi is open. Otherwise the ocNavi could not be closed
    * if the screen size has increased while the ocNavi is open.
    */
-  &.lsOcNaviOpen #lsOcNaviToggler {
+  &.lsOcNaviOpen #lsOcNaviTogglerContainer #lsOcNaviToggler {
     display: block;
   }
 }
@@ -78,6 +110,14 @@ body.useOcNavi {
      * show the off canvas toggler if the
      * off canvas javascript is in use
      */
+    #lsOcNaviToggler {
+      display: block;
+    }
+  }
+}
+
+body.sticky {
+  #lsOcNaviTogglerContainer {
     #lsOcNaviToggler {
       display: block;
     }
