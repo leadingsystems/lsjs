@@ -57,7 +57,15 @@ var obj_classdef = 	{
 			str_classUseLsUnfold: '',
 			
 			obj_morphOptions: {
-				'duration': 600
+				'duration': 600,
+                'onStart': function() {
+					var el_body = $$('body')[0];
+					if (!el_body.hasClass('lsOcNaviOpen')) {
+                        lsjs.scrollAssistant.__controller.getLSFEScrollOffset();
+                    } else if (el_body.hasClass('lsOcNaviRunning')) {
+                        lsjs.scrollAssistant.__controller.scrollToLSFEOffset();
+					}
+                }
 			}
 		});
 
