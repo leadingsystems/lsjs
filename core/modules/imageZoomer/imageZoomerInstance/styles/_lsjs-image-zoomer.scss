@@ -20,9 +20,9 @@ body {
       right: 2rem;
       text-shadow: 0 0 0.6rem #000000;
       &::after {
-        .fa-icon;
-        .fas;
-        color: @ls-color-white;
+        @include fa-icon;
+        @include fas;
+        color: $ls-color-white;
       }
     }
 
@@ -45,7 +45,7 @@ body {
       cursor: pointer;
 
       &::after {
-        content: @fa-var-window-close;
+        content: $fa-var-window-close;
       }
     }
 
@@ -54,7 +54,7 @@ body {
       opacity: .2;
 
       &::after {
-        content: @fa-var-search-plus;
+        content: $fa-var-search-plus;
       }
 
       &.possible {
@@ -68,7 +68,7 @@ body {
       opacity: .2;
 
       &::after {
-        content: @fa-var-search-minus;
+        content: $fa-var-search-minus;
       }
 
       &.possible {
@@ -77,7 +77,7 @@ body {
       }
     }
   }
-  
+
   .lsjs-image-zoomer-applied {
     cursor: zoom-in;
   }

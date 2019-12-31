@@ -21,11 +21,11 @@
 }
 
 .main.loadingIndicator::before {
-  .fa-icon;
-  .fas;
-  content: @fa-var-spinner;
+  @include fa-icon;
+  @include fas;
+  content: $fa-var-spinner;
   animation: loadingIndicator-spinner 1.5s linear infinite;
-  color: @ls-color-6;
+  color: $ls-color-6;
   font-size: 4rem;
   margin: 20% auto auto auto;
 }

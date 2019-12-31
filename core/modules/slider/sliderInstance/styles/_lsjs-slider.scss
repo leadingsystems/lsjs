@@ -32,11 +32,11 @@
       cursor: pointer;
 
       &::after {
-        .fa-icon;
-        .fas;
+        @include fa-icon;
+        @include fas;
         font-size: 4rem;
-        color: @ls-color-white;
-        text-shadow: 0 0 1rem @ls-color-black;
+        color: $ls-color-white;
+        text-shadow: 0 0 1rem $ls-color-black;
       }
     }
 
@@ -45,7 +45,7 @@
 
       .arrow {
         &::after {
-          content: @fa-var-chevron-left;
+          content: $fa-var-chevron-left;
         }
       }
     }
@@ -55,7 +55,7 @@
 
       .arrow {
         &::after {
-          content: @fa-var-chevron-right;
+          content: $fa-var-chevron-right;
         }
       }
     }
@@ -115,23 +115,23 @@
 
       &:not(.use-image) {
         &::after {
-          .fa-icon;
-          .fas;
-          content: @fa-var-circle;
+          @include fa-icon;
+          @include fas;
+          content: $fa-var-circle;
           position: absolute;
           left: 0;
           right: 0;
           top: 0;
           bottom: 0;
-          color: @ls-color-white;
-          text-shadow: 0 0 .2rem @ls-color-black;
+          color: $ls-color-white;
+          text-shadow: 0 0 .2rem $ls-color-black;
         }
       }
 
       &.use-image {
         width: 5rem;
         height: 5rem;
-        border: .1rem solid @ls-color-black;
+        border: .1rem solid $ls-color-black;
       }
     }
   }
@@ -140,9 +140,9 @@
     .navigation-dot {
       &.active {
         &::before {
-          .fa-icon;
-          .fas;
-          content: @fa-var-pause;
+          @include fa-icon;
+          @include fas;
+          content: $fa-var-pause;
           position: absolute;
           left: 0;
           right: 0;
@@ -153,12 +153,12 @@
           padding-left: 0;
           z-index: 1;
           font-size: 1.5rem;
-          color: @ls-color-black;
+          color: $ls-color-black;
         }
 
         &.use-image {
 
-          border: .2rem solid @ls-color-black;
+          border: .2rem solid $ls-color-black;
 
           &::before {
             top: 1rem;
@@ -172,7 +172,7 @@
       .navigation-dot {
         &.active {
           &::before {
-            content: @fa-var-play;
+            content: $fa-var-play;
             padding-left: .2rem;
           }
         }
