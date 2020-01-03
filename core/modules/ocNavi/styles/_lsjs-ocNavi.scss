@@ -6,7 +6,6 @@
   z-index: 99001;
 
   #lsOcNaviToggler {
-    @include centered-max-width-container();
     height: 0;
     display: none;
 
@@ -29,9 +28,6 @@
   }
 }
 
-#offCanvasContainer {
-  @include centered-max-width-container();
-}
 
 #lsOcNavi {
   display: none;
