@@ -20,8 +20,8 @@ body {
       right: 2rem;
       text-shadow: 0 0 0.6rem #000000;
       &::after {
-        @include fa-icon;
-        @include fas;
+        @extend %fa-icon;
+        @extend .fas;
         color: $ls-color-white;
       }
     }
@@ -45,7 +45,7 @@ body {
       cursor: pointer;
 
       &::after {
-        content: $fa-var-window-close;
+        content: fa-content($fa-var-window-close);
       }
     }
 
@@ -54,7 +54,7 @@ body {
       opacity: .2;
 
       &::after {
-        content: $fa-var-search-plus;
+        content: fa-content($fa-var-search-plus);
       }
 
       &.possible {
@@ -68,7 +68,7 @@ body {
       opacity: .2;
 
       &::after {
-        content: $fa-var-search-minus;
+        content: fa-content($fa-var-search-minus);
       }
 
       &.possible {

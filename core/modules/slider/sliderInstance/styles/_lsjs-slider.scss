@@ -32,8 +32,8 @@
       cursor: pointer;
 
       &::after {
-        @include fa-icon;
-        @include fas;
+        @extend %fa-icon;
+        @extend .fas;
         font-size: 4rem;
         color: $ls-color-white;
         text-shadow: 0 0 1rem $ls-color-black;
@@ -45,7 +45,7 @@
 
       .arrow {
         &::after {
-          content: $fa-var-chevron-left;
+          content: fa-content($fa-var-chevron-left);
         }
       }
     }
@@ -55,7 +55,7 @@
 
       .arrow {
         &::after {
-          content: $fa-var-chevron-right;
+          content: fa-content($fa-var-chevron-right);
         }
       }
     }
@@ -115,9 +115,9 @@
 
       &:not(.use-image) {
         &::after {
-          @include fa-icon;
-          @include fas;
-          content: $fa-var-circle;
+          @extend %fa-icon;
+          @extend .fas;
+          content: fa-content($fa-var-circle);
           position: absolute;
           left: 0;
           right: 0;
@@ -140,9 +140,9 @@
     .navigation-dot {
       &.active {
         &::before {
-          @include fa-icon;
-          @include fas;
-          content: $fa-var-pause;
+          @extend %fa-icon;
+          @extend .fas;
+          content: fa-content($fa-var-pause);
           position: absolute;
           left: 0;
           right: 0;
@@ -172,7 +172,7 @@
       .navigation-dot {
         &.active {
           &::before {
-            content: $fa-var-play;
+            content: fa-content($fa-var-play);
             padding-left: .2rem;
           }
         }

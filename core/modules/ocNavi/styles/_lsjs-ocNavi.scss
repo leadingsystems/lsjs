@@ -12,18 +12,18 @@
 
     &::after {
       position: absolute;
-      @include fa-icon;
-      @include fas;
+      @extend %fa-icon;
+      @extend .fas;
       top: 1rem;
       right: 1rem;
       font-size: 3rem;
       cursor: pointer;
-      content: $fa-var-bars;
+      content: fa-content($fa-var-bars);
     }
 
     &.lsOcNaviOpen {
       &::after {
-        content: $fa-var-times;
+        content: fa-content($fa-var-times);
       }
     }
   }
