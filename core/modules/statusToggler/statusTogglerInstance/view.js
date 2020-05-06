@@ -47,7 +47,12 @@ var obj_classdef = 	{
 	},
 
 	bound_changeStatus: null,
-	changeStatus: function() {
+	changeStatus: function(event) {
+
+		if (this.__models.options.data.bln_stopEvent) {
+			event.stop();
+		}
+
 		var str_currentStatusValue = this.__el_container.getProperty(this.__models.options.data.str_propertyToToggle);
 		var int_currentStatusIndex = this.__models.options.data.arr_statusValue.indexOf(str_currentStatusValue);
 		if (int_currentStatusIndex < 0) {
@@ -56,6 +61,15 @@ var obj_classdef = 	{
 
 		var int_nextStatusIndex = int_currentStatusIndex === this.__models.options.data.arr_statusValue.length - 1 ? 0 : int_currentStatusIndex + 1;
 
+		if (this.__el_container.retrieve('bln_resetOnNextEvent') === true) {
+			int_nextStatusIndex = 0;
+			this.__el_container.store('bln_resetOnNextEvent', false);
+		} else {
+			if (!this.__models.options.data.bln_resetOtherElementsWithSamePropertyToToggle) {
+				this.fireElementsWithSamePropertyToToggle(event);
+			}
+		}
+
 		this.__el_container.setProperty(this.__models.options.data.str_propertyToToggle, this.__models.options.data.arr_statusValue[int_nextStatusIndex]);
 
 		if (this.__models.options.data.str_sessionStorageKey) {
@@ -63,6 +77,21 @@ var obj_classdef = 	{
 				sessionStorage.setItem('lsjs_statusToggler_' + this.__models.options.data.str_sessionStorageKey, this.__models.options.data.arr_statusValue[int_nextStatusIndex]);
 			} catch(e) {}
 		}
+	},
+
+	fireElementsWithSamePropertyToToggle: function(event) {
+		var els_withSamePropertyToToggle = $$('[' + this.__models.options.data.str_propertyToToggle + ']');
+
+		Array.each(
+			els_withSamePropertyToToggle,
+			function(el_toToggle) {
+				if (el_toToggle === this.__el_container) {
+					return;
+				}
+				el_toToggle.store('bln_resetOnNextEvent', true);
+				el_toToggle.getElement('[data-lsjs-element="toggler"]').fireEvent(this.__models.options.data.str_eventType, event);
+			}.bind(this)
+		)
 	}
 };
 
