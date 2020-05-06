@@ -65,7 +65,7 @@ var obj_classdef = 	{
 			int_nextStatusIndex = 0;
 			this.__el_container.store('bln_resetOnNextEvent', false);
 		} else {
-			if (!this.__models.options.data.bln_resetOtherElementsWithSamePropertyToToggle) {
+			if (this.__models.options.data.bln_resetOtherElementsWithSamePropertyToToggle) {
 				this.fireElementsWithSamePropertyToToggle(event);
 			}
 		}
