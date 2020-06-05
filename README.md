@@ -42,47 +42,35 @@ located in the "examples" folder.
 
 To use LSJS on a website it is necessary to load the LSJS core and at least one
 LSJS app. Loading the core or an app means loading the LSJS binder.php file with
-specific GET parameters. binder.php will then deliver a JS response or a CSS
-response, depending on what is requested. The purpose of binder.php is to
-combine the scripts and stylesheets of the LSJS core or an app (which are structured
-in folders) in one single file. No JS file or CSS file of the LSJS core or an app
-will ever be referenced directly.
+specific GET parameters. binder.php will then deliver a JS response.
+The purpose of binder.php is to combine the scripts of the LSJS core or an app (which are structured
+in folders) in one single file. No JS file of the LSJS core or an app will ever be referenced directly.
 
 Example _01 doesn't use any of the cool LSJS features (only the very simple messageBox
 core module). It simply shows how to include an LSJS app in your website.
 
 Please open: http://yourdomain.com/assets/lsjs/examples/_01/index.html
 
-If your browser displays a message box saying "LSJS loaded!" and your screen has a
-nice green background then both the javascript part and the CSS part of the
+If your browser displays a message box saying "LSJS loaded!" then the javascript of the
 LSJS core and the example app have been loaded successfully.
 
 Take look in "assets/lsjs/examples/_01/index.html" to see how binder.php is being
 referenced there.
 
-First of all, binder.php has to be referenced in the "src" attribute of a script element
-and/or the "href" attribute of a style element.
+First of all, binder.php has to be referenced in the "src" attribute of a script element.
 
 Like this:
 
 `<script src="../../core/appBinder/binder.php?output=js"></script>`
 
-or this:
-
-`<link rel="stylesheet" href="../../core/appBinder/binder.php?output=css">`
-
-The first includes the JS source code of the LSJS core and the core modules,
-the second includes the CSS code for the LSJS core and the core modules.
+This includes the JS source code of the LSJS core and the core modules.
 
 If we only do this, we don't see anything happening because we don't have any
 application code yet.
 
-In order to load the JS and the CSS of our app, we use the following "script" and
-"style" elements:
+In order to load the JS of our app, we use the following "script" element:
  
 `<script src="../../core/appBinder/binder.php?output=js&pathToApp=_dup2_/examples/_01/app&includeCore=no&includeCoreModules=no"></script>`
-
-`<link rel="stylesheet" href="../../core/appBinder/binder.php?output=css&pathToApp=_dup2_/examples/_01/app&includeCore=no&includeCoreModules=no">`
 
 The GET parameters `includeCore=no` and `includeCoreModules=no` tell binder.php
 to only load the app and its modules but not the core. Since we loaded the core
@@ -91,14 +79,12 @@ the app in one single request with this:
 
 `<script src="../../core/appBinder/binder.php?output=js&pathToApp=_dup2_/examples/_01/app"></script>`
 
-`<link rel="stylesheet" href="../../core/appBinder/binder.php?output=css&pathToApp=_dup2_/examples/_01/app">`
-
 Please note: The path to the app has to be specified relative to the location of
 binder.php. Therefore the path would probably beginn with at least some of those: "../"
 
 Although referencing the path to the app is in no way a security risk because the server
 never executes any files at the referenced location but only combines them and delivers
-them as plain JS/CSS code, some server protection systems (e.g. BitNinja) might find
+them as plain JS code, some server protection systems (e.g. BitNinja) might find
 URLs that contain something like "../../../../" suspicious and block the request or
 even the user's IP after several attempts to load the URL. To prevent this, binder.php
 supports a "directory up alias". So, in the "pathToApp" parameter, "../" can be wrote
@@ -160,13 +146,7 @@ You will already see the modified output.
 The module's controller is also customized and prints `customized controller works in module "helloWorld"`
 to the console.
 
-The app's styles are customized as well. If the stylesheet in the customization app folder
-had the same filename as the one in the original app folder, the original style file
-would be completely overridden. Instead, in this example we chose to put a stylesheet
-with a different file name in the customization app folder with the effect that both
-are being used simultaneously.
-
-Even the main app file, app.js, is customized and prints "customized app.js" works
+Even the main app file, app.js, is customized and prints "customized app.js works"
 to the console.
 
 Open the example's index.html and remove the GET parameter `pathToAppCustomization`
@@ -237,6 +217,28 @@ them inside a template:_
 ```<p>This won\'t be a problem</p>```
 
 ```<p>But this doesn't work</p>```
+
+##### Template includes
+Templates can be included in other templates. There are three possible ways of doing this:
+
+```
+<div data-lsjs-replaceWithTemplate="sub01"></div>
+```
+
+or
+
+```
+<div data-lsjs-replaceWithElement="arg.__view.el_replacement01"></div>
+```
+
+or
+
+```
+{{template::templatename}}
+```
+
+The last mentioned way to include another template inserts the subtemplate in the main template when the template is converted into actual JS code in the binder's template converter on the PHP side. Therefore, using this including technique you have full access to all variables that are available in the main template even from the subtemplate.
+
 
 #### Cache and Minifier
 By default, LSJS minifies and caches its output in order to optimize page loading speed.
