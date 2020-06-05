@@ -1,28 +1,28 @@
 .formReviewerApplied[data-misc-close-form-initially="1"] input.text:disabled,
 .formReviewerApplied[data-misc-close-form-initially="1"] select:disabled {
-  border: none;
-  border-bottom: 1px solid #000000;
-  color: #888888;
-  background-color: transparent;
+	border: none;
+	border-bottom: 1px solid #000000;
+	color: #888888;
+	background-color: transparent;
 }
 
 .formReviewerApplied[data-misc-close-form-initially="1"] input.submit:not(.showInFormReviewer):disabled {
-  display: none;
+	display: none;
 }
 
 .formReviewerApplied [data-lsjs-element="openFormToggler"]{
-  display: none;
+	display: none;
 }
 
 .formReviewerApplied.formClosed [data-lsjs-element="openFormToggler"]{
-  display: block;
+	display: block;
 }
 
 .formReviewerApplied label.mandatory::after {
-  content: "*";
-  display: inline-block;
+	content: "*";
+	display: inline-block;
 }
 
 .formReviewerApplied label.mandatory .mandatory {
-  display: none;
+	display: none;
 }

@@ -9,7 +9,6 @@ var obj_classdef_model = {
 		 * can later be overwritten when the "set" method is called with other options
 		 */
 		this.data = {
-			str_togglerContainerSelector: '#lsOcNaviTogglerContainer',
 			str_togglerSelector: '#lsOcNaviToggler',
 			str_naviSelector: '#lsOcNavi',
 			str_contentSelector: '',

@@ -248,16 +248,6 @@ var obj_classdef_model = {
 
 			/*
 			 * Optional.
-			 * Integer.
-			 *
-			 * When lsUnfold determines the size to which the element should be unfolded,
-			 * it is sometimes necessary to manipulate that value by adding a positive
-			 * or negative offset.
-			 */
-			int_widthOffset: 0,
-
-			/*
-			 * Optional.
 			 * 
 			 * The class to add to the wrapper, the toggler and the resizeBox when
 			 * the status is open.

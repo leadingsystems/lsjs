@@ -308,12 +308,7 @@ var obj_classdef = 	{
 		 * Determine the height that the opened resizeBox needs to have
 		 */
 		var int_endHeight = this.getResizeBoxHeight();
-
-		/*
-		 * Determine the width that the opened resizeBox needs to have
-		 */
-		var int_endWidth = this.getResizeBoxWidth();
-
+		
 		/*
 		 * Adding the event to listen for the outside click if necessary
 		 */
@@ -341,11 +336,6 @@ var obj_classdef = 	{
 		 */
 		int_endHeight += this.__models.options.data.int_heightOffset;
 		
-		/*
-		 * Adding the offset to the element's target width
-		 */
-        int_endWidth += this.__models.options.data.int_widthOffset;
-
 		/*
 		 * Resetting the styles which have to be applied before starting the morph
 		 * and the parameters for the morph effect.
@@ -416,33 +406,6 @@ var obj_classdef = 	{
 					'margin-top': [this.int_windowScrollY + (int_endHeight * -1), this.int_windowScrollY + 0]
 				};				
 				break;
-
-			case 'margin-left':
-				/*
-				 * When opening, we start with a negative margin that is as big
-				 * as the determined element's width. We add the window scroll
-				 * position, which might be 0 if the flag indicating that the
-				 * scroll position should be considered is not set. If the scroll
-				 * position should be considered, the window scroll position added
-				 * here makes sure, that the margin where the morph begins positions
-				 * the element right outside the window.
-				 *
-				 * We also set the initial display type to make the element
-				 * visible because before, it was set to display: none.
-				 */
-				this.obj_startStyles = {
-					'margin-left': this.int_windowScrollY + (int_endWidth * -1),
-					'display': this.str_initialDisplayType
-				};
-
-				/*
-				 * We morph the element's margin-left from the negative margin
-				 * (as big as the element's width) to margin-left 0.
-				 */
-				this.obj_morphParams = {
-					'margin-left': [int_endWidth * -1, 0]
-				};
-				break;
 		}
 		
 		/*
@@ -487,12 +450,6 @@ var obj_classdef = 	{
 		var int_beginHeight = this.getResizeBoxHeight();
 		
 		/*
-		 * We have to determine the element's current width before starting
-		 * the closing morph because the element's width might have changed.
-		 */
-		var int_beginWidth = this.getResizeBoxWidth();
-
-		/*
 		 * We don't want any unnecessary event listeners, so we remove the listener
 		 * for the click event on the outside click
 		 */
@@ -503,11 +460,6 @@ var obj_classdef = 	{
 		 */
 		int_beginHeight += this.__models.options.data.int_heightOffset;
 		
-		/*
-		 * Adding the offset to the element's determined width
-		 */
-        int_beginWidth += this.__models.options.data.int_widthOffset;
-
 		/*
 		 * Resetting the startSTyles and morphParams
 		 */
@@ -550,24 +502,6 @@ var obj_classdef = 	{
 					'margin-top': [this.el_resizeBox.getStyle('margin-top').toInt(), this.el_resizeBox.getStyle('margin-top').toInt() - int_beginHeight]
 				};
 				
-				/*
-				 * After the morph we set display: none to make
-				 * sure that the element is hidden.
-				 */
-				this.obj_endStyles = {
-					'display': 'none'
-				};
-				break;
-
-			case 'margin-left':
-				/*
-				 * When opening, we morph from a zero margin to a negative margin
-				 * as big as the element's width.
-				 */
-				this.obj_morphParams = {
-					'margin-left': [this.el_resizeBox.getStyle('margin-left').toInt(), this.el_resizeBox.getStyle('margin-left').toInt() - int_beginWidth]
-				};
-
 				/*
 				 * After the morph we set display: none to make
 				 * sure that the element is hidden.
@@ -897,25 +831,6 @@ var obj_classdef = 	{
 		}
 		
 		return int_height;
-	},
-
-	/*
-	 * This function determines the resizeBox's width and also considers the
-	 * element's box-sizing, which requires the element's padding and border to
-	 * be subtracted (content-box) or not (border-box).
-	 */
-	getResizeBoxWidth: function() {
-		var obj_dimensions,
-			int_width;
-
-		obj_dimensions = this.el_resizeBox.getDimensions({computeSize: true});
-		int_width = obj_dimensions.width;
-
-		if (this.el_resizeBox.getStyle('box-sizing') !== 'border-box') {
-            int_width = int_width - obj_dimensions['padding-left'] - obj_dimensions['padding-right'] - obj_dimensions['border-left-width'] - obj_dimensions['border-right-width'];
-		}
-
-		return int_width;
 	}
 };
 

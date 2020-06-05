@@ -1,0 +1,43 @@
+/*
+.useFoldedNavi {
+}
+
+.useFoldedNavi .foldedNaviToggler {
+	position: absolute;
+	right: 0px;
+	border: 1px solid #000000;
+	padding: 2px;
+	cursor: pointer;
+}
+
+.useFoldedNavi .foldedNaviToggler.lsUnfoldClosed::after {
+    content: "OPEN";
+}
+
+.useFoldedNavi .foldedNaviToggler.lsUnfoldClosed.lsUnfoldRunning::after {
+    content: "CLOSE";
+}
+
+.useFoldedNavi .foldedNaviToggler.lsUnfoldOpen::after {
+    content: "CLOSE";
+}
+
+.useFoldedNavi .foldedNaviToggler.lsUnfoldOpen.lsUnfoldRunning::after {
+    content: "OPEN";
+}
+
+.useFoldedNavi ul li {
+	position: relative;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.useFoldedNavi ul.level_1 ul {
+	display: none;
+	overflow: hidden;
+}
+
+.useFoldedNavi ul.level_2 li {
+	margin-left: 15px;
+}
+*/

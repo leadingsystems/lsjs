@@ -6,7 +6,6 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = 	{
 	el_toggler: null,
-    el_togglerContainer: null,
 	el_navi: null,
 	el_body: null,
 	el_content: null,
@@ -20,18 +19,10 @@ var obj_classdef = 	{
 			this.el_navi.inject(this.el_body, 'top');
 		}
 
-		if (this.__models.options.data.str_togglerContainerSelector !== undefined && this.__models.options.data.str_togglerContainerSelector) {
-            this.el_togglerContainer = $$(this.__models.options.data.str_togglerContainerSelector)[0];
-            if (typeOf(this.el_togglerContainer) !== 'element') {
-                this.el_togglerContainer = new Element('div' + this.__models.options.data.str_togglerContainerSelector);
-                this.el_togglerContainer.inject(this.el_body, 'top');
-            }
-        }
-
 		this.el_toggler = $$(this.__models.options.data.str_togglerSelector)[0];
 		if (typeOf(this.el_toggler) !== 'element') {
 			this.el_toggler = new Element('div' + this.__models.options.data.str_togglerSelector);
-			this.el_toggler.inject(typeOf(this.el_togglerContainer) === 'element' ? this.el_togglerContainer : this.el_body, 'top');
+			this.el_toggler.inject(this.el_body, 'top');
 		}
 
 		if (this.__models.options.data.str_contentSelector) {
@@ -59,22 +50,14 @@ var obj_classdef = 	{
 			var_togglerSelector: this.el_toggler,
 			var_contentBoxSelector: this.el_navi,
 			var_wrapperSelector: this.el_body,
-			str_animationMode: 'margin-left',
+			str_animationMode: 'margin-top',
 			str_classOpen: 'lsOcNaviOpen',
 			str_classClosed: 'lsOcNaviClosed',
 			str_classRunning: 'lsOcNaviRunning',
 			str_classUseLsUnfold: '',
 			
 			obj_morphOptions: {
-				'duration': 600,
-                'onStart': function() {
-					var el_body = $$('body')[0];
-					if (!el_body.hasClass('lsOcNaviOpen')) {
-                        lsjs.scrollAssistant.__controller.getLSFEScrollOffset();
-                    } else if (el_body.hasClass('lsOcNaviRunning')) {
-                        lsjs.scrollAssistant.__controller.scrollToLSFEOffset();
-					}
-                }
+				'duration': 600
 			}
 		});
 
