@@ -6,11 +6,6 @@ body.lsjs-active .hideWhenLsjs {
   display: none !important;
 }
 
-@import "../../lscss/scss/fontawesome/fontawesome.scss";
-@import "../../lscss/scss/fontawesome/solid.scss";
-@import "../../lscss/scss/ls/_variables-default.scss";
-
-
 @import "modules/automaticSelectAllCheckbox/styles/_lsjs-automaticSelectAllCheckbox.scss";
 @import "modules/formReviewer/formReviewerManager/styles/_lsjs-formReviewer.scss";
 @import "modules/loadingIndicator/styles/_lsjs-loadingIndicator.scss";
