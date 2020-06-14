@@ -6,8 +6,8 @@
   z-index: 99001;
 
   #lsOcNaviToggler {
-    @include make-container();
-    @include make-container-max-widths();
+    //@include make-container();
+    //@include make-container-max-widths();
     position: relative;
     height: 0;
     display: none;
@@ -32,8 +32,8 @@
 }
 
 #offCanvasContainer {
-  @include make-container();
-  @include make-container-max-widths();
+  //@include make-container();
+  //@include make-container-max-widths();
 }
 
 #lsOcNavi {
