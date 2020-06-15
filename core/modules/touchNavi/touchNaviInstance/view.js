@@ -13,21 +13,6 @@
 
 			this.el_body = $$('body')[0];
 
-			this.__el_container =
-				(
-					typeOf(this.__models.options.data.var_naviSelector) === 'element'
-					||	typeOf(this.__models.options.data.var_naviSelector) === 'null'
-				)
-					?	this.__models.options.data.var_naviSelector
-					:	$$(this.__models.options.data.var_naviSelector)[0];
-
-			if (typeOf(this.__el_container) !== 'element') {
-				console.log(str_moduleName + ': No navigation found with selector "this.__models.options.data.var_naviSelector"')
-				return;
-			}
-
-			this.__el_container.addClass('useTouchNavi');
-
 			if (this.__models.options.data.bln_useTouchBehaviourOnNonTouchDevices) {
                 this.__el_container.addClass('useTouchNaviOnNonTouchDevices');
             }

@@ -9,7 +9,6 @@ var obj_classdef_model = {
 		 * can later be overwritten when the "set" method is called with other options
 		 */
 		this.data = {
-			var_naviSelector: null,
 			var_touchableHyperlinkSelector: 'li > .submenu',
 			bln_autoTouchParent: true,
 			str_classToSetForTouchedElements: 'touched',
