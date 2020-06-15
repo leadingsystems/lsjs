@@ -21,7 +21,6 @@
 }
 
 .main.loadingIndicator::before {
-  @extend %fa-icon;
   @extend .fas;
   content: fa-content($fa-var-spinner);
   animation: loadingIndicator-spinner 1.5s linear infinite;

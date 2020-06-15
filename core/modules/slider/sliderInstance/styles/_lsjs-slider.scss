@@ -32,7 +32,6 @@
       cursor: pointer;
 
       &::after {
-        @extend %fa-icon;
         @extend .fas;
         font-size: 4rem;
         color: $ls-color-white;
@@ -115,7 +114,6 @@
 
       &:not(.use-image) {
         &::after {
-          @extend %fa-icon;
           @extend .fas;
           content: fa-content($fa-var-circle);
           position: absolute;
@@ -140,7 +138,6 @@
     .navigation-dot {
       &.active {
         &::before {
-          @extend %fa-icon;
           @extend .fas;
           content: fa-content($fa-var-pause);
           position: absolute;
