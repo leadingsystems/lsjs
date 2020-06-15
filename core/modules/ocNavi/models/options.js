@@ -12,8 +12,7 @@ var obj_classdef_model = {
 			str_togglerContainerSelector: '#lsOcNaviTogglerContainer',
 			str_togglerSelector: '#lsOcNaviToggler',
 			str_naviSelector: '#lsOcNavi',
-			str_contentSelector: '',
-			bln_useFoldedNaviInside: true
+			str_contentSelector: ''
 		};
 	},
 	

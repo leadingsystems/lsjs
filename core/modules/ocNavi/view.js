@@ -77,12 +77,6 @@ var obj_classdef = 	{
                 }
 			}
 		});
-
-		if (this.__models.options.data.bln_useFoldedNaviInside) {
-            lsjs.__moduleHelpers.foldedNavi.start({
-                var_naviSelector: this.el_navi
-            });
-        }
 	}
 };
 
