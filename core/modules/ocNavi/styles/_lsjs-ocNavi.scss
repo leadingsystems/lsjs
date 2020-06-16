@@ -1,82 +1,114 @@
-#lsOcNaviTogglerContainer {
+$ocNaviAnimationDuration: .5s;
+$ocNaviMarginLeftToHide: -110%;
+
+@keyframes ocNaviIn {
+  0% {
+    margin-left: $ocNaviMarginLeftToHide;
+  }
+  99.9% {
+    overflow-y: hidden;
+  }
+
+  100% {
+    margin-left: 0;
+    overflow-y: scroll;
+  }
+}
+
+@keyframes ocNaviOut {
+  0% {
+    overflow-y: hidden;
+    margin-left: 0;
+  }
+
+  100% {
+    margin-left: $ocNaviMarginLeftToHide;
+  }
+}
+
+@keyframes ocNaviInBodyStyles {
+  99.9% {
+    overflow: initial;
+    position: initial;
+  }
+
+  100% {
+    overflow: hidden;
+    position: fixed;
+  }
+}
+
+@keyframes ocNaviOutBodyStyles {
+  0% {
+    overflow: initial;
+    position: initial;
+  }
+}
+
+[data-lsjs-element="togglerContainer"] {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 99001;
 
-  #lsOcNaviToggler {
-    //@include make-container();
-    //@include make-container-max-widths();
-    position: relative;
-    height: 0;
-    display: none;
+}
+[data-lsjs-element="toggler"] {
+  position: relative;
+  height: 0;
+  display: none;
 
-    &::after {
-      position: absolute;
-      @extend .fas;
-      top: 1rem;
-      right: 1rem;
-      font-size: 3rem;
-      cursor: pointer;
-      content: fa-content($fa-var-bars);
-    }
+  &::after {
+    position: absolute;
+    @extend .fas;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+    content: fa-content($fa-var-bars);
+  }
+}
 
-    &.lsOcNaviOpen {
-      &::after {
-        content: fa-content($fa-var-times);
-      }
+body {
+  animation-duration: $ocNaviAnimationDuration;
+  animation-fill-mode: forwards;
+  &.showOcNavi {
+    [data-lsjs-element="toggler"]::after {
+      content: fa-content($fa-var-times);
     }
   }
 }
 
-#offCanvasContainer {
-  //@include make-container();
-  //@include make-container-max-widths();
-}
 
-#lsOcNavi {
-  display: none;
+[data-lsjs-element="offCanvasOuterContainer"] {
   position: fixed;
   top: 0;
   width: 100%;
   height: 100%;
   max-height: 100%;
   padding: 1rem;
+  margin-left: $ocNaviMarginLeftToHide;
   margin-bottom: 2rem !important;
   overflow: hidden;
   background-color: $ls-color-white;
   box-shadow: 0 .4rem 1rem $ls-color-black;
   z-index: 99000;
+  animation-duration: $ocNaviAnimationDuration;
+  animation-fill-mode: forwards;
 }
 
-#lsOcNaviTogglerContainer {
-  transition-property: opacity;
-  transition-duration: .3s;
+body.hideOcNavi {
+  animation-name: ocNaviOutBodyStyles;
+  [data-lsjs-element="offCanvasOuterContainer"] {
+    animation-name: ocNaviOut;
+  }
 }
 
-body.useOcNavi {
-  &.lsOcNaviRunning,
-  &.lsOcNaviOpen {
-    #lsOcNaviTogglerContainer {
-      opacity: 0;
-      transition-duration: .01s;
-    }
+body.showOcNavi {
+  animation-name: ocNaviInBodyStyles;
 
-    &.lsOcNaviOpen {
-      &:not(.lsOcNaviRunning) {
-        overflow: hidden;
-        position: fixed;
-
-        #lsOcNaviTogglerContainer {
-          opacity: 1;
-        }
-
-        #lsOcNavi {
-          overflow-y: scroll;
-        }
-      }
-    }
+  [data-lsjs-element="offCanvasOuterContainer"] {
+    animation-name: ocNaviIn;
   }
 
   /*
@@ -84,100 +116,19 @@ body.useOcNavi {
    * the ocNavi is open. Otherwise the ocNavi could not be closed
    * if the screen size has increased while the ocNavi is open.
    */
-  &.lsOcNaviOpen #lsOcNaviTogglerContainer #lsOcNaviToggler {
+  [data-lsjs-element="toggler"] {
     display: block;
   }
 }
 
 @media only screen and (max-width: $ls-oc-navi-max-width) {
-  /*
-   * show the off canvas navigation so that it is always visible
-   * if the off canvas javascript is not in use
-   */
-  #lsOcNavi {
+  [data-lsjs-element="toggler"] {
     display: block;
-  }
-
-  body.useOcNavi {
-    /*
-     * hide the off canvas navigation if the
-     * off canvas javascript is in use
-     */
-    #lsOcNavi {
-      display: none;
-      margin-bottom: 0;
-    }
-
-    /*
-     * show the off canvas toggler if the
-     * off canvas javascript is in use
-     */
-    #lsOcNaviToggler {
-      display: block;
-    }
   }
 }
 
 body.sticky {
-  #lsOcNaviTogglerContainer {
-    #lsOcNaviToggler {
-      display: block;
-    }
-  }
-}
-
-
-/*
- * Fallback if no javascript is active
- */
-@keyframes oc_height {
-  0% {
-    height: 0;
-  }
-  50% {
-    height: 0;
-  }
-  100% {
-    height: 100vh;
-  }
-}
-
-@keyframes oc_margin-left {
-  0% {
-    margin-left: -100%;
-  }
-  50% {
-    margin-left: -100%;
-  }
-  100% {
-    margin-left: 0;
-  }
-}
-
-@keyframes oc_opacity {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-body:not(.useOcNavi) {
-  #offCanvasContainer {
-    display: none;
-    padding: 1rem;
-    overflow: hidden;
-    height: auto;
-    animation: oc_height 2.5s, oc_margin-left 2.5s, oc_opacity 2.5s;
-  }
-
-  @media only screen and (max-width: $ls-oc-navi-max-width) {
-    #offCanvasContainer {
-      display: block;
-    }
+  [data-lsjs-element="toggler"] {
+    display: block;
   }
 }
