@@ -38,6 +38,8 @@
                         event.preventDefault();
 					}
 
+					self.handleSubmenuHeightToEnableSmoothTransition(this);
+
             		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
 						/*
 						 * Remove the touched class on all other touchable hyperlinks to make sure it can never
@@ -53,6 +55,46 @@
 					}
 				}
 			)
+		},
+
+		handleSubmenuHeightToEnableSmoothTransition: function(el_clickedElement) {
+			var el_relatedSubmenu = el_clickedElement.getParent().getElement('ul');
+
+			if (typeOf(el_relatedSubmenu) !== 'element') {
+				return;
+			}
+
+			var bln_currentlyCollapsed = el_relatedSubmenu.getStyle('height') === '0px';
+			var float_targetHeight = el_relatedSubmenu.scrollHeight;
+
+			var func_removeHeight = function() {
+				this.style.height = 'auto';
+				console.log('here');
+				this.removeEventListener('transitionend', this.retrieve('func_removeHeight'));
+			};
+
+
+			if (bln_currentlyCollapsed) {
+				el_relatedSubmenu.store(
+					'func_removeHeight',
+					func_removeHeight
+				);
+
+				el_relatedSubmenu.addEventListener(
+					'transitionend',
+					el_relatedSubmenu.retrieve('func_removeHeight')
+				);
+				el_relatedSubmenu.setStyle('height', float_targetHeight + 'px');
+			} else {
+				el_relatedSubmenu.removeEventListener('transitionend', el_relatedSubmenu.retrieve('func_removeHeight'));
+				el_relatedSubmenu.setStyle('height', float_targetHeight + 'px');
+				window.setTimeout(
+					function() {
+						el_relatedSubmenu.setStyle('height', 0);
+					},
+					50
+				)
+			}
 		}
 	};
 
