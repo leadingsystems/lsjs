@@ -58,6 +58,20 @@
 		},
 
 		handleSubmenuHeightToEnableSmoothTransition: function(el_clickedElement) {
+			/*
+             * FIXME: This function is not finished yet and is not to be used. The main problem is the fact
+             * that the function doesn't play nicely with the non-js-behaviour of the navigation. There are situations
+             * when the css part of the navigation doesn't allow an element to be collapsed when js does or when css
+             * thinks an element is open when js thinks it's not. But the current version of this function is a nice
+             * prototype that shows how the smooth transition could be implemented.
+             *
+             * It is also unclear whether it is a good approach to add this functionality to the touchNavi because originally,
+             * the touchNavi only had one job to do and that was to set "touched" classes as an alternative to using ":hover".
+             *
+             * Maybe it would be better to outsource the folding functionality into a separate module.
+             */
+			return;
+
 			var el_relatedSubmenu = el_clickedElement.getParent().getElement('ul');
 
 			if (typeOf(el_relatedSubmenu) !== 'element') {
