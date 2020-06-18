@@ -11,10 +11,6 @@ switch($_GET['output']) {
 		$obj_lsjs_appBinder->outputJS();
 		break;
 	
-	case 'css':
-		$obj_lsjs_appBinder->outputCSS();
-		break;
-	
 	case 'moduleStructure':
 		header("Content-Type: text/plain");
 		$arr_moduleList = $obj_lsjs_appBinder->getModuleStructure();

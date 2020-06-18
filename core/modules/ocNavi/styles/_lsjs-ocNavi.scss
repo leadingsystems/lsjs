@@ -1,0 +1,219 @@
+$ocNaviAnimationDuration: .5s;
+$ocNaviAnimationTogglerFadeDuration: .7s;
+$ocNaviMarginLeftToHide: -110%;
+$ocNaviTogglerIconClosed: $fa-var-bars;
+$ocNaviTogglerIconOpen: $fa-var-times;
+
+@keyframes ocNaviIn {
+  0% {
+    margin-left: $ocNaviMarginLeftToHide;
+  }
+  99.9% {
+    overflow-y: hidden;
+  }
+
+  100% {
+    margin-left: 0;
+    overflow-y: scroll;
+  }
+}
+
+@keyframes ocNaviOut {
+  0% {
+    overflow-y: hidden;
+    margin-left: 0;
+  }
+
+  100% {
+    margin-left: $ocNaviMarginLeftToHide;
+  }
+}
+
+@keyframes ocNaviInBodyStyles {
+  99.9% {
+    overflow: initial;
+    position: initial;
+  }
+
+  100% {
+    overflow: hidden;
+    position: fixed;
+  }
+}
+
+@keyframes ocNaviOutBodyStyles {
+  0% {
+    overflow: initial;
+    position: initial;
+  }
+}
+
+@keyframes ocNaviTogglerOpacity {
+  0% {
+      opacity: 1;
+   }
+
+  20% {
+      opacity: 0;
+   }
+
+  80% {
+      opacity: 0;
+   }
+
+  100% {
+      opacity: 1;
+   }
+}
+
+@keyframes ocNaviTogglerOpacityReverse {
+  0% {
+      opacity: 0;
+   }
+
+  80% {
+      opacity: 0;
+   }
+
+  100% {
+      opacity: 1;
+   }
+}
+
+@keyframes ocNaviTogglerIcon {
+  20% {
+    content: fa-content($ocNaviTogglerIconClosed);
+   }
+
+  100% {
+    content: fa-content($ocNaviTogglerIconOpen);
+   }
+}
+
+@keyframes ocNaviTogglerIconReverse {
+  //0% {
+  //  content: fa-content($ocNaviTogglerIconOpen);
+  //}
+
+  100% {
+    content: fa-content($ocNaviTogglerIconClosed);
+  }
+}
+
+[data-lsjs-component~="ocNavi"] {
+  [data-lsjs-element="togglerContainer"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99001;
+    animation-duration: $ocNaviAnimationTogglerFadeDuration;
+  }
+
+  [data-lsjs-element="toggler"] {
+    position: relative;
+    height: 0;
+    display: none;
+
+    &::after {
+      position: absolute;
+      @extend .fas;
+      top: 1.12rem;
+      right: 3rem;
+      font-size: 3.2rem;
+      cursor: pointer;
+      content: fa-content($ocNaviTogglerIconClosed);
+      animation-duration: $ocNaviAnimationTogglerFadeDuration;
+      animation-fill-mode: forwards;
+    }
+  }
+}
+
+body {
+  animation-duration: $ocNaviAnimationDuration;
+  animation-fill-mode: forwards;
+  &.showOcNavi {
+    [data-lsjs-component~="ocNavi"] {
+      [data-lsjs-element="toggler"]::after {
+        animation-name: ocNaviTogglerIcon;
+      }
+    }
+  }
+  &.hideOcNavi {
+    [data-lsjs-component~="ocNavi"] {
+      [data-lsjs-element="toggler"]::after {
+        animation-name: ocNaviTogglerIconReverse;
+      }
+    }
+  }
+}
+
+[data-lsjs-component~="ocNavi"] {
+  [data-lsjs-element="offCanvasOuterContainer"] {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    padding: 1.6rem;
+    margin-left: $ocNaviMarginLeftToHide;
+    margin-bottom: 2rem !important;
+    overflow: hidden;
+    background-color: $ls-color-white;
+    box-shadow: 0 .4rem 1rem $ls-color-black;
+    z-index: 99000;
+    animation-duration: $ocNaviAnimationDuration;
+    animation-fill-mode: forwards;
+  }
+}
+
+body.hideOcNavi {
+  animation-name: ocNaviOutBodyStyles;
+  [data-lsjs-component~="ocNavi"] {
+    [data-lsjs-element="offCanvasOuterContainer"] {
+      animation-name: ocNaviOut;
+    }
+
+    [data-lsjs-element="togglerContainer"] {
+      animation-name: ocNaviTogglerOpacityReverse;
+    }
+  }
+}
+
+body.showOcNavi {
+  animation-name: ocNaviInBodyStyles;
+
+  [data-lsjs-component~="ocNavi"] {
+    [data-lsjs-element="offCanvasOuterContainer"] {
+      animation-name: ocNaviIn;
+    }
+
+    /*
+     * Show the off canvas toggler regardless of the screen size if
+     * the ocNavi is open. Otherwise the ocNavi could not be closed
+     * if the screen size has increased while the ocNavi is open.
+     */
+    [data-lsjs-element="togglerContainer"] {
+      animation-name: ocNaviTogglerOpacity;
+      [data-lsjs-element="toggler"] {
+        display: block;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: $ls-oc-navi-max-width) {
+  [data-lsjs-component~="ocNavi"] {
+    [data-lsjs-element="toggler"] {
+      display: block;
+    }
+  }
+}
+
+body.sticky {
+  [data-lsjs-component~="ocNavi"] {
+    [data-lsjs-element="toggler"] {
+      display: block;
+    }
+  }
+}

@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 3.0.0 beta1 (2020-06-18)
+
+
 ##### 2.0.11 (2020-06-05)
 
  * Use document.location in cajaxCaller if a form has no action attribute

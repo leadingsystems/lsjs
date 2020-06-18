@@ -8,11 +8,12 @@
     "license": "proprietary",
     "require": {
         "contao-components/installer": "^1.0.9",
-        "matthiasmullie/minify": "^1.3"
+        "matthiasmullie/minify": "^1.3",
+        "leadingsystems/lscss": "^1.0.0"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "3.0.x-dev"
         }
     }
 }

@@ -8,9 +8,7 @@ class lsjs_binderController {
 	
 	const c_str_pathToModules = 'modules';
 	const c_str_pathToModels = 'models';
-	const c_str_pathToStyles = 'styles';
 	const c_str_pathToTemplates = 'templates';
-	const c_str_pathToMasterStyles = 'styles';
 
 	const c_str_pathToCache = '../../cache';
 
@@ -44,7 +42,6 @@ class lsjs_binderController {
 	protected $bln_includeCoreModules = true;
 	protected $bln_includeAppModules = true;
 	protected $bln_includeApp = true;
-	protected $bln_includeMasterStyleFiles = true;
 	protected $bln_debugMode = false;
 	protected $bln_useMinifier = true;
 	protected $bln_useCache = true;
@@ -114,88 +111,6 @@ class lsjs_binderController {
 		exit;
 	}
 	
-	public function outputCSS() {
-		header("Content-Type: text/css");
-
-		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.css';
-
-		if ($this->bln_useCache) {
-			if (file_exists($str_pathToCacheFile)) {
-				echo "/* FROM CACHE */\r\n" . file_get_contents($str_pathToCacheFile);
-				exit;
-			}
-		}
-
-		if ($this->bln_includeMasterStyleFiles) {
-			foreach ($this->arr_files['masterStyleFiles'] as $str_filePath) {
-				if (!file_exists($str_filePath)) {
-					continue;
-				}
-				
-				$this->str_output .= "\r\n\r\n\r\n\r\n/*\r\n";
-				$this->str_output .= 'MASTER STYLE FILE "'.pathinfo($str_filePath, PATHINFO_BASENAME).'"';
-				$this->str_output .= "\r\n*/\r\n\r\n";
-				$this->str_output .= $this->file_get_contents_envelope($str_filePath);
-			}
-		}
-		
-		$this->addModuleStylesheetsToOutput('core');
-		$this->addModuleStylesheetsToOutput('app');
-
-		if ($this->bln_useMinifier) {
-			$minifier_path = '../../../../vendor/matthiasmullie';
-			require_once $minifier_path . '/minify/src/Minify.php';
-			require_once $minifier_path . '/minify/src/CSS.php';
-			require_once $minifier_path . '/minify/src/JS.php';
-			require_once $minifier_path . '/minify/src/Exception.php';
-			require_once $minifier_path . '/minify/src/Exceptions/BasicException.php';
-			require_once $minifier_path . '/minify/src/Exceptions/FileImportException.php';
-			require_once $minifier_path . '/minify/src/Exceptions/IOException.php';
-			require_once $minifier_path . '/path-converter/src/ConverterInterface.php';
-			require_once $minifier_path . '/path-converter/src/Converter.php';
-
-
-			$obj_minifier = new \MatthiasMullie\Minify\CSS();
-			$obj_minifier->add($this->str_output);
-			$this->str_output = $obj_minifier->minify();
-		}
-
-		if ($this->bln_useCache) {
-			file_put_contents($str_pathToCacheFile, $this->str_output);
-		}
-
-		echo $this->str_output;
-		exit;
-	}
-	
-	protected function addModuleStylesheetsToOutput($str_what) {
-		if (!$str_what) {
-			throw new Exception(__METHOD__.': $str_what not given');
-		}
-		
-		if (!in_array($str_what, array('core', 'app'))) {
-			throw new Exception(__METHOD__.': $str_what has unsupported value');
-		}
-		
-		if (isset($this->arr_files[$str_what.'ModuleFiles']) && is_array($this->arr_files[$str_what.'ModuleFiles'])) {
-			foreach ($this->arr_files[$str_what.'ModuleFiles'] as $str_moduleName => $arr_moduleFiles) {
-				sort($arr_moduleFiles['styleFiles']);
-				foreach ($arr_moduleFiles['styleFiles'] as $str_filePath) {
-					if (!file_exists($str_filePath)) {
-						return;
-					}
-
-					$this->str_output .= "\r\n\r\n\r\n\r\n/*\r\n";
-					$this->str_output .= 'MODULE "'.$str_moduleName.'"';
-					$this->str_output .= "\r\n";
-					$this->str_output .= 'STYLE FILE "'.pathinfo($str_filePath, PATHINFO_BASENAME).'"';
-					$this->str_output .= "\r\n*/\r\n\r\n";
-					$this->str_output .= $this->file_get_contents_envelope($str_filePath);
-				}
-			}
-		}
-	}
-	
 	protected function readAllFiles() {
 		if ($this->bln_includeCore) {
 			$this->arr_files['mainCoreFiles'] = array(
@@ -228,13 +143,6 @@ class lsjs_binderController {
 
 			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
 		}
-		
-		$this->arr_files['masterStyleFiles_original'] = $this->readFiles($this->str_pathToApp.'/'.self::c_str_pathToMasterStyles);
-		$this->arr_files['masterStyleFiles_customization'] = $this->readFiles($this->str_pathToAppCustomization.'/'.self::c_str_pathToMasterStyles);
-		$this->arr_files['masterStyleFiles'] = $this->combineOriginalAndCustomizationFileArrays(
-			$this->arr_files['masterStyleFiles_original'],
-			$this->arr_files['masterStyleFiles_customization']
-		);
 	}
 
 	/*
@@ -276,12 +184,6 @@ class lsjs_binderController {
 				$arr_combinedModuleFiles[$str_moduleName]['modelFiles'] = $this->combineOriginalAndCustomizationFileArrays(
 					$arr_combinedModuleFiles[$str_moduleName]['modelFiles'],
 					$arr_customizationModuleFiles['modelFiles'],
-					$str_mode
-				);
-
-				$arr_combinedModuleFiles[$str_moduleName]['styleFiles'] = $this->combineOriginalAndCustomizationFileArrays(
-					$arr_combinedModuleFiles[$str_moduleName]['styleFiles'],
-					$arr_customizationModuleFiles['styleFiles'],
 					$str_mode
 				);
 			}
@@ -391,7 +293,7 @@ class lsjs_binderController {
 			/*
 			 * ->
 			 * If a module folder doesn't contain any of the usual module content (view file, controller file, templates
-			 * folder, models folder or styles folder), we assume that the folder is a module group folder and therefore
+			 * folder, models folder), we assume that the folder is a module group folder and therefore
 			 * we look for modules inside.
 			 */
 			if (
@@ -399,7 +301,6 @@ class lsjs_binderController {
 				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_viewFileName)
 				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToTemplates)
 				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToModels)
-				&&	!file_exists($str_pathToModules.'/'.$str_moduleName.'/'.self::c_str_pathToStyles)
 			) {
 				$arr_modules = $this->readModules($str_pathToModules.'/'.$str_moduleName, $arr_modules, $arr_moduleStructure[$bln_isRootCall ? 'allModules' : $str_pathToModules]['arr_children']);
 				continue;
@@ -441,8 +342,7 @@ class lsjs_binderController {
 			'viewFile' => file_exists($str_modulePath.'/'.self::c_str_viewFileName) ? $str_modulePath.'/'.self::c_str_viewFileName : '',
 			'controllerFile' => file_exists($str_modulePath.'/'.self::c_str_controllerFileName) ? $str_modulePath.'/'.self::c_str_controllerFileName : '',
 			'modelFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToModels),
-			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates),
-			'styleFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToStyles)
+			'templateFiles' => $this->readFiles($str_modulePath.'/'.self::c_str_pathToTemplates)
 		);
 	}
 	
@@ -685,15 +585,6 @@ class lsjs_binderController {
 		$str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
 
 		
-		if (isset($_GET['includeMasterStyleFiles'])) {
-			if ($_GET['includeMasterStyleFiles'] == 'yes') {
-				$this->bln_includeMasterStyleFiles = true;
-			} else {
-				$this->bln_includeMasterStyleFiles = false;
-			}
-		}
-		$str_cacheStringRaw .= $this->bln_includeMasterStyleFiles ? '1' : '0';
-
 		$this->str_cacheHash = md5($str_cacheStringRaw);
 	}
 }

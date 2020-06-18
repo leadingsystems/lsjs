@@ -1,0 +1,17 @@
+body:not(.lsjs-active) .hideWhenNoLsjs {
+  display: none !important;
+}
+
+body.lsjs-active .hideWhenLsjs {
+  display: none !important;
+}
+
+@import "modules/automaticSelectAllCheckbox/styles/_lsjs-automaticSelectAllCheckbox.scss";
+@import "modules/formReviewer/formReviewerManager/styles/_lsjs-formReviewer.scss";
+@import "modules/loadingIndicator/styles/_lsjs-loadingIndicator.scss";
+@import "modules/messageBox/styles/_lsjs-messageBox.scss";
+@import "modules/navtab/navtabInstance/styles/_lsjs-navtab.scss";
+@import "modules/ocNavi/styles/_lsjs-ocNavi.scss";
+
+@import "modules/slider/sliderInstance/styles/_lsjs-slider.scss";
+@import "modules/imageZoomer/imageZoomerInstance/styles/_lsjs-image-zoomer.scss";
