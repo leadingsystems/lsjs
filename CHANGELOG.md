@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### 3.0.0 beta1 (2020-06-18)
+
+
 ##### 2.0.10 (2019-06-26)
 
  * Add touch navi module
