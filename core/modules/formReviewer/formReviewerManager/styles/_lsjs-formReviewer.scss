@@ -26,3 +26,9 @@
 .formReviewerApplied label.mandatory .mandatory {
   display: none;
 }
+
+.formReviewerApplied [data-lsjs-element="openFormToggler"]::after {
+  @extend .fas;
+  content: fa-content($fa-var-edit);
+  cursor: pointer;
+}
