@@ -63,6 +63,11 @@ var obj_classdef_model = {
 			bln_dotNavigationActive: true,
 
 			/*
+			 * 'top' or 'bottom' to define where the dot navigation should be placed in the DOM
+			 */
+			str_dotNavigationPosition: 'bottom',
+
+			/*
 			 * True if the dots in the dot navigation should be replaced with preview images if possible
 			 */
 			bln_dotNavigationUseImagesIfPossible: true,

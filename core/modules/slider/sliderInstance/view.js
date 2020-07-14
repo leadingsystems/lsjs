@@ -167,10 +167,11 @@ var obj_classdef = 	{
             }.bind(this)
         );
 
-        this.el_container.adopt(
+        this.el_container.grab(
             this.el_navigationDotsContainer.adopt(
                 this.els_navigationDots
-            )
+            ),
+            this.__module.__parentModule.__models.options.data.str_dotNavigationPosition
         );
 
         this.els_navigationDots.addEvent(
