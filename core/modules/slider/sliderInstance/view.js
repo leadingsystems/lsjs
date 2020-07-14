@@ -525,7 +525,7 @@ var obj_classdef = 	{
 			this.els_items,
 			function(el_item) {
 				el_item.setStyles({
-                    'width': el_item.retrieve('itemSizeInformation').float_originalWidth,
+                    'width': Math.round(el_item.retrieve('itemSizeInformation').float_originalWidth),
                     'margin-left': el_item.retrieve('itemSizeInformation').float_marginLeft,
                     'margin-right': el_item.retrieve('itemSizeInformation').float_marginRight,
                     'padding-left': el_item.retrieve('itemSizeInformation').float_paddingLeft,
@@ -565,7 +565,7 @@ var obj_classdef = 	{
 		Array.each(
 			this.els_items,
 			function(el_item) {
-				float_requiredWidth += el_item.retrieve('itemSizeInformation').float_completeWidthIncludingMargins;
+                float_requiredWidth += Math.round(el_item.retrieve('itemSizeInformation').float_completeWidthIncludingMargins);
 			}.bind(this)
 		);
 
