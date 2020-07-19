@@ -14,9 +14,9 @@ var obj_classdef = 	{
 			closed: 'ocFlexClosed'
 		},
 		specific: {
-			standard: 'ocFlex',
-			open: 'ocFlexOpen',
-			closed: 'ocFlexClosed'
+			standard: '',
+			open: '',
+			closed: ''
 		}
 	},
 	float_documentScrollY: 0,
@@ -40,11 +40,7 @@ var obj_classdef = 	{
 		}
 
 		this.el_body.addClass(this.obj_classes.general.standard);
-		// this.el_body.addClass(this.obj_classes.general.closed);
 		this.el_body.addClass(this.obj_classes.specific.standard);
-		// this.el_body.addClass(this.obj_classes.specific.closed);
-		this.__el_container.addClass('closed');
-		this.els_togglers.addClass('closed');
 
 		this.els_togglers.addEvent(
 			'click',
@@ -52,7 +48,13 @@ var obj_classdef = 	{
 		);
 	},
 
-	toggle: function() {
+	toggle: function(event) {
+		/*
+		 * The toggler might be a hyperlink which should only be followed if JS isn't active.
+		 * Therefore we stop the click event.
+		 */
+		event.stop();
+
 		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
 			window.setTimeout(
 				function() {

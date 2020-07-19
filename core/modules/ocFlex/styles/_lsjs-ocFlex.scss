@@ -1,0 +1,177 @@
+$ocFlexAnimationDuration: 0.5s;
+/*
+ * If the oc container has a shadow to the right which effectively makes the space in which the container is actually
+ * visible bigger than 100% then this needs to be taken into account.
+ */
+$ocFlexMarginLeftToHide: -110%;
+
+/*
+ * The following animations are necessary to make sure that the oc container and the body do or do not have
+ * a scrollbar at exactly the right time.
+ */
+@keyframes ocFlexIn {
+  99.9% {
+    overflow-y: hidden;
+  }
+
+  100% {
+    overflow-y: scroll;
+  }
+}
+
+@keyframes ocFlexOut {
+  0% {
+    overflow-y: hidden;
+  }
+}
+
+@keyframes ocFlexInBodyStyles {
+  99.9% {
+    overflow: initial;
+    position: initial;
+  }
+
+  100% {
+    overflow: hidden;
+    position: fixed;
+  }
+}
+
+@keyframes ocFlexOutBodyStyles {
+  0% {
+    overflow: initial;
+    position: initial;
+  }
+}
+
+.ocFlexToggler {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 99001;
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+
+  .nav-bars {
+    position: absolute;
+    background-color: $ls-color-black;
+    width: 2.5rem;
+    height: 0.3125rem;
+    transition-property: transform;
+    transition-delay: .13s;
+    transition-timing-function: cubic-bezier(.55, .055, .675, .19);
+    transition-duration: .13s;
+    top: auto;
+    bottom: 0;
+    z-index: 999999999999;
+
+    &:before {
+      background-color: $ls-color-black;
+      width: 2.5rem;
+      height: 0.3125rem;
+      top: -.83333rem;
+      right: 0;
+      position: absolute;
+      content: '';
+      transition: top .12s cubic-bezier(.33333, .66667, .66667, 1) .2s, transform .13s cubic-bezier(.55, .055, .675, .19);
+    }
+
+    &:after {
+      background-color: $ls-color-black;
+      width: 2.5rem;
+      height: 0.3125rem;
+      top: -1.6666rem;
+      right: 0;
+      position: absolute;
+      content: '';
+      transition: top .2s cubic-bezier(.33333, .66667, .66667, 1) .2s, opacity .1s linear;
+    }
+  }
+
+  &.open {
+    .nav-bars {
+      transition-delay: .22s;
+      transition-timing-function: cubic-bezier(.215, .61, .355, 1);
+      transform: translate3d(0, -10px, 0) rotate(-45deg);
+
+      &:before {
+        top: 0;
+        transition: top .1s cubic-bezier(.33333, 0, .66667, .33333) .16s, transform .13s cubic-bezier(.215, .61, .355, 1) .25s;
+        transform: rotate(-90deg);
+      }
+
+      &:after {
+        top: 0;
+        transition: top .2s cubic-bezier(.33333, 0, .66667, .33333), opacity .1s linear .22s;
+        opacity: 0;
+      }
+    }
+  }
+}
+
+body {
+  animation-duration: $ocFlexAnimationDuration;
+  animation-fill-mode: forwards;
+}
+
+#ocFlexContainer_example01 {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 1.6rem;
+  margin-left: $ocFlexMarginLeftToHide;
+  margin-bottom: 2rem !important;
+  overflow: hidden;
+  background-color: $ls-color-white;
+  box-shadow: 0 .4rem 1rem $ls-color-black;
+  z-index: 99000;
+  animation-duration: $ocFlexAnimationDuration;
+  animation-fill-mode: forwards;
+  transition: margin-left $ocFlexAnimationDuration ease-in-out;
+}
+
+body.ocFlexClosed {
+  animation-name: ocFlexOutBodyStyles;
+  #ocFlexContainer_example01 {
+    animation-name: ocFlexOut;
+  }
+}
+
+body.ocFlexOpen {
+  animation-name: ocFlexInBodyStyles;
+
+  #ocFlexContainer_example01 {
+    animation-name: ocFlexIn;
+    margin-left: 0;
+  }
+
+  /*
+   * Show the off canvas toggler regardless of the screen size if
+   * ocFlex is open. Otherwise the ocFlex could not be closed
+   * if the screen size has increased while ocFlex is open.
+   */
+  .ocFlexToggler {
+    display: block;
+  }
+}
+
+/*
+ * In the default/example styling the width from which the toggler is displayed is being defined
+ * using a variable from lscss. In situations where this does not fit the specific needs, this style
+ * (along with every other style) can and should be overwritten by a custom stylesheet.
+ */
+@media only screen and (max-width: $ls-oc-navi-max-width) {
+  .ocFlexToggler {
+    display: block;
+  }
+}
+
+body.sticky {
+  .ocFlexToggler {
+    display: block;
+  }
+}
