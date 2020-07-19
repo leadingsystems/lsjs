@@ -15,7 +15,6 @@ var obj_classdef = 	{
 		if (
 			typeOf(this.__autoElements.main.offCanvasOuterContainer) !== 'element'
 			|| typeOf(this.__autoElements.main.offCanvasContainer) !== 'element'
-			|| typeOf(this.__autoElements.main.togglerContainer) !== 'element'
 			|| typeOf(this.__autoElements.main.toggler) !== 'element'
 		) {
 			console.error('ocNavi could not be initialized correctly because mandatory elements are missing.');
