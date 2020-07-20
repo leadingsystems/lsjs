@@ -44,12 +44,11 @@ $ocFlexMarginLeftToHide: -110%;
   }
 }
 
-.ocFlexToggler {
+.oc-flex-default-toggler {
   position: fixed;
   top: 1rem;
   left: 1rem;
   z-index: 99001;
-  display: none;
   width: 2.5rem;
   height: 2.5rem;
   cursor: pointer;
@@ -116,7 +115,7 @@ body {
   animation-fill-mode: forwards;
 }
 
-#ocFlexContainer_example01 {
+.oc-flex-default-container {
   position: fixed;
   top: 0;
   width: 100%;
@@ -136,42 +135,17 @@ body {
 
 body.ocFlexClosed {
   animation-name: ocFlexOutBodyStyles;
-  #ocFlexContainer_example01 {
-    animation-name: ocFlexOut;
-  }
+}
+
+.oc-flex-default-container.closed {
+  animation-name: ocFlexOut;
 }
 
 body.ocFlexOpen {
   animation-name: ocFlexInBodyStyles;
-
-  #ocFlexContainer_example01 {
-    animation-name: ocFlexIn;
-    margin-left: 0;
-  }
-
-  /*
-   * Show the off canvas toggler regardless of the screen size if
-   * ocFlex is open. Otherwise the ocFlex could not be closed
-   * if the screen size has increased while ocFlex is open.
-   */
-  .ocFlexToggler {
-    display: block;
-  }
 }
 
-/*
- * In the default/example styling the width from which the toggler is displayed is being defined
- * using a variable from lscss. In situations where this does not fit the specific needs, this style
- * (along with every other style) can and should be overwritten by a custom stylesheet.
- */
-@media only screen and (max-width: $ls-oc-navi-max-width) {
-  .ocFlexToggler {
-    display: block;
-  }
-}
-
-body.sticky {
-  .ocFlexToggler {
-    display: block;
-  }
+.oc-flex-default-container.open {
+  animation-name: ocFlexIn;
+  margin-left: 0;
 }

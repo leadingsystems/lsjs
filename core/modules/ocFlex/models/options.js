@@ -10,6 +10,7 @@ var obj_classdef_model = {
 		 */
 		this.data = {
 			el_domReference: null,
+			bln_debug: false, // true to activate debug logging
 			str_ocContainerSelector: '', // This selector must only match exactly one element
 			str_ocTogglerSelector: '', // This selector may match multiple elements
 

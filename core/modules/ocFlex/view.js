@@ -35,7 +35,9 @@ var obj_classdef = 	{
 		this.els_togglers = $$(this.__models.options.data.str_ocTogglerSelector);
 
 		if (this.els_togglers.length === 0) {
-			console.error(str_moduleName + ': at least one toggler item is required but none was found with selector "' + this.__models.options.data.str_ocTogglerSelector + '"');
+			if (this.__models.options.data.bln_debug) {
+				console.warn(str_moduleName + ': at least one toggler item is required but none was found with selector "' + this.__models.options.data.str_ocTogglerSelector + '"');
+			}
 			return;
 		}
 

@@ -51,10 +51,14 @@ lsjs.__moduleHelpers[str_moduleName] = {
 		}
 
 		if (els_container.length === 0) {
-			console.error(str_moduleName + ': no container element found for selector "' + obj_options.str_ocContainerSelector + '"');
+			if (obj_options.bln_debug) {
+				console.warn(str_moduleName + ': no container element found for selector "' + obj_options.str_ocContainerSelector + '"');
+			}
 			return;
 		} else if (els_container.length > 1) {
-			console.error(str_moduleName + ': more than one container element found "' + obj_options.str_ocContainerSelector + '"');
+			if (obj_options.bln_debug) {
+				console.warn(str_moduleName + ': more than one container element found "' + obj_options.str_ocContainerSelector + '"');
+			}
 			return;
 		}
 
