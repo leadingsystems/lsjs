@@ -7,7 +7,7 @@ var str_moduleName = '__moduleName__';
 /*
  * Use like this:
  *
- * lsjs.__moduleHelpers.stickyHeader.start({str_headerSelector: '#header', str_stickyClass: 'sticky'});
+ * lsjs.__moduleHelpers.stickyHeader.start({str_stickyClass: 'sticky'});
  *
  * The object given as a parameter in this example can be omitted since the values in the example are used as default.
  */

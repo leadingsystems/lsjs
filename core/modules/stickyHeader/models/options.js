@@ -2,7 +2,6 @@ var obj_classdef_model = {
 	name: 'options',
 
 	data: {
-		str_headerSelector: '#header',
 		str_stickyClass: 'sticky',
 		int_offset: 0
 	},
