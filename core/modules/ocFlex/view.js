@@ -23,6 +23,11 @@ var obj_classdef = 	{
 	float_documentScrollY: 0,
 
 	start: function() {
+		window.addEvent(
+			'resize',
+			this.handleFixedWidths.bind(this)
+		);
+
 		this.el_body = $$('body')[0];
 
 		this.obj_classes.specific.standard = this.obj_classes.general.standard + '-' + this.__models.options.data.str_uniqueInstanceName;
@@ -95,6 +100,13 @@ var obj_classdef = 	{
 			this.__el_container.addClass('open');
 			this.els_togglers.removeClass('closed');
 			this.els_togglers.addClass('open');
+		}
+	},
+
+	handleFixedWidths: function() {
+		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
+			this.unfixWidths();
+			this.fixWidths();
 		}
 	},
 
