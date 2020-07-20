@@ -62,10 +62,13 @@ var obj_classdef = 	{
 			window.setTimeout(
 				function() {
 					document.documentElement.scrollTop = this.float_documentScrollY;
+					this.el_body.setStyle('top', null);
 					this.el_body.removeClass(this.obj_classes.general.keepSticky);
 				}.bind(this),
 				5
 			);
+
+			this.unfixWidths();
 
 			this.el_body.addClass(this.obj_classes.general.closed);
 			this.el_body.removeClass(this.obj_classes.general.open);
@@ -78,7 +81,11 @@ var obj_classdef = 	{
 		} else {
 			this.el_body.addClass(this.obj_classes.general.keepSticky);
 
+			this.fixWidths();
+
 			this.float_documentScrollY = document.documentElement.scrollTop;
+
+			this.el_body.setStyle('top', this.float_documentScrollY * -1);
 
 			this.el_body.removeClass(this.obj_classes.general.closed);
 			this.el_body.addClass(this.obj_classes.general.open);
@@ -89,6 +96,37 @@ var obj_classdef = 	{
 			this.els_togglers.removeClass('closed');
 			this.els_togglers.addClass('open');
 		}
+	},
+
+	fixWidths: function() {
+		Array.each(
+			this.__models.options.data.arr_fixedWidthSelectors,
+			function(str_selector) {
+				var els_toFixWidth = $$(str_selector);
+				Array.each(
+					els_toFixWidth,
+					function (el_toFixWidth) {
+						el_toFixWidth.setStyle('width', el_toFixWidth.getComputedSize().width);
+					}
+				);
+			}.bind(this)
+		);
+
+	},
+
+	unfixWidths: function() {
+		Array.each(
+			this.__models.options.data.arr_fixedWidthSelectors,
+			function(str_selector) {
+				var els_toFixWidth = $$(str_selector);
+				Array.each(
+					els_toFixWidth,
+					function (el_toFixWidth) {
+						el_toFixWidth.setStyle('width', null);
+					}
+				);
+			}.bind(this)
+		);
 	}
 };
 
