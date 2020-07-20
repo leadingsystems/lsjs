@@ -11,7 +11,8 @@ var obj_classdef = 	{
 		general: {
 			standard: 'ocFlex',
 			open: 'ocFlexOpen',
-			closed: 'ocFlexClosed'
+			closed: 'ocFlexClosed',
+			keepSticky: 'keep-sticky'
 		},
 		specific: {
 			standard: '',
@@ -61,6 +62,7 @@ var obj_classdef = 	{
 			window.setTimeout(
 				function() {
 					document.documentElement.scrollTop = this.float_documentScrollY;
+					this.el_body.removeClass(this.obj_classes.general.keepSticky);
 				}.bind(this),
 				5
 			);
@@ -74,17 +76,7 @@ var obj_classdef = 	{
 			this.els_togglers.addClass('closed');
 			this.els_togglers.removeClass('open');
 		} else {
-			if (this.el_body.hasClass(this.__models.options.data.str_stickyBodyClass)) {
-				/*
-				 * Maintain the body's sticky class if necessary.
-				 */
-				window.setTimeout(
-					function() {
-						this.el_body.addClass(this.__models.options.data.str_stickyBodyClass);
-					}.bind(this),
-					this.__models.options.data.int_stickyBodyClassRestorationDelay
-				);
-			}
+			this.el_body.addClass(this.obj_classes.general.keepSticky);
 
 			this.float_documentScrollY = document.documentElement.scrollTop;
 
