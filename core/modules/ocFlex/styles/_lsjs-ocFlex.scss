@@ -5,46 +5,6 @@ $ocFlexAnimationDuration: 0.5s;
  */
 $ocFlexMarginLeftToHide: -110%;
 
-/*
- * The following animations are necessary to make sure that the oc container and the body do or do not have
- * a scrollbar at exactly the right time.
- */
-@keyframes ocFlexIn {
-  99.9% {
-    overflow-y: hidden;
-  }
-
-  100% {
-    overflow-y: scroll;
-  }
-}
-
-@keyframes ocFlexOut {
-  0% {
-    overflow-y: hidden;
-  }
-}
-
-@keyframes ocFlexInBodyStyles {
-  99.9% {
-    overflow: initial;
-    position: initial;
-  }
-
-  100% {
-    height: 100vh;
-    overflow: hidden;
-    position: fixed;
-  }
-}
-
-@keyframes ocFlexOutBodyStyles {
-  0% {
-    overflow: initial;
-    position: initial;
-  }
-}
-
 .oc-flex-default-toggler {
   position: fixed;
   top: 1rem;
@@ -111,11 +71,6 @@ $ocFlexMarginLeftToHide: -110%;
   }
 }
 
-body {
-  animation-duration: $ocFlexAnimationDuration;
-  animation-fill-mode: forwards;
-}
-
 .oc-flex-default-container {
   position: fixed;
   top: 0;
@@ -134,19 +89,13 @@ body {
   transition: margin-left $ocFlexAnimationDuration ease-in-out;
 }
 
-body.ocFlexClosed {
-  animation-name: ocFlexOutBodyStyles;
-}
-
-.oc-flex-default-container.closed {
-  animation-name: ocFlexOut;
-}
-
 body.ocFlexOpen {
-  animation-name: ocFlexInBodyStyles;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
 }
 
 .oc-flex-default-container.open {
-  animation-name: ocFlexIn;
+  overflow-y: scroll;
   margin-left: 0;
 }
