@@ -57,13 +57,16 @@ var obj_classdef = 	{
 	},
 
 	toggle: function(event) {
-		/*
-		 * The toggler might be a hyperlink which should only be followed if JS isn't active.
-		 * Therefore we stop the click event.
-		 */
-		event.stop();
+		if (event !== undefined) {
+			/*
+             * The toggler might be a hyperlink which should only be followed if JS isn't active.
+             * Therefore we stop the click event.
+             */
+			event.stop();
+		}
 
 		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
+			window.ocFlexCloseCurrentlyOpen = null;
 			window.setTimeout(
 				function() {
 					document.documentElement.scrollTop = this.float_documentScrollY;
@@ -84,6 +87,12 @@ var obj_classdef = 	{
 			this.els_togglers.addClass('closed');
 			this.els_togglers.removeClass('open');
 		} else {
+			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
+				window.ocFlexCloseCurrentlyOpen();
+			}
+
+			window.ocFlexCloseCurrentlyOpen = this.toggle.bind(this);
+
 			this.el_body.addClass(this.obj_classes.general.keepSticky);
 
 			this.fixWidths();

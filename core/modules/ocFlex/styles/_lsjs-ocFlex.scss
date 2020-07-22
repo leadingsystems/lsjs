@@ -9,7 +9,7 @@ $ocFlexMarginLeftToHide: -110%;
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 99001;
+  z-index: 99002;
   width: 2.5rem;
   height: 2.5rem;
   cursor: pointer;
@@ -25,7 +25,6 @@ $ocFlexMarginLeftToHide: -110%;
     transition-duration: .13s;
     top: auto;
     bottom: 0;
-    z-index: 999999999999;
 
     &:before {
       background-color: $ls-color-black;
@@ -98,4 +97,5 @@ body.ocFlexOpen {
 .oc-flex-default-container.open {
   overflow-y: scroll;
   margin-left: 0;
+  z-index: 99001;
 }
