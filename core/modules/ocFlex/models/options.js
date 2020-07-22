@@ -21,16 +21,7 @@ var obj_classdef_model = {
 			 * being open or closed or running
 			 */
 			str_uniqueInstanceName: '',
-			str_classToSetWhenModuleApplied: 'ocFlexApplied',
-
-			/*
-			 * If the overlay is open, the body does not have a scrollbar. In browsers where the scrollbar
-			 * actually takes up space, this triggers a reflow because without the scrollbar there is more
-			 * space available (bigger viewport width). To prevent this reflow, elements which are directly
-			 * affected by the viewport width can be set to a fixed width. ocFlex needs to know which elements
-			 * should be considered. By default it's the body element.
-			 */
-			arr_fixedWidthSelectors: ['body']
+			str_classToSetWhenModuleApplied: 'ocFlexApplied'
 		};
 	},
 	

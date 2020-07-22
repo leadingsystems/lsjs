@@ -23,11 +23,6 @@ var obj_classdef = 	{
 	float_documentScrollY: 0,
 
 	start: function() {
-		window.addEvent(
-			'resize',
-			this.handleFixedWidths.bind(this)
-		);
-
 		this.el_body = $$('body')[0];
 
 		this.obj_classes.specific.standard = this.obj_classes.general.standard + '-' + this.__models.options.data.str_uniqueInstanceName;
@@ -76,8 +71,6 @@ var obj_classdef = 	{
 				5
 			);
 
-			this.unfixWidths();
-
 			this.el_body.addClass(this.obj_classes.general.closed);
 			this.el_body.removeClass(this.obj_classes.general.open);
 			this.el_body.addClass(this.obj_classes.specific.closed);
@@ -95,8 +88,6 @@ var obj_classdef = 	{
 
 			this.el_body.addClass(this.obj_classes.general.keepSticky);
 
-			this.fixWidths();
-
 			this.float_documentScrollY = document.documentElement.scrollTop;
 
 			this.el_body.setStyle('top', this.float_documentScrollY * -1);
@@ -111,44 +102,6 @@ var obj_classdef = 	{
 			this.els_togglers.addClass('open');
 		}
 	},
-
-	handleFixedWidths: function() {
-		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
-			this.unfixWidths();
-			this.fixWidths();
-		}
-	},
-
-	fixWidths: function() {
-		Array.each(
-			this.__models.options.data.arr_fixedWidthSelectors,
-			function(str_selector) {
-				var els_toFixWidth = $$(str_selector);
-				Array.each(
-					els_toFixWidth,
-					function (el_toFixWidth) {
-						el_toFixWidth.setStyle('width', el_toFixWidth.getComputedSize().width);
-					}
-				);
-			}.bind(this)
-		);
-
-	},
-
-	unfixWidths: function() {
-		Array.each(
-			this.__models.options.data.arr_fixedWidthSelectors,
-			function(str_selector) {
-				var els_toFixWidth = $$(str_selector);
-				Array.each(
-					els_toFixWidth,
-					function (el_toFixWidth) {
-						el_toFixWidth.setStyle('width', null);
-					}
-				);
-			}.bind(this)
-		);
-	}
 };
 
 lsjs.addViewClass(str_moduleName, obj_classdef);
