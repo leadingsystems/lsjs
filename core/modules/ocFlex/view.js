@@ -62,14 +62,6 @@ var obj_classdef = 	{
 
 		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
 			window.ocFlexCloseCurrentlyOpen = null;
-			window.setTimeout(
-				function() {
-					document.documentElement.scrollTop = this.float_documentScrollY;
-					this.el_body.setStyle('top', null);
-					this.el_body.removeClass(this.obj_classes.general.keepSticky);
-				}.bind(this),
-				5
-			);
 
 			this.el_body.addClass(this.obj_classes.general.closed);
 			this.el_body.removeClass(this.obj_classes.general.open);
@@ -79,6 +71,10 @@ var obj_classdef = 	{
 			this.__el_container.removeClass('open');
 			this.els_togglers.addClass('closed');
 			this.els_togglers.removeClass('open');
+			document.documentElement.scrollTop = this.float_documentScrollY;
+			this.el_body.setStyle('top', null);
+			this.el_body.removeClass(this.obj_classes.general.keepSticky);
+
 		} else {
 			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
 				window.ocFlexCloseCurrentlyOpen();
