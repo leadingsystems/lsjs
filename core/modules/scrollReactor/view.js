@@ -5,9 +5,16 @@ var str_moduleName = '__moduleName__';
 // #################################
 
 var obj_classdef = 	{
+	el_body: null,
+
+	obj_classes: {
+		scrollingDown: 'scrolling-down',
+		scrollingUp: 'scrolling-up'
+	},
+
 	arr_preparedReactions: [],
 
-	str_currentDirection: 'down',
+	str_currentDirection: 'none',
 
 	int_currentScrollY: 0,
 	int_lastScrollY: 0,
@@ -33,7 +40,7 @@ var obj_classdef = 	{
 		},
 
 		/*
-		 * Defines how many times the reactio for a specific scroll event will be performed.
+		 * Defines how many times the reaction for a specific scroll event will be performed.
 		 * 0 means no limit at all; any integer value will be counted down to zero and then the
 		 * corresponding obj_reactOn value will be set to 'none'
 		 */
@@ -57,6 +64,7 @@ var obj_classdef = 	{
 	},
 	
 	start: function() {
+		this.el_body = $$('body')[0];
 		this.initializeReactor();
 		window.addEvent('resize', this.initializeReactor.bind(this));
 		window.addEvent('scroll', this.react.bind(this));
@@ -130,12 +138,27 @@ var obj_classdef = 	{
 	react: function() {
 		this.determineScrollPositionAndDirection();
 
+		this.setBodyClass();
+
 		// console.log('this.str_currentDirection', this.str_currentDirection);
 
 		Array.each(this.arr_preparedReactions, function (obj_reaction) {
 			this.determineReactionRelatedScrollPosition(obj_reaction);
 			this.processReaction(obj_reaction);
 		}.bind(this));
+	},
+
+	setBodyClass: function() {
+		if (this.str_currentDirection === 'down') {
+			this.el_body.addClass(this.obj_classes.scrollingDown);
+			this.el_body.removeClass(this.obj_classes.scrollingUp);
+		} else if (this.str_currentDirection === 'up') {
+			this.el_body.removeClass(this.obj_classes.scrollingDown);
+			this.el_body.addClass(this.obj_classes.scrollingUp);
+		} else {
+			this.el_body.removeClass(this.obj_classes.scrollingDown);
+			this.el_body.removeClass(this.obj_classes.scrollingUp);
+		}
 	},
 
 	determineReactionRelatedScrollPosition: function(obj_reaction) {
@@ -158,7 +181,9 @@ var obj_classdef = 	{
 
 	determineScrollPositionAndDirection: function() {
 		this.int_currentScrollY = window.getScroll().y;
-		if (this.int_currentScrollY > this.int_lastScrollY) {
+		if (this.int_currentScrollY === 0) {
+			this.str_currentDirection = 'none';
+		} else if (this.int_currentScrollY > this.int_lastScrollY) {
 			this.str_currentDirection = 'down';
 		} else if (this.int_currentScrollY < this.int_lastScrollY) {
 			this.str_currentDirection = 'up';
