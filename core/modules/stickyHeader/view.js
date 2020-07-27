@@ -31,7 +31,9 @@ var obj_classdef = 	{
 						str_between: 'none'
 					}
 				}
-			]
+			],
+			str_uniqueInstanceName: 'sticky-header',
+			int_scrollDistanceToBeConsideredWide: self.__models.options.data.int_scrollDistanceToReappear
 		});
 	}
 };

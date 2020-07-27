@@ -9,7 +9,8 @@ var obj_classdef = 	{
 
 	obj_classes: {
 		scrollingDown: 'scrolling-down',
-		scrollingUp: 'scrolling-up'
+		scrollingUp: 'scrolling-up',
+		wide: 'scrolling-wide'
 	},
 
 	arr_preparedReactions: [],
@@ -18,6 +19,7 @@ var obj_classdef = 	{
 
 	int_currentScrollY: 0,
 	int_lastScrollY: 0,
+	int_scrollDistanceInThisDirection: 0,
 
 	obj_currentReaction: null,
 
@@ -64,6 +66,15 @@ var obj_classdef = 	{
 	},
 	
 	start: function() {
+		if (!this.__models.options.data.str_uniqueInstanceName) {
+			if (this.__models.options.data.bln_debug) {
+				console.warn(str_moduleName + ': no unique instance name given');
+			}
+		} else {
+			this.obj_classes.scrollingDown = this.obj_classes.scrollingDown + '_' + this.__models.options.data.str_uniqueInstanceName;
+			this.obj_classes.scrollingUp = this.obj_classes.scrollingUp + '_' + this.__models.options.data.str_uniqueInstanceName;
+			this.obj_classes.wide = this.obj_classes.wide + '_' + this.__models.options.data.str_uniqueInstanceName;
+		}
 		this.el_body = $$('body')[0];
 		this.initializeReactor();
 		window.addEvent('resize', this.initializeReactor.bind(this));
@@ -159,6 +170,12 @@ var obj_classdef = 	{
 			this.el_body.removeClass(this.obj_classes.scrollingDown);
 			this.el_body.removeClass(this.obj_classes.scrollingUp);
 		}
+
+		if (this.int_scrollDistanceInThisDirection >= this.__models.options.data.int_scrollDistanceToBeConsideredWide) {
+			this.el_body.addClass(this.obj_classes.wide);
+		} else {
+			this.el_body.removeClass(this.obj_classes.wide);
+		}
 	},
 
 	determineReactionRelatedScrollPosition: function(obj_reaction) {
@@ -180,7 +197,12 @@ var obj_classdef = 	{
 	},
 
 	determineScrollPositionAndDirection: function() {
+		var str_lastDirection = this.str_currentDirection;
+
 		this.int_currentScrollY = window.getScroll().y;
+
+		var int_distance = Math.abs(this.int_lastScrollY - this.int_currentScrollY);
+
 		if (this.int_currentScrollY === 0) {
 			this.str_currentDirection = 'none';
 		} else if (this.int_currentScrollY > this.int_lastScrollY) {
@@ -188,6 +210,13 @@ var obj_classdef = 	{
 		} else if (this.int_currentScrollY < this.int_lastScrollY) {
 			this.str_currentDirection = 'up';
 		}
+
+		if (this.str_currentDirection !== str_lastDirection) {
+			this.int_scrollDistanceInThisDirection = int_distance;
+		} else {
+			this.int_scrollDistanceInThisDirection += int_distance;
+		}
+
 		this.int_lastScrollY = this.int_currentScrollY;
 	},
 
