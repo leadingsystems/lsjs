@@ -17,6 +17,7 @@ var obj_classdef = 	{
 
 	int_currentScrollY: 0,
 	int_lastScrollY: 0,
+	int_lastScrollSpeed: 0,
 	int_scrollDistanceInThisDirection: 0,
 
 	start: function() {
@@ -47,7 +48,7 @@ var obj_classdef = 	{
 
 		this.int_currentScrollY = window.getScroll().y;
 
-		var int_distance = Math.abs(this.int_lastScrollY - this.int_currentScrollY);
+		this.int_lastScrollSpeed = this.int_lastScrollY ? Math.abs(this.int_lastScrollY - this.int_currentScrollY) : 0;
 
 		if (this.int_currentScrollY === 0) {
 			this.str_currentDirection = 'none';
@@ -58,9 +59,9 @@ var obj_classdef = 	{
 		}
 
 		if (this.str_currentDirection !== str_lastDirection) {
-			this.int_scrollDistanceInThisDirection = int_distance;
+			this.int_scrollDistanceInThisDirection = this.int_lastScrollSpeed;
 		} else {
-			this.int_scrollDistanceInThisDirection += int_distance;
+			this.int_scrollDistanceInThisDirection += this.int_lastScrollSpeed;
 		}
 
 		this.int_lastScrollY = this.int_currentScrollY;
