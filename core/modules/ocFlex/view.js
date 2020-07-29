@@ -12,7 +12,7 @@ var obj_classdef = 	{
 			standard: 'ocFlex',
 			open: 'ocFlexOpen',
 			closed: 'ocFlexClosed',
-			keepSticky: 'keep-sticky'
+			// keepSticky: 'keep-sticky'
 		},
 		specific: {
 			standard: '',
@@ -73,7 +73,7 @@ var obj_classdef = 	{
 			this.els_togglers.removeClass('open');
 			document.documentElement.scrollTop = this.float_documentScrollY;
 			this.el_body.setStyle('top', null);
-			this.el_body.removeClass(this.obj_classes.general.keepSticky);
+			// this.el_body.removeClass(this.obj_classes.general.keepSticky);
 
 		} else {
 			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
@@ -82,7 +82,7 @@ var obj_classdef = 	{
 
 			window.ocFlexCloseCurrentlyOpen = this.toggle.bind(this);
 
-			this.el_body.addClass(this.obj_classes.general.keepSticky);
+			// this.el_body.addClass(this.obj_classes.general.keepSticky);
 
 			this.float_documentScrollY = document.documentElement.scrollTop;
 

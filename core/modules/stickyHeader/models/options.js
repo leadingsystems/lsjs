@@ -3,8 +3,11 @@ var obj_classdef_model = {
 
 	data: {
 		str_stickyClass: 'sticky',
-		int_offset: 0,
-		int_scrollDistanceToReappear: 0
+
+		str_selectorForElementToStick: 'header',
+		str_selectorForElementToSaveSpace: 'body',
+
+		bln_debug: false
 	},
 
 	start: function() {

@@ -1,0 +1,36 @@
+$ls-sticky-header-animation-duration: 0.8s;
+$ls-sticky-header-animation-timing-function: ease-in-out;
+
+.sticky-element {
+  top: 0;
+  z-index: 99000;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    z-index: -1;
+    height: 100%;
+    box-shadow: 0rem -3rem 3rem 2rem $ls-color-black;
+    opacity: 0;
+    transition: opacity $ls-sticky-header-animation-duration $ls-sticky-header-animation-timing-function;
+  }
+
+  body.sticky & {
+    position: fixed;
+    visibility: hidden;
+  }
+
+  body.sticky.scrolling-up & {
+    position: fixed;
+    transition: top $ls-sticky-header-animation-duration $ls-sticky-header-animation-timing-function;
+    top: 0 !important;
+    visibility: visible;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
