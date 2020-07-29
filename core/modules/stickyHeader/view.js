@@ -16,7 +16,7 @@ var obj_classdef = 	{
 	int_originalBottomPositionOfStickyElement: 0,
 	int_currentBottomPositionOfStickyElement: 0,
 
-	int_minScrollSpeedToShowSticky: 25,
+	int_minScrollSpeedToShowSticky: 20,
 
 	bln_currentlySticky: false,
 	bln_currentlyShown: false,
@@ -92,9 +92,12 @@ var obj_classdef = 	{
 				// }
 			}
 		);
+
+		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_stickyHeight);
 	},
 
 	reactOnResizing: function() {
+		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
 		this.makeUnsticky();
 		this.initializePositionsAndSizes();
 		// this.reactOnScrolling();
@@ -148,7 +151,6 @@ var obj_classdef = 	{
 		this.bln_currentlySticky = true;
 		this.el_body.addClass(this.obj_classes.sticky);
 		this.moveStickyOffCanvas();
-		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_stickyHeight);
 	},
 
 	makeUnsticky: function() {
@@ -156,7 +158,6 @@ var obj_classdef = 	{
 		this.el_body.removeClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 		this.moveStickyInCanvas();
-		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
 		this.bln_currentlySticky = false;
 	},
 

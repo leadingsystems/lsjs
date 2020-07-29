@@ -1,10 +1,10 @@
-$ls-sticky-header-animation-duration: 0.8s;
+$ls-sticky-header-animation-duration: 0.2s;
 $ls-sticky-header-animation-timing-function: ease-in-out;
 
 .sticky-element {
+  position: absolute;
   top: 0;
   z-index: 99000;
-  transition: top $ls-sticky-header-animation-duration $ls-sticky-header-animation-timing-function;
 
   &::after {
     content: "";
@@ -22,6 +22,7 @@ $ls-sticky-header-animation-timing-function: ease-in-out;
   body.sticky & {
     position: fixed;
     visibility: hidden;
+    transition: top $ls-sticky-header-animation-duration $ls-sticky-header-animation-timing-function;
   }
 
   body.sticky.show-sticky & {
