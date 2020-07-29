@@ -5,21 +5,12 @@ var str_moduleName = '__moduleName__';
 // #################################
 
 var obj_classdef = 	{
-	el_body: null,
-
-	obj_classes: {
-		scrollingDown: 'scrolling-down',
-		scrollingUp: 'scrolling-up',
-		wide: 'scrolling-wide'
-	},
-
 	arr_preparedReactions: [],
 
-	str_currentDirection: 'none',
+	str_currentDirection: 'down',
 
 	int_currentScrollY: 0,
 	int_lastScrollY: 0,
-	int_scrollDistanceInThisDirection: 0,
 
 	obj_currentReaction: null,
 
@@ -42,7 +33,7 @@ var obj_classdef = 	{
 		},
 
 		/*
-		 * Defines how many times the reaction for a specific scroll event will be performed.
+		 * Defines how many times the reactio for a specific scroll event will be performed.
 		 * 0 means no limit at all; any integer value will be counted down to zero and then the
 		 * corresponding obj_reactOn value will be set to 'none'
 		 */
@@ -66,16 +57,6 @@ var obj_classdef = 	{
 	},
 	
 	start: function() {
-		if (!this.__models.options.data.str_uniqueInstanceName) {
-			if (this.__models.options.data.bln_debug) {
-				console.warn(str_moduleName + ': no unique instance name given');
-			}
-		} else {
-			this.obj_classes.scrollingDown = this.obj_classes.scrollingDown + '_' + this.__models.options.data.str_uniqueInstanceName;
-			this.obj_classes.scrollingUp = this.obj_classes.scrollingUp + '_' + this.__models.options.data.str_uniqueInstanceName;
-			this.obj_classes.wide = this.obj_classes.wide + '_' + this.__models.options.data.str_uniqueInstanceName;
-		}
-		this.el_body = $$('body')[0];
 		this.initializeReactor();
 		window.addEvent('resize', this.initializeReactor.bind(this));
 		window.addEvent('scroll', this.react.bind(this));
@@ -149,33 +130,12 @@ var obj_classdef = 	{
 	react: function() {
 		this.determineScrollPositionAndDirection();
 
-		this.setBodyClass();
-
 		// console.log('this.str_currentDirection', this.str_currentDirection);
 
 		Array.each(this.arr_preparedReactions, function (obj_reaction) {
 			this.determineReactionRelatedScrollPosition(obj_reaction);
 			this.processReaction(obj_reaction);
 		}.bind(this));
-	},
-
-	setBodyClass: function() {
-		if (this.str_currentDirection === 'down') {
-			this.el_body.addClass(this.obj_classes.scrollingDown);
-			this.el_body.removeClass(this.obj_classes.scrollingUp);
-		} else if (this.str_currentDirection === 'up') {
-			this.el_body.removeClass(this.obj_classes.scrollingDown);
-			this.el_body.addClass(this.obj_classes.scrollingUp);
-		} else {
-			this.el_body.removeClass(this.obj_classes.scrollingDown);
-			this.el_body.removeClass(this.obj_classes.scrollingUp);
-		}
-
-		if (this.int_scrollDistanceInThisDirection >= this.__models.options.data.int_scrollDistanceToBeConsideredWide) {
-			this.el_body.addClass(this.obj_classes.wide);
-		} else {
-			this.el_body.removeClass(this.obj_classes.wide);
-		}
 	},
 
 	determineReactionRelatedScrollPosition: function(obj_reaction) {
@@ -197,26 +157,12 @@ var obj_classdef = 	{
 	},
 
 	determineScrollPositionAndDirection: function() {
-		var str_lastDirection = this.str_currentDirection;
-
 		this.int_currentScrollY = window.getScroll().y;
-
-		var int_distance = Math.abs(this.int_lastScrollY - this.int_currentScrollY);
-
-		if (this.int_currentScrollY === 0) {
-			this.str_currentDirection = 'none';
-		} else if (this.int_currentScrollY > this.int_lastScrollY) {
+		if (this.int_currentScrollY > this.int_lastScrollY) {
 			this.str_currentDirection = 'down';
 		} else if (this.int_currentScrollY < this.int_lastScrollY) {
 			this.str_currentDirection = 'up';
 		}
-
-		if (this.str_currentDirection !== str_lastDirection) {
-			this.int_scrollDistanceInThisDirection = int_distance;
-		} else {
-			this.int_scrollDistanceInThisDirection += int_distance;
-		}
-
 		this.int_lastScrollY = this.int_currentScrollY;
 	},
 

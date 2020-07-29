@@ -7,7 +7,11 @@ var str_moduleName = '__moduleName__';
 var obj_classdef = {
 	start: function() {
 		lsjs[str_moduleName] = this.__module;
-		
+
+		this.initializeScrollPositionKeeper();
+	},
+
+	initializeScrollPositionKeeper: function() {
 		window.addEvent('domready', function() {
 			Array.each($$('.onClickToScrollPosition'), function(el) {
 				el.addEvent('click', function() {
@@ -45,8 +49,14 @@ var obj_classdef = {
 
 lsjs.addControllerClass(str_moduleName, obj_classdef);
 
-lsjs.createModule({
-	__name: str_moduleName
-});
+lsjs.__moduleHelpers[str_moduleName] = {
+	self: null,
+
+	start: function() {
+		this.self = lsjs.createModule({
+			__name: str_moduleName
+		});
+	}
+};
 
 })();
