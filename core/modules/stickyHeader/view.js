@@ -23,7 +23,8 @@ var obj_classdef = 	{
 
 	obj_classes: {
 		sticky: 'sticky',
-		show: 'show-sticky'
+		show: 'show-sticky',
+		moveout: 'move-out-sticky'
 	},
 
 	start: function() {
@@ -43,6 +44,10 @@ var obj_classdef = 	{
 			'transitionend',
 			function() {
 				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
+				if (this.el_body.hasClass(this.obj_classes.moveout)) {
+					this.el_body.removeClass(this.obj_classes.moveout);
+					this.el_body.removeClass(this.obj_classes.show);
+				}
 			}.bind(this)
 		);
 
@@ -64,19 +69,27 @@ var obj_classdef = 	{
 
 		this.el_body.measure(
 			function() {
-				var bln_currentlySticky = self.el_body.hasClass(self.obj_classes.sticky);
-				if (bln_currentlySticky) {
-					self.el_body.removeClass(self.obj_classes.sticky)
-				}
+				// var bln_currentlySticky = self.el_body.hasClass(self.obj_classes.sticky);
+				// if (bln_currentlySticky) {
+				// 	self.el_body.removeClass(self.obj_classes.sticky)
+				// }
+				//
+				// var bln_currentlyShown = self.el_body.hasClass(self.obj_classes.show);
+				// if (bln_currentlyShown) {
+				// 	self.el_body.removeClass(self.obj_classes.show)
+				// }
 
 				self.int_stickyHeight = self.el_sticky.offsetHeight;
 				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom;
 
 				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
 
-				if (bln_currentlySticky) {
-					self.el_body.addClass(self.obj_classes.sticky)
-				}
+				// if (bln_currentlySticky) {
+				// 	self.el_body.addClass(self.obj_classes.sticky)
+				// }
+				// if (bln_currentlyShown) {
+				// 	self.el_body.addClass(self.obj_classes.show)
+				// }
 			}
 		);
 	},
@@ -84,7 +97,7 @@ var obj_classdef = 	{
 	reactOnResizing: function() {
 		this.makeUnsticky();
 		this.initializePositionsAndSizes();
-		this.reactOnScrolling();
+		// this.reactOnScrolling();
 	},
 
 	reactOnScrolling: function() {
@@ -111,28 +124,48 @@ var obj_classdef = 	{
 	},
 
 	showSticky: function() {
+		if (!this.el_body.hasClass(this.obj_classes.sticky)) {
+			return;
+		}
 		this.bln_currentlyShown = true;
 		this.el_body.addClass(this.obj_classes.show);
+		this.el_body.removeClass(this.obj_classes.moveout);
 	},
 
 	hideSticky: function() {
+		if (
+			!this.el_body.hasClass(this.obj_classes.sticky)
+			|| !this.el_body.hasClass(this.obj_classes.show)
+		) {
+			return;
+		}
 		this.bln_currentlyShown = false;
-		this.el_body.removeClass(this.obj_classes.show);
-
+		this.el_body.addClass(this.obj_classes.moveout);
+		this.moveStickyOffCanvas();
 	},
 
 	makeSticky: function() {
 		this.bln_currentlySticky = true;
 		this.el_body.addClass(this.obj_classes.sticky);
-		this.el_sticky.setStyle('top', this.int_stickyHeight * -1);
+		this.moveStickyOffCanvas();
 		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_stickyHeight);
 	},
 
 	makeUnsticky: function() {
 		this.el_body.removeClass(this.obj_classes.sticky);
-		this.el_sticky.setStyle('top', null);
+		this.el_body.removeClass(this.obj_classes.show);
+		this.el_body.removeClass(this.obj_classes.moveout);
+		this.moveStickyInCanvas();
 		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
 		this.bln_currentlySticky = false;
+	},
+
+	moveStickyOffCanvas: function() {
+		this.el_sticky.setStyle('top', this.int_stickyHeight * -1);
+	},
+
+	moveStickyInCanvas: function() {
+		this.el_sticky.setStyle('top', null);
 	}
 };
 

@@ -25,12 +25,14 @@ $ls-sticky-header-animation-timing-function: ease-in-out;
   }
 
   body.sticky.show-sticky & {
-    position: fixed;
-    top: 0 !important;
     visibility: visible;
 
     &::after {
       opacity: 1;
     }
+  }
+
+  body.sticky.show-sticky:not(.move-out-sticky) & {
+    top: 0 !important;
   }
 }
