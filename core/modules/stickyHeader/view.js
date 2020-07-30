@@ -10,6 +10,7 @@ var obj_classdef = 	{
 	el_spaceSaver: null,
 
 	int_stickyHeight: 0,
+	int_stickyHeightWithChildren: 0,
 	int_originalSpaceSaverPaddingTop: 0,
 
 	int_currentScrollY: 0,
@@ -51,6 +52,16 @@ var obj_classdef = 	{
 			}.bind(this)
 		);
 
+		/*
+		 * Clicking the header might change the header's total dimensions because a dropdown submenu might
+		 * be opened or something like that. That's why we have to handle this the same way resizing the viewport
+		 * is handled.
+		 */
+		this.el_sticky.addEvent(
+			'click',
+			this.reactOnResizing.bind(this)
+		);
+
 		this.el_spaceSaver = $$(this.__models.options.data.str_selectorForElementToSaveSpace)[0];
 		if (typeOf(this.el_spaceSaver) !== 'element') {
 			if (this.__models.options.data.bln_debug) {
@@ -80,7 +91,8 @@ var obj_classdef = 	{
 				// }
 
 				self.int_stickyHeight = self.el_sticky.offsetHeight;
-				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom;
+				self.int_stickyHeightWithChildren = self.el_sticky.scrollHeight;
+				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
 
 				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
 
