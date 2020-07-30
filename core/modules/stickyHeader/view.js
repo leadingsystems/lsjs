@@ -15,6 +15,7 @@ var obj_classdef = 	{
 
 	int_currentScrollY: 0,
 	int_originalBottomPositionOfStickyElement: 0,
+	int_originalBottomPositionOfStickyElementWithChildren: 0,
 	int_currentBottomPositionOfStickyElement: 0,
 
 	int_minScrollSpeedToShowSticky: 20,
@@ -44,7 +45,7 @@ var obj_classdef = 	{
 		this.el_sticky.addEventListener(
 			'transitionend',
 			function() {
-				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
+				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom + (this.int_originalBottomPositionOfStickyElementWithChildren - this.int_originalBottomPositionOfStickyElement);
 				if (this.el_body.hasClass(this.obj_classes.moveout)) {
 					this.el_body.removeClass(this.obj_classes.moveout);
 					this.el_body.removeClass(this.obj_classes.show);
@@ -54,12 +55,11 @@ var obj_classdef = 	{
 
 		/*
 		 * Clicking the header might change the header's total dimensions because a dropdown submenu might
-		 * be opened or something like that. That's why we have to handle this the same way resizing the viewport
-		 * is handled.
+		 * be opened or something like that. That's why we have to handle this situation.
 		 */
 		this.el_sticky.addEvent(
 			'click',
-			this.reactOnResizing.bind(this)
+			this.reactOnHeaderClick.bind(this)
 		);
 
 		this.el_spaceSaver = $$(this.__models.options.data.str_selectorForElementToSaveSpace)[0];
@@ -82,7 +82,8 @@ var obj_classdef = 	{
 			function() {
 				self.int_stickyHeight = self.el_sticky.offsetHeight;
 				self.int_stickyHeightWithChildren = self.el_sticky.scrollHeight;
-				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
+				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom;
+				self.int_originalBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElement + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
 
 				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
 			}
@@ -95,17 +96,21 @@ var obj_classdef = 	{
 		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
 		this.makeUnsticky();
 		this.initializePositionsAndSizes();
-		// this.reactOnScrolling();
+	},
+
+	reactOnHeaderClick: function() {
+		this.int_stickyHeightWithChildren = this.el_sticky.scrollHeight;
+		this.int_originalBottomPositionOfStickyElementWithChildren = this.int_originalBottomPositionOfStickyElement + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
 	},
 
 	reactOnScrolling: function() {
 		this.int_currentScrollY = window.getScroll().y;
 		if (!this.bln_currentlySticky) {
-			if (this.int_currentScrollY > this.int_originalBottomPositionOfStickyElement) {
+			if (this.int_currentScrollY > this.int_originalBottomPositionOfStickyElementWithChildren) {
 				this.makeSticky();
 			}
 		} else if (this.bln_currentlySticky) {
-			if (this.int_originalBottomPositionOfStickyElement - this.int_currentScrollY >= this.int_currentBottomPositionOfStickyElement) {
+			if (this.int_originalBottomPositionOfStickyElementWithChildren - this.int_currentScrollY >= this.int_currentBottomPositionOfStickyElement) {
 				this.makeUnsticky();
 			}
 		}
@@ -157,7 +162,7 @@ var obj_classdef = 	{
 	},
 
 	moveStickyOffCanvas: function() {
-		this.el_sticky.setStyle('top', this.int_stickyHeight * -1);
+		this.el_sticky.setStyle('top', this.int_stickyHeightWithChildren * -1);
 	},
 
 	moveStickyInCanvas: function() {
