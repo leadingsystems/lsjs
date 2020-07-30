@@ -6,6 +6,8 @@ var obj_classdef_model = {
 
 		str_selectorForElementToStick: 'header',
 		str_selectorForElementToSaveSpace: 'body',
+		int_minScrollSpeedToShowSticky: 17,
+		int_minScrollSpeedToHideSticky: 10,
 
 		bln_debug: false
 	},

@@ -19,9 +19,6 @@ var obj_classdef = 	{
 	int_currentBottomPositionOfStickyElement: 0,
 	int_currentBottomPositionOfStickyElementWithChildren: 0,
 
-	int_minScrollSpeedToShowSticky: 17,
-	int_minScrollSpeedToHideSticky: 10,
-
 	bln_currentlySticky: false,
 	bln_currentlyShown: false,
 
@@ -132,7 +129,7 @@ var obj_classdef = 	{
 			}
 
 			else if (
-				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToShowSticky
+				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToShowSticky
 				|| this.int_currentScrollY <= this.int_originalBottomPositionOfStickyElementWithChildren
 			) {
 				this.el_body.removeClass(this.obj_classes.subscrolling);
@@ -156,7 +153,7 @@ var obj_classdef = 	{
 				|| this.el_body.hasClass(this.obj_classes.subscrolling)
 			) {
 				if (this.int_currentBottomPositionOfStickyElementWithChildren < window.innerHeight) {
-					if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
+					if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
 						this.el_body.removeClass(this.obj_classes.subscrolling);
 					}
 				} else {
@@ -170,7 +167,7 @@ var obj_classdef = 	{
 				}
 			}
 
-			else if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
+			else if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
 				this.el_body.removeClass(this.obj_classes.subscrolling);
 
 				if (
