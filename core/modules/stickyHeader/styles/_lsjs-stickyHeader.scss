@@ -38,6 +38,11 @@ $ls-sticky-header-animation-timing-function: ease-in-out;
   }
 
   body.sticky.show-sticky.sub-scrolling-sticky & {
-    transition: none;
+    /*
+     * We want to remove the transition because it interferes with subscrolling but we still need it
+     * to trigger the transitionend event in order to recalculate positions. Therefore we set the
+     * transition duration to a very low value.
+     */
+    transition: top 0.01s $ls-sticky-header-animation-timing-function;
   }
 }

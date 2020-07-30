@@ -20,7 +20,7 @@ var obj_classdef = 	{
 	int_currentBottomPositionOfStickyElementWithChildren: 0,
 
 	int_minScrollSpeedToShowSticky: 17,
-	int_minScrollSpeedToHideSticky: 5,
+	int_minScrollSpeedToHideSticky: 10,
 
 	bln_currentlySticky: false,
 	bln_currentlyShown: false,
@@ -138,7 +138,33 @@ var obj_classdef = 	{
 		}
 
 		else if (lsjs.scrollAssistant.__view.str_currentDirection === 'down') {
-			if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
+			/*
+			 * If there is either actually still a way to sub-scroll (as indicated by the position vs. window height
+			 * comparison) or if we're at least currently right in the middle of sub-scrolling (as indicated by the
+			 * given css-class), we don't want the sticky header to be hidden. But if there's in fact no more
+			 * sub-scrolling possible, we only remove the sub-scrolling class so that the next scrolling event
+			 * can hide the sticky header.
+			 */
+			if (
+				this.int_currentBottomPositionOfStickyElementWithChildren > window.innerHeight
+				|| this.el_body.hasClass(this.obj_classes.subscrolling)
+			) {
+				if (this.int_currentBottomPositionOfStickyElementWithChildren < window.innerHeight) {
+					if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
+						this.el_body.removeClass(this.obj_classes.subscrolling);
+					}
+				} else {
+					if (
+						this.el_body.hasClass(this.obj_classes.sticky)
+						&& this.el_body.hasClass(this.obj_classes.show)
+					) {
+						this.el_sticky.setStyle('top', parseFloat(window.getComputedStyle(this.el_sticky)['top']) - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
+						this.el_body.addClass(this.obj_classes.subscrolling);
+					}
+				}
+			}
+
+			else if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
 				this.el_body.removeClass(this.obj_classes.subscrolling);
 
 				if (
@@ -146,14 +172,6 @@ var obj_classdef = 	{
 					&& this.el_body.hasClass(this.obj_classes.show)
 				) {
 					this.hideSticky();
-				}
-			} else if (this.int_currentBottomPositionOfStickyElementWithChildren > window.innerHeight) {
-				if (
-					this.el_body.hasClass(this.obj_classes.sticky)
-					&& this.el_body.hasClass(this.obj_classes.show)
-				) {
-					this.el_sticky.setStyle('top', parseFloat(window.getComputedStyle(this.el_sticky)['top']) - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
-					this.el_body.addClass(this.obj_classes.subscrolling);
 				}
 			}
 		}
