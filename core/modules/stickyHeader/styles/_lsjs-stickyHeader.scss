@@ -33,7 +33,11 @@ $ls-sticky-header-animation-timing-function: ease-in-out;
     }
   }
 
-  body.sticky.show-sticky:not(.move-out-sticky) & {
+  body.sticky.show-sticky:not(.move-out-sticky):not(.sub-scrolling-sticky) & {
     top: 0 !important;
+  }
+
+  body.sticky.show-sticky.sub-scrolling-sticky & {
+    transition: none;
   }
 }

@@ -17,8 +17,10 @@ var obj_classdef = 	{
 	int_originalBottomPositionOfStickyElement: 0,
 	int_originalBottomPositionOfStickyElementWithChildren: 0,
 	int_currentBottomPositionOfStickyElement: 0,
+	int_currentBottomPositionOfStickyElementWithChildren: 0,
 
-	int_minScrollSpeedToShowSticky: 20,
+	int_minScrollSpeedToShowSticky: 17,
+	int_minScrollSpeedToHideSticky: 5,
 
 	bln_currentlySticky: false,
 	bln_currentlyShown: false,
@@ -26,7 +28,8 @@ var obj_classdef = 	{
 	obj_classes: {
 		sticky: 'sticky',
 		show: 'show-sticky',
-		moveout: 'move-out-sticky'
+		moveout: 'move-out-sticky',
+		subscrolling: 'sub-scrolling-sticky'
 	},
 
 	start: function() {
@@ -45,7 +48,8 @@ var obj_classdef = 	{
 		this.el_sticky.addEventListener(
 			'transitionend',
 			function() {
-				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom + (this.int_originalBottomPositionOfStickyElementWithChildren - this.int_originalBottomPositionOfStickyElement);
+				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
+				this.int_currentBottomPositionOfStickyElementWithChildren = this.el_sticky.getCoordinates().bottom + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
 				if (this.el_body.hasClass(this.obj_classes.moveout)) {
 					this.el_body.removeClass(this.obj_classes.moveout);
 					this.el_body.removeClass(this.obj_classes.show);
@@ -84,6 +88,8 @@ var obj_classdef = 	{
 				self.int_stickyHeightWithChildren = self.el_sticky.scrollHeight;
 				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom;
 				self.int_originalBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElement + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
+				self.int_currentBottomPositionOfStickyElement = self.int_originalBottomPositionOfStickyElement;
+				self.int_currentBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElementWithChildren;
 
 				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
 			}
@@ -101,6 +107,8 @@ var obj_classdef = 	{
 	reactOnHeaderClick: function() {
 		this.int_stickyHeightWithChildren = this.el_sticky.scrollHeight;
 		this.int_originalBottomPositionOfStickyElementWithChildren = this.int_originalBottomPositionOfStickyElement + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
+		this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
+		this.int_currentBottomPositionOfStickyElementWithChildren = this.el_sticky.getCoordinates().bottom + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
 	},
 
 	reactOnScrolling: function() {
@@ -110,38 +118,55 @@ var obj_classdef = 	{
 				this.makeSticky();
 			}
 		} else if (this.bln_currentlySticky) {
-			if (this.int_originalBottomPositionOfStickyElementWithChildren - this.int_currentScrollY >= this.int_currentBottomPositionOfStickyElement) {
+			if (this.int_currentScrollY === 0) {
 				this.makeUnsticky();
 			}
 		}
 
 		if (
 			lsjs.scrollAssistant.__view.str_currentDirection === 'up'
-			&& lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToShowSticky
+			&& (
+				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToShowSticky
+				|| this.int_currentScrollY <= this.int_originalBottomPositionOfStickyElementWithChildren
+			)
 		) {
-			this.showSticky();
-		} else if (lsjs.scrollAssistant.__view.str_currentDirection === 'down') {
-			this.hideSticky();
+			this.el_body.removeClass(this.obj_classes.subscrolling);
+
+			if (this.el_body.hasClass(this.obj_classes.sticky)) {
+				this.showSticky();
+			}
+		}
+
+		else if (lsjs.scrollAssistant.__view.str_currentDirection === 'down') {
+			if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToHideSticky) {
+				this.el_body.removeClass(this.obj_classes.subscrolling);
+
+				if (
+					this.el_body.hasClass(this.obj_classes.sticky)
+					&& this.el_body.hasClass(this.obj_classes.show)
+				) {
+					this.hideSticky();
+				}
+			} else if (this.int_currentBottomPositionOfStickyElementWithChildren > window.innerHeight) {
+				if (
+					this.el_body.hasClass(this.obj_classes.sticky)
+					&& this.el_body.hasClass(this.obj_classes.show)
+				) {
+					this.el_sticky.setStyle('top', parseFloat(window.getComputedStyle(this.el_sticky)['top']) - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
+					this.el_body.addClass(this.obj_classes.subscrolling);
+				}
+			}
 		}
 
 	},
 
 	showSticky: function() {
-		if (!this.el_body.hasClass(this.obj_classes.sticky)) {
-			return;
-		}
 		this.bln_currentlyShown = true;
 		this.el_body.addClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 	},
 
 	hideSticky: function() {
-		if (
-			!this.el_body.hasClass(this.obj_classes.sticky)
-			|| !this.el_body.hasClass(this.obj_classes.show)
-		) {
-			return;
-		}
 		this.bln_currentlyShown = false;
 		this.el_body.addClass(this.obj_classes.moveout);
 		this.moveStickyOffCanvas();
