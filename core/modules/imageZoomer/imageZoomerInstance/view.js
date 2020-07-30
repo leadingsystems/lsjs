@@ -207,7 +207,7 @@ var obj_classdef = 	{
         this.el_body.adopt(
             this.el_overlay.adopt(
                 this.el_bigImageContainer.adopt(
-                    this.el_bigImage,
+                    this.el_bigImage
                 ),
                 this.el_btnClose,
                 this.el_btnZoomIn,
