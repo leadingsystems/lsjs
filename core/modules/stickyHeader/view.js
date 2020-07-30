@@ -80,28 +80,11 @@ var obj_classdef = 	{
 
 		this.el_body.measure(
 			function() {
-				// var bln_currentlySticky = self.el_body.hasClass(self.obj_classes.sticky);
-				// if (bln_currentlySticky) {
-				// 	self.el_body.removeClass(self.obj_classes.sticky)
-				// }
-				//
-				// var bln_currentlyShown = self.el_body.hasClass(self.obj_classes.show);
-				// if (bln_currentlyShown) {
-				// 	self.el_body.removeClass(self.obj_classes.show)
-				// }
-
 				self.int_stickyHeight = self.el_sticky.offsetHeight;
 				self.int_stickyHeightWithChildren = self.el_sticky.scrollHeight;
 				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
 
 				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
-
-				// if (bln_currentlySticky) {
-				// 	self.el_body.addClass(self.obj_classes.sticky)
-				// }
-				// if (bln_currentlyShown) {
-				// 	self.el_body.addClass(self.obj_classes.show)
-				// }
 			}
 		);
 
