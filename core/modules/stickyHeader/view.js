@@ -112,6 +112,7 @@ var obj_classdef = 	{
 	},
 
 	reactOnScrolling: function() {
+		var float_currentStickyTopPosition = parseFloat(window.getComputedStyle(this.el_sticky)['top']);
 		this.int_currentScrollY = window.getScroll().y;
 		if (!this.bln_currentlySticky) {
 			if (this.int_currentScrollY > this.int_originalBottomPositionOfStickyElementWithChildren) {
@@ -125,15 +126,20 @@ var obj_classdef = 	{
 
 		if (
 			lsjs.scrollAssistant.__view.str_currentDirection === 'up'
-			&& (
+		) {
+			if (this.el_body.hasClass(this.obj_classes.subscrolling) && float_currentStickyTopPosition < 0) {
+				this.el_sticky.setStyle('top', float_currentStickyTopPosition + lsjs.scrollAssistant.__view.int_lastScrollSpeed);
+			}
+
+			else if (
 				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.int_minScrollSpeedToShowSticky
 				|| this.int_currentScrollY <= this.int_originalBottomPositionOfStickyElementWithChildren
-			)
-		) {
-			this.el_body.removeClass(this.obj_classes.subscrolling);
+			) {
+				this.el_body.removeClass(this.obj_classes.subscrolling);
 
-			if (this.el_body.hasClass(this.obj_classes.sticky)) {
-				this.showSticky();
+				if (this.el_body.hasClass(this.obj_classes.sticky)) {
+					this.showSticky();
+				}
 			}
 		}
 
@@ -158,7 +164,7 @@ var obj_classdef = 	{
 						this.el_body.hasClass(this.obj_classes.sticky)
 						&& this.el_body.hasClass(this.obj_classes.show)
 					) {
-						this.el_sticky.setStyle('top', parseFloat(window.getComputedStyle(this.el_sticky)['top']) - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
+						this.el_sticky.setStyle('top', float_currentStickyTopPosition - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
 						this.el_body.addClass(this.obj_classes.subscrolling);
 					}
 				}
