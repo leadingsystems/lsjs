@@ -9,7 +9,7 @@ $ocFlexMarginLeftToHide: -110%;
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 99002;
+  z-index: 99902;
   width: 2.5rem;
   height: 2.5rem;
   cursor: pointer;
@@ -82,7 +82,7 @@ $ocFlexMarginLeftToHide: -110%;
   overflow: hidden;
   background-color: $ls-color-white;
   box-shadow: 0 .4rem 1rem $ls-color-black;
-  z-index: 99000;
+  z-index: 99900;
   animation-duration: $ocFlexAnimationDuration;
   animation-fill-mode: forwards;
   transition: margin-left $ocFlexAnimationDuration ease-in-out;
@@ -97,5 +97,5 @@ body.ocFlexOpen {
 .oc-flex-default-container.open {
   overflow-y: scroll;
   margin-left: 0;
-  z-index: 99001;
+  z-index: 99901;
 }
