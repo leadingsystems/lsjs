@@ -4,6 +4,8 @@
   border-bottom: 1px solid #000000;
   color: #888888;
   background-color: transparent;
+  -moz-appearance: none;
+  -webkit-appearance: none;
 }
 
 .formReviewerApplied[data-misc-close-form-initially="1"] input.submit:not(.showInFormReviewer):disabled {
