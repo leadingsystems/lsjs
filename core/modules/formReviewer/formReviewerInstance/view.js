@@ -23,7 +23,10 @@ var obj_classdef = 	{
 
 	initializeOpenCloseFunctionality: function() {
 		var el_renderedTogglerTemplate = this.tplPure({
-			name: 'editToggler'
+			name: 'editToggler',
+			arg: {
+				str_togglerLabelText: this.__el_container.getProperty('data-misc-form-reviewer-toggler-label')
+			}
 		});
 
 		el_renderedTogglerTemplate.inject(this.__el_container, 'top');
