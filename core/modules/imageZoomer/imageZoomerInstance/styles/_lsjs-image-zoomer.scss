@@ -33,6 +33,8 @@ body {
       -webkit-user-drag: none;
       -webkit-user-select: none;
       -ms-user-select: none;
+      max-width: unset !important;
+      width: auto !important;
 
       &.dragging {
         cursor: grabbing;

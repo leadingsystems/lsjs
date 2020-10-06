@@ -312,37 +312,37 @@ var obj_classdef = 	{
 
     dragInitialize: function() {
         if (this.bln_isTouchDevice) {
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'touchstart',
                 this.dragStart.bind(this)
             );
 
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'touchend',
                 this.dragEnd.bind(this)
             );
 
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'touchmove',
                 this.drag.bind(this)
             );
         } else {
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'mousedown',
                 this.dragStart.bind(this)
             );
 
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'mouseup',
                 this.dragEnd.bind(this)
             );
 
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'mouseleave',
                 this.dragEnd.bind(this)
             );
 
-            this.el_overlay.addEvent(
+            this.el_bigImage.addEvent(
                 'mousemove',
                 this.drag.bind(this)
             );
@@ -350,6 +350,7 @@ var obj_classdef = 	{
     },
 
     dragStart: function(event) {
+        event.preventDefault();
         this.bln_currentlyDragging = true;
         this.el_bigImage.addClass('dragging');
 
