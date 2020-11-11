@@ -20,7 +20,7 @@
   margin-bottom: 5px;
   padding: 3px;
   cursor: pointer;
-  background-color: #FFFFFF;
+  background-color: $ls-color-white;
 }
 
 [data-lsjs-component="navtab"] [data-lsjs-element="navtabNavigation"] [data-lsjs-element="btn_play"].active,
@@ -44,7 +44,7 @@
 }
 
 [data-lsjs-component="navtab"] [data-lsjs-element="navtabLabel"].active {
-  border: 1px solid #000000;
+  border: 1px solid $ls-color-black;
 }
 
 [data-lsjs-component="navtab"] [data-lsjs-element="navtabContentContainer"] {

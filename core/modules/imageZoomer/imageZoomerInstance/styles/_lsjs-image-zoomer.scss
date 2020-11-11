@@ -18,7 +18,7 @@ body {
       position: fixed;
       z-index: 99999;
       right: 2rem;
-      text-shadow: 0 0 0.6rem #000000;
+      text-shadow: 0 0 0.6rem $ls-color-black;
       &::after {
         @extend .fas;
         color: $ls-color-white;

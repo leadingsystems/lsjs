@@ -159,7 +159,7 @@
 
           &::before {
             top: 1rem;
-            text-shadow: .1rem .1rem .2rem #FFFFFF, .1rem -.1rem .2rem #FFFFFF, -.1rem .1rem .2rem #FFFFFF, -.1rem -.1rem .2rem #FFFFFF,;
+            text-shadow: .1rem .1rem .2rem $ls-color-white, .1rem -.1rem .2rem $ls-color-white, -.1rem .1rem .2rem $ls-color-white, -.1rem -.1rem .2rem $ls-color-white;
           }
         }
       }

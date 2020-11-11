@@ -19,10 +19,10 @@
 }
 
 .autoModuleContainer.messageBox .main .msgBoxInside {
-  background-color: #ffffff;
-  border: 1px solid #000000;
-  box-shadow: 0 0 14px 7px #DDDDDD;
-  color: #000000;
+  background-color: $ls-color-white;
+  border: 1px solid $ls-color-black;
+  box-shadow: 0 0 14px 7px $ls-color-grey;
+  color: $ls-color-black;
   height: auto;
   margin-top: -100px;
   padding: 20px;
@@ -32,9 +32,9 @@
 }
 
 .autoModuleContainer.messageBox .main button {
-  background-color: #444444;
-  border: 1px solid #000000;
-  color: #dddddd;
+  background-color: $ls-color-dark-grey;
+  border: 1px solid $ls-color-black;
+  color: $ls-color-grey;
   font-weight: bold;
   height: 30px;
   width: 100px;
