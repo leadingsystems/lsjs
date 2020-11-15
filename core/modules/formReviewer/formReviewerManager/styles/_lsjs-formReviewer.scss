@@ -16,8 +16,13 @@
   display: none;
 }
 
-.formReviewerApplied.formClosed [data-lsjs-element="openFormToggler"]{
-  display: block;
+.formReviewerApplied.formClosed {
+  [data-lsjs-element="openFormToggler"]{
+    display: block;
+  }
+  form {
+    opacity: 0.6;
+  }
 }
 
 .formReviewerApplied label.mandatory::after {
