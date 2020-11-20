@@ -11,11 +11,11 @@
 
 .main.loadingIndicator {
   position: fixed;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-  background-color: rgba(0,0,0,0.3);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba($ls-color-white,0.3);
   z-index: 100000;
   display: flex;
 }
@@ -24,7 +24,7 @@
   @extend .fas;
   content: fa-content($fa-var-spinner);
   animation: loadingIndicator-spinner 1.5s linear infinite;
-  color: $ls-color-6;
+  color: $ls-color-black;
   font-size: 4rem;
   margin: 20% auto auto auto;
 }
