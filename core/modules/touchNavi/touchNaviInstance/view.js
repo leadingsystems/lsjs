@@ -37,7 +37,9 @@
 					}
 
 					if (!self.__models.options.data.bln_followLinkOnSecondTouch || !this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
-                        event.preventDefault();
+						if (event !== undefined) {
+							event.preventDefault();
+						}
 					}
 
             		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
@@ -87,7 +89,22 @@
 						this.getParent().removeClass(self.__models.options.data.str_classToSetForTouchedElements);
 					}
 				}
-			)
+			);
+
+			this.preTouchActiveItems();
+		},
+
+		preTouchActiveItems: function() {
+			// return;
+			Array.each(
+				this.els_touchableHyperlinks,
+				function(el_touchableHyperlink) {
+					console.log(el_touchableHyperlink);
+					if (el_touchableHyperlink.hasClass('active') || el_touchableHyperlink.hasClass('trail')) {
+						el_touchableHyperlink.fireEvent('click');
+					}
+				}
+			);
 		},
 
 		callbackBeforeAddingTouch: function(el_aboutToAddTouch) {
