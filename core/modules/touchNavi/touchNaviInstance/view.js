@@ -99,7 +99,7 @@
 			Array.each(
 				this.els_touchableHyperlinks,
 				function(el_touchableHyperlink) {
-					console.log(el_touchableHyperlink);
+					// console.log(el_touchableHyperlink);
 					if (el_touchableHyperlink.hasClass('active') || el_touchableHyperlink.hasClass('trail')) {
 						el_touchableHyperlink.fireEvent('click');
 					}
@@ -108,15 +108,10 @@
 		},
 
 		callbackBeforeAddingTouch: function(el_aboutToAddTouch) {
-			console.log('about to add touch on');
-			console.log(el_aboutToAddTouch);
-
 			this.handleSubmenuHeightToEnableSmoothTransition(el_aboutToAddTouch, false);
 		},
 
 		callbackBeforeRemovingTouch: function(el_aboutToRemoveTouch) {
-			console.log('about to remove touch on');
-			console.log(el_aboutToRemoveTouch);
 			this.handleSubmenuHeightToEnableSmoothTransition(el_aboutToRemoveTouch, true);
 		},
 
