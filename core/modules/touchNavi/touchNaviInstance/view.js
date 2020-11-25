@@ -29,8 +29,10 @@
             this.els_touchableHyperlinks.addEvent(
             	'click',
 				function(event) {
+            		var els_toRemoveTouch;
+
             		if (!self.__models.options.data.bln_useTouchBehaviourOnNonTouchDevices && !self.el_body.hasClass('user-is-touching')) {
-            			// console.log('nobdy touched me :-(');
+            			// console.log('nobody touched me :-(');
             			return;
 					}
 
@@ -38,76 +40,107 @@
                         event.preventDefault();
 					}
 
-					self.handleSubmenuHeightToEnableSmoothTransition(this);
-
             		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
 						/*
-						 * Remove the touched class on all other touchable hyperlinks to make sure it can never
-						 * be set on two elements.
+						 * Remove the touched class on all other touchable hyperlinks (parallel in DOM) to make sure it
+						 * can never be set on two elements.
 						 */
-						this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements).removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+						els_toRemoveTouch = this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
+						Array.each(
+							els_toRemoveTouch,
+							function(el_toRemoveTouch) {
+								if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
+									/*
+									 * Only execute callback function if the element about to remove touch is one
+									 * of the touchable hyperlinks and not e. g. a parent element
+									 */
+									self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+								}
+							}
+						);
 
+						els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+
+						self.callbackBeforeAddingTouch(this);
 						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
 					} else {
-						this.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+						/*
+						 * Remove the touched class on all other touchable hyperlinks (touched element and children in DOM)
+						 */
+						els_toRemoveTouch = this.getParent().getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
+						Array.each(
+							els_toRemoveTouch,
+							function(el_toRemoveTouch) {
+								if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
+									/*
+									 * Only execute callback function if the element about to remove touch is one
+									 * of the touchable hyperlinks and not e. g. a parent element
+									 */
+									self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+								}
+							}
+						);
+
+						els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+
 						this.getParent().removeClass(self.__models.options.data.str_classToSetForTouchedElements);
 					}
 				}
 			)
 		},
 
-		handleSubmenuHeightToEnableSmoothTransition: function(el_clickedElement) {
-			/*
-             * FIXME: This function is not finished yet and is not to be used. The main problem is the fact
-             * that the function doesn't play nicely with the non-js-behaviour of the navigation. There are situations
-             * when the css part of the navigation doesn't allow an element to be collapsed when js does or when css
-             * thinks an element is open when js thinks it's not. But the current version of this function is a nice
-             * prototype that shows how the smooth transition could be implemented.
-             *
-             * It is also unclear whether it is a good approach to add this functionality to the touchNavi because originally,
-             * the touchNavi only had one job to do and that was to set "touched" classes as an alternative to using ":hover".
-             *
-             * Maybe it would be better to outsource the folding functionality into a separate module.
-             */
-			return;
+		callbackBeforeAddingTouch: function(el_aboutToAddTouch) {
+			console.log('about to add touch on');
+			console.log(el_aboutToAddTouch);
 
-			var el_relatedSubmenu = el_clickedElement.getParent().getElement('ul');
+			this.handleSubmenuHeightToEnableSmoothTransition(el_aboutToAddTouch, false);
+		},
+
+		callbackBeforeRemovingTouch: function(el_aboutToRemoveTouch) {
+			console.log('about to remove touch on');
+			console.log(el_aboutToRemoveTouch);
+			this.handleSubmenuHeightToEnableSmoothTransition(el_aboutToRemoveTouch, true);
+		},
+
+		handleSubmenuHeightToEnableSmoothTransition: function(el_touchedElement, bln_removingTouch) {
+			var el_relatedSubmenu = el_touchedElement.getParent().getElement('ul');
 
 			if (typeOf(el_relatedSubmenu) !== 'element') {
 				return;
 			}
 
-			var bln_currentlyCollapsed = el_relatedSubmenu.getStyle('height') === '0px';
-			var float_targetHeight = el_relatedSubmenu.scrollHeight;
+			/* -->
+			 * Here we assume that we can identify a "toggler element" by its toggler icon which is expected to be an
+			 * "after" pseudo element. Of course, this is not a very clean approach but it's okay for a proof of concept
+			 * which it still is.
+			 */
+			var str_cssContent = window.getComputedStyle(el_touchedElement, '::after').content;
+			if (str_cssContent === undefined || str_cssContent === null || !str_cssContent || str_cssContent === 'none') {
+				 return;
+			}
+			/*
+			 * <--
+			 */
 
-			var func_removeHeight = function() {
-				this.style.height = 'auto';
-				console.log('here');
-				this.removeEventListener('transitionend', this.retrieve('func_removeHeight'));
+			var float_openSubmenuHeight = el_relatedSubmenu.scrollHeight;
+
+			var func_removeExplicitHeight = function() {
+				this.style.removeProperty('height');
+				this.removeEventListener('transitionend', this.retrieve('func_removeExplicitHeight'));
 			};
 
+			el_relatedSubmenu.store('func_removeExplicitHeight', func_removeExplicitHeight);
+			el_relatedSubmenu.addEventListener('transitionend', el_relatedSubmenu.retrieve('func_removeExplicitHeight'));
+			el_relatedSubmenu.setStyle('height', float_openSubmenuHeight + 'px');
 
-			if (bln_currentlyCollapsed) {
-				el_relatedSubmenu.store(
-					'func_removeHeight',
-					func_removeHeight
-				);
-
-				el_relatedSubmenu.addEventListener(
-					'transitionend',
-					el_relatedSubmenu.retrieve('func_removeHeight')
-				);
-				el_relatedSubmenu.setStyle('height', float_targetHeight + 'px');
-			} else {
-				el_relatedSubmenu.removeEventListener('transitionend', el_relatedSubmenu.retrieve('func_removeHeight'));
-				el_relatedSubmenu.setStyle('height', float_targetHeight + 'px');
+			if (bln_removingTouch) {
 				window.setTimeout(
 					function() {
 						el_relatedSubmenu.setStyle('height', 0);
 					},
 					50
-				)
+				);
 			}
 		}
 	};

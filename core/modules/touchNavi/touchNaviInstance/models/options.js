@@ -10,7 +10,6 @@ var obj_classdef_model = {
 		 */
 		this.data = {
 			var_touchableHyperlinkSelector: 'li > .submenu',
-			bln_autoTouchParent: true,
 			str_classToSetForTouchedElements: 'touched',
 			bln_useTouchBehaviourOnNonTouchDevices: false,
 			bln_followLinkOnSecondTouch: true
