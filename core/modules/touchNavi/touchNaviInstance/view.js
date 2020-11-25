@@ -43,59 +43,66 @@
 					}
 
             		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
-						/*
-						 * Remove the touched class on all other touchable hyperlinks (parallel in DOM) to make sure it
-						 * can never be set on two elements.
-						 */
-						els_toRemoveTouch = this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
-						Array.each(
-							els_toRemoveTouch,
-							function(el_toRemoveTouch) {
-								if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
-									/*
-									 * Only execute callback function if the element about to remove touch is one
-									 * of the touchable hyperlinks and not e. g. a parent element
-									 */
-									self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+            			if (!self.__models.options.data.bln_allowMultipleParallelTouches) {
+							/*
+                             * Remove the touched class on all other touchable hyperlinks (parallel in DOM) to make sure it
+                             * can never be set on two elements.
+                             */
+							els_toRemoveTouch = this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
+							Array.each(
+								els_toRemoveTouch,
+								function (el_toRemoveTouch) {
+									if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
+										/*
+                                         * Only execute callback function if the element about to remove touch is one
+                                         * of the touchable hyperlinks and not e. g. a parent element
+                                         */
+										self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+									}
 								}
-							}
-						);
+							);
 
-						els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+							els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+						}
 
 						self.callbackBeforeAddingTouch(this);
 						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
 					} else {
-						/*
-						 * Remove the touched class on all other touchable hyperlinks (touched element and children in DOM)
-						 */
-						els_toRemoveTouch = this.getParent().getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
-						Array.each(
-							els_toRemoveTouch,
-							function(el_toRemoveTouch) {
-								if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
-									/*
-									 * Only execute callback function if the element about to remove touch is one
-									 * of the touchable hyperlinks and not e. g. a parent element
-									 */
-									self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+						if (!self.__models.options.data.bln_allowMultipleParallelTouches) {
+							/*
+                             * Remove the touched class on all other touchable hyperlinks (touched element and children in DOM)
+                             */
+							els_toRemoveTouch = this.getParent().getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
+							Array.each(
+								els_toRemoveTouch,
+								function(el_toRemoveTouch) {
+									if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
+										/*
+										 * Only execute callback function if the element about to remove touch is one
+										 * of the touchable hyperlinks and not e. g. a parent element
+										 */
+										self.callbackBeforeRemovingTouch(el_toRemoveTouch);
+									}
 								}
-							}
-						);
+							);
 
-						els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+							els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+						}
 
+						self.callbackBeforeRemovingTouch(this);
+						this.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().removeClass(self.__models.options.data.str_classToSetForTouchedElements);
 					}
 				}
 			);
 
-			this.preTouchActiveItems();
+			if (this.__models.options.data.bln_preTouchActiveAndTrailOnStart) {
+				this.preTouchActiveItems();
+			}
 		},
 
 		preTouchActiveItems: function() {
-			// return;
 			Array.each(
 				this.els_touchableHyperlinks,
 				function(el_touchableHyperlink) {

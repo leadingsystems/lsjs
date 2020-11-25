@@ -12,7 +12,9 @@ var obj_classdef_model = {
 			var_touchableHyperlinkSelector: 'li > .submenu',
 			str_classToSetForTouchedElements: 'touched',
 			bln_useTouchBehaviourOnNonTouchDevices: false,
-			bln_followLinkOnSecondTouch: true
+			bln_followLinkOnSecondTouch: true,
+			bln_allowMultipleParallelTouches: true,
+			bln_preTouchActiveAndTrailOnStart: true
 		};
 	},
 
