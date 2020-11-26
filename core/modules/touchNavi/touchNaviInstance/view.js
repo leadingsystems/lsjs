@@ -163,15 +163,21 @@
 		},
 
 		check_elementActsAsToggler: function(el_toCheck) {
-			/*
-			 * Here we assume that we can identify a "toggler element" by its toggler icon which is expected to be an
-			 * "after" pseudo element. Of course, this is not a very clean approach but it's okay for a proof of concept
-			 * which it still is.
-			 */
-			var bln_actsAsToggler = false,
-				str_cssContent = window.getComputedStyle(el_toCheck, '::after').content;
+			var bln_actsAsToggler = false;
 
-			bln_actsAsToggler = str_cssContent !== undefined && str_cssContent !== null && str_cssContent && str_cssContent !== 'none';
+			Array.each(
+				this.__models.options.data.arr_pseudoElementForTogglerIdentification,
+				function(str_pseudoElementForTogglerIdentification) {
+					if (bln_actsAsToggler) {
+						/*
+						 * Return directly if already true;
+						 */
+						return;
+					}
+					var str_cssContent = window.getComputedStyle(el_toCheck, '::' + str_pseudoElementForTogglerIdentification).content;
+					bln_actsAsToggler = str_cssContent !== undefined && str_cssContent !== null && str_cssContent && str_cssContent !== 'none';
+				}
+			);
 
 			return bln_actsAsToggler;
 		}

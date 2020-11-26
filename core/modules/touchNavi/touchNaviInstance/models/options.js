@@ -15,7 +15,8 @@ var obj_classdef_model = {
 			bln_followLinkOnSecondTouch: false,
 			bln_allowMultipleParallelTouches: true,
 			bln_preTouchActiveAndTrailOnStart: true,
-			bln_onlyHandleTouchOnTogglerElements: true
+			bln_onlyHandleTouchOnTogglerElements: true,
+			arr_pseudoElementForTogglerIdentification: ['before', 'after']
 		};
 	},
 
