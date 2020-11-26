@@ -17,6 +17,10 @@
                 this.__el_container.addClass('useTouchNaviOnNonTouchDevices');
             }
 
+			if (this.__models.options.data.bln_onlyHandleTouchOnTogglerElements) {
+                this.__el_container.addClass('onlyHandleTouchOnTogglerElements');
+            }
+
 			this.els_touchableHyperlinks = this.__el_container.getElements(this.__models.options.data.var_touchableHyperlinkSelector);
 
 			if (typeOf(this.els_touchableHyperlinks) !== 'elements') {
@@ -34,6 +38,10 @@
             		if (!self.__models.options.data.bln_useTouchBehaviourOnNonTouchDevices && !self.el_body.hasClass('user-is-touching')) {
             			// console.log('nobody touched me :-(');
             			return;
+					}
+
+					if (self.__models.options.data.bln_onlyHandleTouchOnTogglerElements && !self.check_elementActsAsToggler(this)) {
+						return;
 					}
 
 					if (!self.__models.options.data.bln_followLinkOnSecondTouch || !this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
@@ -129,18 +137,9 @@
 				return;
 			}
 
-			/* -->
-			 * Here we assume that we can identify a "toggler element" by its toggler icon which is expected to be an
-			 * "after" pseudo element. Of course, this is not a very clean approach but it's okay for a proof of concept
-			 * which it still is.
-			 */
-			var str_cssContent = window.getComputedStyle(el_touchedElement, '::after').content;
-			if (str_cssContent === undefined || str_cssContent === null || !str_cssContent || str_cssContent === 'none') {
-				 return;
+			if (!this.check_elementActsAsToggler(el_touchedElement)) {
+				return;
 			}
-			/*
-			 * <--
-			 */
 
 			var float_openSubmenuHeight = el_relatedSubmenu.scrollHeight;
 
@@ -161,6 +160,20 @@
 					50
 				);
 			}
+		},
+
+		check_elementActsAsToggler: function(el_toCheck) {
+			/*
+			 * Here we assume that we can identify a "toggler element" by its toggler icon which is expected to be an
+			 * "after" pseudo element. Of course, this is not a very clean approach but it's okay for a proof of concept
+			 * which it still is.
+			 */
+			var bln_actsAsToggler = false,
+				str_cssContent = window.getComputedStyle(el_toCheck, '::after').content;
+
+			bln_actsAsToggler = str_cssContent !== undefined && str_cssContent !== null && str_cssContent && str_cssContent !== 'none';
+
+			return bln_actsAsToggler;
 		}
 	};
 
