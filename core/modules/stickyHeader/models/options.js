@@ -5,7 +5,12 @@ var obj_classdef_model = {
 		str_stickyClass: 'sticky',
 
 		str_selectorForElementToStick: 'header',
+
+		/*
+		 * Can be set to null, which means that no space saver padding should be applied
+		 */
 		str_selectorForElementToSaveSpace: 'body',
+
 		int_minScrollSpeedToShowSticky: 17,
 		int_minScrollSpeedToHideSticky: 10,
 

@@ -65,10 +65,7 @@ var obj_classdef = 	{
 
 		this.el_spaceSaver = $$(this.__models.options.data.str_selectorForElementToSaveSpace)[0];
 		if (typeOf(this.el_spaceSaver) !== 'element') {
-			if (this.__models.options.data.bln_debug) {
-				console.warn(str_moduleName + ': not exactly one element found with selector "' + this.__models.options.data.str_selectorForElementToSaveSpace + '"');
-			}
-			return;
+			this.el_spaceSaver = null;
 		}
 
 		window.addEvent('resize', this.reactOnResizing.bind(this));
@@ -88,15 +85,21 @@ var obj_classdef = 	{
 				self.int_currentBottomPositionOfStickyElement = self.int_originalBottomPositionOfStickyElement;
 				self.int_currentBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElementWithChildren;
 
-				self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
+				if (self.el_spaceSaver !== null) {
+					self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
+				}
 			}
 		);
 
-		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_stickyHeight);
+		if (this.el_spaceSaver !== null) {
+			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_stickyHeight);
+		}
 	},
 
 	reactOnResizing: function() {
-		this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
+		if (this.el_spaceSaver !== null) {
+			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop);
+		}
 		this.makeUnsticky();
 		this.initializePositionsAndSizes();
 	},
