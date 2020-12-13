@@ -35,7 +35,7 @@ var obj_classdef = {
 lsjs.addControllerClass(str_moduleName, obj_classdef);
 
 lsjs.__moduleHelpers[str_moduleName] = {
-	self: null,
+	self: {},
 
 	start: function(obj_options) {
 		var els_container,
@@ -78,12 +78,12 @@ lsjs.__moduleHelpers[str_moduleName] = {
 
 		el_container.addClass(obj_options.str_classToSetWhenModuleApplied);
 
-		this.self = lsjs.createModule({
+		this.self[obj_options.str_uniqueInstanceName] = lsjs.createModule({
 			__name: str_moduleName,
 			__el_container: el_container
 		});
 
-		this.self.__models.options.set(obj_options);
+		this.self[obj_options.str_uniqueInstanceName].__models.options.set(obj_options);
 	}
 };
 

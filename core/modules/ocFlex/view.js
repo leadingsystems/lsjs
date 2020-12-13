@@ -37,9 +37,8 @@ var obj_classdef = 	{
 
 		if (this.els_togglers.length === 0) {
 			if (this.__models.options.data.bln_debug) {
-				console.warn(str_moduleName + ': at least one toggler item is required but none was found with selector "' + this.__models.options.data.str_ocTogglerSelector + '"');
+				console.warn(str_moduleName + ': no toggler was found with selector "' + this.__models.options.data.str_ocTogglerSelector + '". This is fine as it could be intentional, but it could also indicate a misconfiguration.');
 			}
-			return;
 		}
 
 		this.el_body.addClass(this.obj_classes.general.standard);
