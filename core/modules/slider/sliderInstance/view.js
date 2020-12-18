@@ -7,8 +7,8 @@ var str_moduleName = '__moduleName__';
 var obj_classdef = 	{
     el_body: null,
     el_container: null,
-	els_items: null,
-	el_slidingArea: null,
+    els_items: null,
+    el_slidingArea: null,
     el_navigationArrowLeft: null,
     el_navigationArrowRight: null,
     el_navigationDotsContainer: null,
@@ -20,8 +20,8 @@ var obj_classdef = 	{
 
 
     float_windowWidth: null,
-	float_slidingAreaMovingPositionX: null,
-	float_requiredSlidingAreaWidth: null,
+    float_slidingAreaMovingPositionX: null,
+    float_requiredSlidingAreaWidth: null,
     float_requiredSlidingAreaHeight: null,
     float_visibleWidth: null,
     arr_allItemOffsets: null,
@@ -36,23 +36,23 @@ var obj_classdef = 	{
     obj_dragData: null,
 
 
-	start: function() {
-	    this.determineGivenElements();
+    start: function() {
+        this.determineGivenElements();
 
-	    this.addNavigationArrows();
+        this.addNavigationArrows();
 
-	    this.initializeOnce();
+        this.initializeOnce();
 
-		this.initializeSlider();
+        this.initializeSlider();
 
         window.addEvent(
-        	'resize',
-			this.reinitializeSlider.bind(this)
-		);
-	},
+            'resize',
+            this.reinitializeSlider.bind(this)
+        );
+    },
 
     determineGivenElements: function() {
-	    this.el_body = $$('body')[0];
+        this.el_body = $$('body')[0];
         this.el_container = this.__el_container;
         this.el_container.addClass('lsjs-slider-applied');
         this.els_items = this.el_container.getElements('> *');
@@ -82,25 +82,25 @@ var obj_classdef = 	{
     },
 
     addNavigationArrows: function() {
-	    this.el_navigationArrowLeft = new Element('div.arrow');
-	    this.el_navigationArrowRight = new Element('div.arrow');
+        this.el_navigationArrowLeft = new Element('div.arrow');
+        this.el_navigationArrowRight = new Element('div.arrow');
 
-	    this.el_container.adopt(
-	        new Element('div.navigation-arrow-container.left').adopt(
+        this.el_container.adopt(
+            new Element('div.navigation-arrow-container.left').adopt(
                 this.el_navigationArrowLeft
             ),
-	        new Element('div.navigation-arrow-container.right').adopt(
+            new Element('div.navigation-arrow-container.right').adopt(
                 this.el_navigationArrowRight
             )
         );
 
-	    this.el_navigationArrowLeft.addEvent(
-	        'click',
+        this.el_navigationArrowLeft.addEvent(
+            'click',
             this.jumpLeft.bind(this)
         );
 
-	    this.el_navigationArrowRight.addEvent(
-	        'click',
+        this.el_navigationArrowRight.addEvent(
+            'click',
             this.jumpRight.bind(this)
         );
     },
@@ -138,17 +138,17 @@ var obj_classdef = 	{
     },
 
     addNavigationDots: function() {
-	    if (
+        if (
             !this.__module.__parentModule.__models.options.data.bln_dotNavigationActive
-	        || this.arr_slideOffsets.length <= 1
-	        || this.arr_slideOffsets.length > this.__module.__parentModule.__models.options.data.int_dotNavigationMaxNumberOfSlides
+            || this.arr_slideOffsets.length <= 1
+            || this.arr_slideOffsets.length > this.__module.__parentModule.__models.options.data.int_dotNavigationMaxNumberOfSlides
         ) {
-	        return;
+            return;
         }
 
         var bln_useDotNavigationImages = this.__module.__parentModule.__models.options.data.bln_dotNavigationUseImagesIfPossible && this.check_dotNavigationImagesArePossible();
 
-	    this.el_navigationDotsContainer = new Element('div.navigation-dots-container');
+        this.el_navigationDotsContainer = new Element('div.navigation-dots-container');
 
         Array.each(
             this.arr_slideOffsets,
@@ -198,24 +198,24 @@ var obj_classdef = 	{
     },
 
     initializeOnce: function() {
-	    this.el_container.addEvent(
-	        'mouseenter',
+        this.el_container.addEvent(
+            'mouseenter',
             function() {
                 this.bln_pointerInside = true;
             }.bind(this)
         );
 
-	    this.el_container.addEvent(
-	        'mouseleave',
+        this.el_container.addEvent(
+            'mouseleave',
             function() {
                 this.bln_pointerInside = false;
             }.bind(this)
         );
 
-	    if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
-	        this.el_container.addClass('autoplay-active');
+        if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
+            this.el_container.addClass('autoplay-active');
 
-	        if (this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover) {
+            if (this.__module.__parentModule.__models.options.data.bln_autoplayPauseOnHover) {
                 this.el_container.addEvent(
                     'mouseenter',
                     this.stopAutoplay.bind(this)
@@ -234,7 +234,9 @@ var obj_classdef = 	{
     initializeSlider: function() {
         this.resetVariables();
 
-		this.storeItemSizeInformation();
+        this.storeItemSizeInformation();
+
+        this.convertFlexBox();
 
         /*
          * In order to allow the web designer to style items with a width relative to the original parent element
@@ -273,33 +275,33 @@ var obj_classdef = 	{
                 this.stopAutoplay();
             }
         }
-	},
+    },
 
-	reinitializeSlider: function() {
+    reinitializeSlider: function() {
         /*
          * Only reinitialize the slider if the window's width changed. Changes in height are irrelevant.
          */
-	    if (this.float_windowWidth === window.innerWidth) {
-	        return;
+        if (this.float_windowWidth === window.innerWidth) {
+            return;
         }
 
         if (this.__module.__parentModule.__models.options.data.bln_autoplayActive) {
             this.stopAutoplay();
         }
 
-	    this.removeSlidingArea();
-	    this.removeNavigationDots();
-		this.unsetItemsFixedWidth();
-		this.unsetContainerFixedWidth();
-		this.initializeSlider();
-	},
+        this.removeSlidingArea();
+        this.removeNavigationDots();
+        this.unsetItemsFixedWidth();
+        this.unsetContainerFixedWidth();
+        this.initializeSlider();
+    },
 
     startAutoplay: function() {
         this.el_container.removeClass('paused');
         this.el_container.addClass('playing');
 
-	    if (this.int_autoplayIntervalCallbackId) {
-	        return;
+        if (this.int_autoplayIntervalCallbackId) {
+            return;
 
         }
         this.int_autoplayIntervalCallbackId = window.setInterval(
@@ -312,8 +314,8 @@ var obj_classdef = 	{
         this.el_container.removeClass('playing');
         this.el_container.addClass('paused');
 
-	    if (!this.int_autoplayIntervalCallbackId) {
-	        return;
+        if (!this.int_autoplayIntervalCallbackId) {
+            return;
         }
 
         window.clearInterval(this.int_autoplayIntervalCallbackId);
@@ -350,9 +352,9 @@ var obj_classdef = 	{
     },
 
     autoplayMoveToNextSlide: function() {
-	    var int_keyOfSlideToMoveTo = 0;
-	    if (this.int_currentSlideKey < this.arr_slideOffsets.length - 1) {
-	        int_keyOfSlideToMoveTo = this.int_currentSlideKey + 1;
+        var int_keyOfSlideToMoveTo = 0;
+        if (this.int_currentSlideKey < this.arr_slideOffsets.length - 1) {
+            int_keyOfSlideToMoveTo = this.int_currentSlideKey + 1;
         }
         this.moveSlidingAreaTo(this.arr_slideOffsets[int_keyOfSlideToMoveTo]);
         this.determineCurrentSlideKey();
@@ -360,7 +362,7 @@ var obj_classdef = 	{
     },
 
     resetVariables: function() {
-	    this.float_windowWidth = window.innerWidth;
+        this.float_windowWidth = window.innerWidth;
 
         this.float_slidingAreaMovingPositionX = 0;
         this.float_requiredSlidingAreaWidth = 0;
@@ -422,48 +424,24 @@ var obj_classdef = 	{
     },
 
     getVisibleWidth: function() {
-	    this.float_visibleWidth = this.el_container.clientWidth;
+        this.float_visibleWidth = this.el_container.clientWidth;
     },
 
-	storeItemSizeInformation: function() {
+    storeItemSizeInformation: function() {
         var self = this;
-	    var str_containerDisplayStyle = this.el_container.getStyle('display');
-
-        if (str_containerDisplayStyle === 'flex') {
-            if (this.__module.__parentModule.__models.options.data.bln_showConsoleWarnings) {
-                console.warn('LSJS SLIDER: The slider container is a flexbox which is not recommended. The container has now been set to "display: block;" and all elements have been set to "float: left;"');
-                console.warn(this.el_container);
-            }
-            this.el_container.setStyle('display', 'block');
-
-            Array.each(
-                this.els_items,
-                function(el_item) {
-                    el_item.setStyles({
-                        'display': 'block',
-                        'float': 'left'
-                    });
-                }
-            );
-        }
+        var str_containerDisplayStyle = this.el_container.getStyle('display');
 
         Array.each(
             this.els_items,
             function(el_item) {
-                if (str_containerDisplayStyle === 'flex') {
-                    el_item.setStyles({
-                        'display': 'block',
-                        'float': 'left'
-                    });
-                }
-
                 el_item.measure(
                     function() {
                         var arr_itemStyles = this.getStyles('display', 'float');
 
                         if (self.__module.__parentModule.__models.options.data.bln_showConsoleWarnings) {
                             if (
-                                arr_itemStyles['display'] !== 'inline'
+                                str_containerDisplayStyle !== 'flex'
+                                && arr_itemStyles['display'] !== 'inline'
                                 && arr_itemStyles['display'] !== 'inline-block'
                                 && arr_itemStyles['float'] === 'none'
                             ) {
@@ -490,23 +468,63 @@ var obj_classdef = 	{
                         });
 
                         this.store(
-                        	'itemSizeInformation',
-							{
+                            'itemSizeInformation',
+                            {
                                 float_marginLeft: obj_computedSize['margin-left'],
                                 float_marginRight: obj_computedSize['margin-right'],
                                 float_paddingLeft: obj_computedSize['padding-left'],
                                 float_paddingRight: obj_computedSize['padding-right'],
                                 float_widthIncludingMarginLeft: obj_computedSize['width'] + obj_computedSize['margin-left'],
                                 float_completeWidthIncludingMargins: obj_computedSize['width'] + obj_computedSize['margin-left'] + obj_computedSize['margin-right'],
+                                float_originalWidth: obj_computedSize['width'],
+                                float_marginTop: obj_computedSize['margin-top'],
+                                float_marginBottom: obj_computedSize['margin-bottom'],
+                                float_paddingTop: obj_computedSize['padding-top'],
+                                float_paddingBottom: obj_computedSize['padding-bottom'],
+                                float_heightIncludingMarginTop: obj_computedSize['height'] + obj_computedSize['margin-top'],
                                 float_completeHeightIncludingMargins: obj_computedSize['height'] + obj_computedSize['margin-top'] + obj_computedSize['margin-bottom'],
-                                float_originalWidth: obj_computedSize['width']
+                                float_originalHeight: obj_computedSize['height'],
                             }
-			);
+                        );
                     }
                 );
             }
         );
-	},
+    },
+
+    convertFlexBox: function() {
+        var str_containerDisplayStyle = this.el_container.getStyle('display');
+
+        if (str_containerDisplayStyle === 'flex') {
+            if (this.__module.__parentModule.__models.options.data.bln_showConsoleWarnings) {
+                console.warn('LSJS SLIDER: The slider container uses flexbox which has automatically been converted to a floating construction for the slider to work properly. The container has now been set to "display: block;" and all elements have been set to "float: left;". If the result looks and behaves as you expected, this is perfectly fine. There is no reason for you not to use the flexbox technique. If the conversion however causes any problems, you should consider styling the sliding elements as floated elements or using display:inline-block or display:inline to align them horizontally');
+                console.warn(this.el_container);
+            }
+            this.el_container.setStyle('display', 'block');
+
+            Array.each(
+                this.els_items,
+                function(el_item) {
+                    el_item.setStyles({
+                        'display': 'block',
+                        'float': 'left'
+                    });
+                }
+            );
+        }
+
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                if (str_containerDisplayStyle === 'flex') {
+                    el_item.setStyles({
+                        'display': 'block',
+                        'float': 'left'
+                    });
+                }
+            }
+        );
+    },
 
     setContainerToFixedWidth: function() {
         this.el_container.setStyles({
@@ -517,39 +535,44 @@ var obj_classdef = 	{
     },
 
     unsetContainerFixedWidth: function() {
-	    this.el_container.removeProperty('style');
+        this.el_container.removeProperty('style');
     },
 
     setItemsToFixedWidth: function() {
-		Array.each(
-			this.els_items,
-			function(el_item) {
-				el_item.setStyles({
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                el_item.setStyles({
                     'width': Math.round(el_item.retrieve('itemSizeInformation').float_originalWidth),
                     'margin-left': el_item.retrieve('itemSizeInformation').float_marginLeft,
                     'margin-right': el_item.retrieve('itemSizeInformation').float_marginRight,
                     'padding-left': el_item.retrieve('itemSizeInformation').float_paddingLeft,
-                    'padding-right': el_item.retrieve('itemSizeInformation').float_paddingRight
+                    'padding-right': el_item.retrieve('itemSizeInformation').float_paddingRight,
+                    'height': Math.round(el_item.retrieve('itemSizeInformation').float_originalHeight),
+                    'margin-top': el_item.retrieve('itemSizeInformation').float_marginTop,
+                    'margin-bottom': el_item.retrieve('itemSizeInformation').float_marginBottom,
+                    'padding-top': el_item.retrieve('itemSizeInformation').float_paddingTop,
+                    'padding-bottom': el_item.retrieve('itemSizeInformation').float_paddingBottom
                 });
-			}
-		);
-	},
+            }
+        );
+    },
 
-	unsetItemsFixedWidth: function() {
+    unsetItemsFixedWidth: function() {
         Array.each(
             this.els_items,
             function(el_item) {
                 el_item.removeProperty('style');
             }
         );
-	},
+    },
 
-	setSlidingAreaSize: function() {
-		this.el_slidingArea.setStyles({
-			'width': this.float_requiredSlidingAreaWidth + 'px',
+    setSlidingAreaSize: function() {
+        this.el_slidingArea.setStyles({
+            'width': this.float_requiredSlidingAreaWidth + 'px',
             'position': 'relative'
-		})
-	},
+        })
+    },
 
     activateSlidingAreaTransitionAnimation: function() {
         this.el_slidingArea.setStyle('transition', 'all ' + this.__module.__parentModule.__models.options.data.float_slidingAnimationDuration + 's ease 0s');
@@ -559,34 +582,34 @@ var obj_classdef = 	{
         this.el_slidingArea.setStyle('transition', 'none');
     },
 
-	getRequiredSlidingAreaWidth: function() {
-		var float_requiredWidth = 0;
+    getRequiredSlidingAreaWidth: function() {
+        var float_requiredWidth = 0;
 
-		Array.each(
-			this.els_items,
-			function(el_item) {
-                float_requiredWidth += Math.round(el_item.retrieve('itemSizeInformation').float_completeWidthIncludingMargins);
-			}.bind(this)
-		);
-
-        this.float_requiredSlidingAreaWidth = float_requiredWidth;
-	},
-
-	getRequiredSlidingAreaHeight: function() {
-		var float_requiredHeight = 0;
-
-		Array.each(
+        Array.each(
             this.els_items,
             function(el_item) {
-            	var float_itemHeight = el_item.retrieve('itemSizeInformation').float_completeHeightIncludingMargins;
-            	if (float_requiredHeight < float_itemHeight) {
+                float_requiredWidth += Math.round(el_item.retrieve('itemSizeInformation').float_completeWidthIncludingMargins);
+            }.bind(this)
+        );
+
+        this.float_requiredSlidingAreaWidth = float_requiredWidth;
+    },
+
+    getRequiredSlidingAreaHeight: function() {
+        var float_requiredHeight = 0;
+
+        Array.each(
+            this.els_items,
+            function(el_item) {
+                var float_itemHeight = el_item.retrieve('itemSizeInformation').float_completeHeightIncludingMargins;
+                if (float_requiredHeight < float_itemHeight) {
                     float_requiredHeight = float_itemHeight;
-				}
+                }
             }.bind(this)
         );
 
         this.float_requiredSlidingAreaHeight = float_requiredHeight;
-	},
+    },
 
     getItemOffsets: function() {
         Array.each(
@@ -667,10 +690,10 @@ var obj_classdef = 	{
     },
 
     getClosestItemOffset: function() {
-	    /*
-	     * Depending on the drag direction, we set the closest offset to the first or last item by default
-	     */
-	    var float_closestOffset = this.obj_dragData.dragDirection.x === 'left' ? this.arr_allItemOffsets[this.arr_allItemOffsets.length - 1] : 0;
+        /*
+         * Depending on the drag direction, we set the closest offset to the first or last item by default
+         */
+        var float_closestOffset = this.obj_dragData.dragDirection.x === 'left' ? this.arr_allItemOffsets[this.arr_allItemOffsets.length - 1] : 0;
 
         var bln_alreadyFoundClosestOffset = false;
 
@@ -707,11 +730,11 @@ var obj_classdef = 	{
     },
 
     dragInitialize: function() {
-	    if (this.arr_slideOffsets.length <= 1) {
-	        return;
+        if (this.arr_slideOffsets.length <= 1) {
+            return;
         }
 
-	    if (this.check_isTouchDevice()) {
+        if (this.check_isTouchDevice()) {
             this.el_slidingArea.addEvent(
                 'touchstart',
                 this.dragStart.bind(this)
@@ -727,8 +750,8 @@ var obj_classdef = 	{
                 this.drag.bind(this)
             );
         } else {
-	        if (this.__module.__parentModule.__models.options.data.bln_mouseDragOnNonTouchDeviceActive) {
-	            this.el_container.addClass('mouse-drag-active');
+            if (this.__module.__parentModule.__models.options.data.bln_mouseDragOnNonTouchDeviceActive) {
+                this.el_container.addClass('mouse-drag-active');
 
                 this.el_slidingArea.addEvent(
                     'mousedown',
@@ -758,8 +781,8 @@ var obj_classdef = 	{
             this.stopAutoplay();
         }
 
-	    if (this.bln_skipDrag) {
-	        return;
+        if (this.bln_skipDrag) {
+            return;
         }
 
         this.bln_dragStartRequested = true;
@@ -818,9 +841,9 @@ var obj_classdef = 	{
     },
 
     drag: function(event) {
-	    /*
-	     * Check if the pointer was moved more horizontal than vertical and only then start actually dragging
-	     */
+        /*
+         * Check if the pointer was moved more horizontal than vertical and only then start actually dragging
+         */
         if (this.bln_dragStartRequested) {
             var float_verticalDragDistance = this.obj_dragData.firstPointerPosition.y - (event.type === 'touchmove' ? event.event.touches[0].clientY : event.event.clientY);
             var float_horizontalDragDistance = this.obj_dragData.firstPointerPosition.x - (event.type === 'touchmove' ? event.event.touches[0].clientX : event.event.clientX);
@@ -886,10 +909,10 @@ var obj_classdef = 	{
     jumpLeft: function() {
         this.stopAndRestartAutoplay();
 
-	    this.bln_skipDrag = true;
+        this.bln_skipDrag = true;
 
-	    if (!this.bln_leftPossible) {
-	        return;
+        if (!this.bln_leftPossible) {
+            return;
         }
 
         /*
@@ -908,8 +931,8 @@ var obj_classdef = 	{
 
         this.bln_skipDrag = true;
 
-	    if (!this.bln_rightPossible) {
-	        return;
+        if (!this.bln_rightPossible) {
+            return;
         }
 
         this.moveSlidingAreaTo(this.arr_slideOffsets[(this.int_currentSlideKey + 1)]);
