@@ -512,6 +512,7 @@ var obj_classdef = 	{
         this.el_container.setStyles({
             'overflow': 'hidden',
             'width': this.el_container.getComputedSize().width,
+            'max-width': 'unset',
             'position': this.el_container.getStyle('position') === 'static' ? 'relative' : this.el_container.getStyle('position'),
         });
     },
@@ -526,6 +527,7 @@ var obj_classdef = 	{
 			function(el_item) {
 				el_item.setStyles({
                     'width': Math.round(el_item.retrieve('itemSizeInformation').float_originalWidth),
+                    'max-width': 'unset',
                     'margin-left': el_item.retrieve('itemSizeInformation').float_marginLeft,
                     'margin-right': el_item.retrieve('itemSizeInformation').float_marginRight,
                     'padding-left': el_item.retrieve('itemSizeInformation').float_paddingLeft,
