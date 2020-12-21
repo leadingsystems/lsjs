@@ -6,9 +6,7 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = 	{
 	start: function() {
-		console.log(this.__el_container);
 		this.registerElements(this.__el_container, 'main', true);
-		console.log(this.__autoElements);
 
 		this.initializeEvents();
 	},
