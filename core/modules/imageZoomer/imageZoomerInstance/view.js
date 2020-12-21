@@ -98,6 +98,9 @@ var obj_classdef = 	{
         this.el_body = $$('body')[0];
         this.el_container = this.__el_container;
         this.el_container.addClass('lsjs-image-zoomer-applied');
+        if (this.el_container.hasAttribute('data-lightbox')) {
+            this.el_container.removeAttribute('data-lightbox');
+        }
     },
 
     determineZoomImage: function() {
