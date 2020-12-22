@@ -11,7 +11,7 @@ var obj_classdef = 	{
 		this.initializeEvents();
 	},
 
-	initializeEvents() {
+	initializeEvents: function() {
 		var self = this;
 		this.__autoElements.main.smallImage.addEvent(
 			'click',
