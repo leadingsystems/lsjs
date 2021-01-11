@@ -9,11 +9,11 @@
     "require": {
         "contao-components/installer": "^1.0.9",
         "matthiasmullie/minify": "^1.3",
-        "leadingsystems/lscss": "dev-master"
+        "leadingsystems/lscss": "dev-vfx_4"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-vfx_4": "2.0.x-dev"
         }
     }
 }
