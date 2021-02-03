@@ -50,6 +50,7 @@
 						}
 					}
 
+					// the clicked element is not one that is already touched
             		if (!this.hasClass(self.__models.options.data.str_classToSetForTouchedElements)) {
             			if (!self.__models.options.data.bln_allowMultipleParallelTouches) {
 							/*
@@ -57,45 +58,24 @@
                              * can never be set on two elements.
                              */
 							els_toRemoveTouch = this.getParent('ul').getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
-							Array.each(
-								els_toRemoveTouch,
-								function (el_toRemoveTouch) {
-									if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
-										/*
-                                         * Only execute callback function if the element about to remove touch is one
-                                         * of the touchable hyperlinks and not e. g. a parent element
-                                         */
-										self.callbackBeforeRemovingTouch(el_toRemoveTouch);
-									}
-								}
-							);
 
-							els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+							self.removeTouch(els_toRemoveTouch);
 						}
 
 						self.callbackBeforeAddingTouch(this);
 						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
-					} else {
+					}
+
+            		// the clicked element is already touched
+            		else {
 						if (!self.__models.options.data.bln_allowMultipleParallelTouches) {
 							/*
                              * Remove the touched class on all other touchable hyperlinks (touched element and children in DOM)
                              */
 							els_toRemoveTouch = this.getParent().getElements('.' + self.__models.options.data.str_classToSetForTouchedElements);
-							Array.each(
-								els_toRemoveTouch,
-								function(el_toRemoveTouch) {
-									if (Object.contains(self.els_touchableHyperlinks, el_toRemoveTouch)) {
-										/*
-										 * Only execute callback function if the element about to remove touch is one
-										 * of the touchable hyperlinks and not e. g. a parent element
-										 */
-										self.callbackBeforeRemovingTouch(el_toRemoveTouch);
-									}
-								}
-							);
 
-							els_toRemoveTouch.removeClass(self.__models.options.data.str_classToSetForTouchedElements);
+							self.removeTouch(els_toRemoveTouch);
 						}
 
 						self.callbackBeforeRemovingTouch(this);
@@ -105,9 +85,46 @@
 				}
 			);
 
+			if (this.__models.options.data.bln_untouchOnOutsideClick) {
+				this.initializeOutsideClickListener();
+			}
+
 			if (this.__models.options.data.bln_preTouchActiveAndTrailOnStart) {
 				this.preTouchActiveItems();
 			}
+		},
+
+		initializeOutsideClickListener: function() {
+			this.el_body.addEvent(
+				'click',
+				function(event) {
+					if (event.target.getParent(this.__models.options.data.var_touchableHyperlinkSelector) === null) {
+						/*
+                         * Remove the touched class on all other touchable hyperlinks (parallel in DOM) to make sure it
+                         * can never be set on two elements.
+                         */
+						var els_toRemoveTouch = this.__el_container.getElements('.' + this.__models.options.data.str_classToSetForTouchedElements);
+						this.removeTouch(els_toRemoveTouch);
+					}
+				}.bind(this)
+			);
+		},
+
+		removeTouch: function(els_toRemoveTouch) {
+			Array.each(
+				els_toRemoveTouch,
+				function (el_toRemoveTouch) {
+					if (Object.contains(this.els_touchableHyperlinks, el_toRemoveTouch)) {
+						/*
+                         * Only execute callback function if the element about to remove touch is one
+                         * of the touchable hyperlinks and not e. g. a parent element
+                         */
+						this.callbackBeforeRemovingTouch(el_toRemoveTouch);
+					}
+				}.bind(this)
+			);
+
+			els_toRemoveTouch.removeClass(this.__models.options.data.str_classToSetForTouchedElements);
 		},
 
 		preTouchActiveItems: function() {
