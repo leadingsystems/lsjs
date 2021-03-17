@@ -30,6 +30,7 @@ var obj_classdef_model = {
 		 */
 		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 800,
 
+		bln_alwaysShowStickyHeader: false,
 		bln_debug: false
 	},
 
