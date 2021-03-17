@@ -55,8 +55,11 @@ var obj_classdef = 	{
 	int_currentScrollY: 0,
 
 	bln_stickyHeaderHasReducedHeight: false,
-	bln_currentlySticky: false,
-	bln_currentlyShown: false,
+
+	obj_status: {
+		bln_currentlySticky: false,
+		bln_stickyHeaderIsVisible: false,
+	},
 
 	obj_classes: {
 		stickyElement: 'sticky-element',
@@ -148,21 +151,21 @@ var obj_classdef = 	{
 		this.el_body.measure(
 			function() {
 				/*
-				 * This function can be executed when the header is already sticky or when its not. Since we have to
-				 * determine sizes both in the sticky and the non-sticky state, we firstly check whether the header is
-				 * currently sticky and then add and remove the sticky class accordingly.
+				 * This function must determine sizes and positions in both the sticky and non-sticky state and
+				 * therefore has to simulate both situations.
+				 *
+				 * When this function is executed the current status might be sticky or not. Because of that, we
+				 * check whether the header is currently sticky and then add and remove the sticky class accordingly.
 				 */
-				var bln_currentlyInStickyState = self.el_body.hasClass(self.obj_classes.sticky);
-				var bln_currentlyShowingSticky = self.el_body.hasClass(self.obj_classes.show);
 
 				/*
 				 * Determining the sizes in the non-sticky state. Therefore temporarily removing the sticky class if necessary.
 				 */
-				if (bln_currentlyInStickyState) {
+				if (self.obj_status.bln_currentlySticky) {
 					self.el_body.removeClass(self.obj_classes.sticky);
 				}
 
-				if (bln_currentlyShowingSticky) {
+				if (self.obj_status.bln_stickyHeaderIsVisible) {
 					self.el_body.addClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
 				}
 
@@ -189,11 +192,11 @@ var obj_classdef = 	{
 				 * Making sure that the sticky class is correctly set considering whether or not the header
 				 * is currently in the sticky state
 				 */
-				if (!bln_currentlyInStickyState) {
+				if (!self.obj_status.bln_currentlySticky) {
 					self.el_body.removeClass(self.obj_classes.sticky);
 				}
 
-				if (bln_currentlyShowingSticky) {
+				if (self.obj_status.bln_stickyHeaderIsVisible) {
 					self.el_body.removeClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
 				}
 
@@ -239,7 +242,7 @@ var obj_classdef = 	{
 	reactOnScrolling: function() {
 		var float_currentStickyTopPosition = parseFloat(window.getComputedStyle(this.el_header)['top']);
 		this.int_currentScrollY = window.getScroll().y;
-		if (!this.bln_currentlySticky) {
+		if (!this.obj_status.bln_currentlySticky) {
 			if (
 				(
 					this.bln_stickyHeaderHasReducedHeight
@@ -252,7 +255,7 @@ var obj_classdef = 	{
 			) {
 				this.makeSticky();
 			}
-		} else if (this.bln_currentlySticky) {
+		} else if (this.obj_status.bln_currentlySticky) {
 			if (
 				(
 					this.bln_stickyHeaderHasReducedHeight
@@ -277,7 +280,7 @@ var obj_classdef = 	{
 			else if (
 				this.bln_stickyHeaderHasReducedHeight
 				&& this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded + (this.obj_stickyHeader.obj_height.int_regular * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)
-				&& this.bln_currentlySticky
+				&& this.obj_status.bln_currentlySticky
 			) {
 				this.hideSticky();
 			}
@@ -341,19 +344,19 @@ var obj_classdef = 	{
 	},
 
 	showSticky: function() {
-		this.bln_currentlyShown = true;
+		this.obj_status.bln_stickyHeaderIsVisible = true;
 		this.el_body.addClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 	},
 
 	hideSticky: function() {
-		this.bln_currentlyShown = false;
+		this.obj_status.bln_stickyHeaderIsVisible = false;
 		this.el_body.addClass(this.obj_classes.moveout);
 		this.moveStickyOffCanvas();
 	},
 
 	makeSticky: function() {
-		this.bln_currentlySticky = true;
+		this.obj_status.bln_currentlySticky = true;
 		this.el_body.addClass(this.obj_classes.sticky);
 		this.moveStickyOffCanvas();
 		if (this.__models.options.data.bln_alwaysShowStickyHeader) {
@@ -373,7 +376,7 @@ var obj_classdef = 	{
 		this.el_body.removeClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 		this.moveStickyInCanvas();
-		this.bln_currentlySticky = false;
+		this.obj_status.bln_currentlySticky = false;
 	},
 
 	moveStickyOffCanvas: function() {
