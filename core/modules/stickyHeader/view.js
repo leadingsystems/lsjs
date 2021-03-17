@@ -9,22 +9,45 @@ var obj_classdef = 	{
 	el_sticky: null,
 	el_spaceSaver: null,
 
-	int_headerHeight: 0,
-	int_headerHeightWithChildren: 0,
-	int_stickyHeight: 0,
-	int_stickyHeightWithChildren: 0,
+	obj_originalHeader: {
+		obj_height: {
+			int_regular: 0,
+			int_expanded: 0
+		},
+
+		obj_bottomPosition: {
+			obj_initial: {
+				int_regular: 0,
+				int_expanded: 0
+			},
+			obj_current: {
+				int_regular: 0,
+				int_expanded: 0
+			}
+		}
+	},
+
+	obj_stickyHeader: {
+		obj_height: {
+			int_regular: 0,
+			int_expanded: 0
+		},
+
+		obj_bottomPosition: {
+			obj_initial: {
+				int_regular: 0,
+				int_expanded: 0
+			},
+			obj_current: {
+				int_regular: 0,
+				int_expanded: 0
+			}
+		}
+	},
+
 	int_originalSpaceSaverPaddingTop: 0,
 
 	int_currentScrollY: 0,
-	int_originalBottomPositionOfHeaderElement: 0,
-	int_originalBottomPositionOfHeaderElementWithChildren: 0,
-	int_currentBottomPositionOfHeaderElement: 0,
-	int_currentBottomPositionOfHeaderElementWithChildren: 0,
-
-	int_originalBottomPositionOfStickyElement: 0,
-	int_originalBottomPositionOfStickyElementWithChildren: 0,
-	int_currentBottomPositionOfStickyElement: 0,
-	int_currentBottomPositionOfStickyElementWithChildren: 0,
 
 	bln_stickyHeaderHasReducedHeight: false,
 	bln_currentlySticky: false,
@@ -54,8 +77,8 @@ var obj_classdef = 	{
 		this.el_sticky.addEventListener(
 			'transitionend',
 			function() {
-				this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
-				this.int_currentBottomPositionOfStickyElementWithChildren = this.el_sticky.getCoordinates().bottom + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
+				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_regular = this.el_sticky.getCoordinates().bottom;
+				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded = this.el_sticky.getCoordinates().bottom + (this.obj_stickyHeader.obj_height.int_expanded - this.obj_stickyHeader.obj_height.int_regular);
 				if (this.el_body.hasClass(this.obj_classes.moveout)) {
 					this.el_body.removeClass(this.obj_classes.moveout);
 					this.el_body.removeClass(this.obj_classes.show);
@@ -87,7 +110,7 @@ var obj_classdef = 	{
 
 		if (this.el_spaceSaver !== null) {
 			this.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(this.el_spaceSaver)['padding-top']);
-			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_headerHeight);
+			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.obj_originalHeader.obj_height.int_regular);
 		}
 	},
 
@@ -114,24 +137,24 @@ var obj_classdef = 	{
 					self.el_body.addClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
 				}
 
-				self.int_headerHeight = self.el_sticky.offsetHeight;
-				self.int_headerHeightWithChildren = self.el_sticky.scrollHeight;
-				self.int_originalBottomPositionOfHeaderElement = self.el_sticky.getCoordinates().bottom;
-				self.int_originalBottomPositionOfHeaderElementWithChildren = self.int_originalBottomPositionOfHeaderElement + (self.int_headerHeightWithChildren - self.int_headerHeight);
-				self.int_currentBottomPositionOfHeaderElement = self.int_originalBottomPositionOfHeaderElement;
-				self.int_currentBottomPositionOfHeaderElementWithChildren = self.int_originalBottomPositionOfHeaderElementWithChildren;
+				self.obj_originalHeader.obj_height.int_regular = self.el_sticky.offsetHeight;
+				self.obj_originalHeader.obj_height.int_expanded = self.el_sticky.scrollHeight;
+				self.obj_originalHeader.obj_bottomPosition.obj_initial.int_regular = self.el_sticky.getCoordinates().bottom;
+				self.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded = self.obj_originalHeader.obj_bottomPosition.obj_initial.int_regular + (self.obj_originalHeader.obj_height.int_expanded - self.obj_originalHeader.obj_height.int_regular);
+				self.obj_originalHeader.obj_bottomPosition.obj_current.int_regular = self.obj_originalHeader.obj_bottomPosition.obj_initial.int_regular;
+				self.obj_originalHeader.obj_bottomPosition.obj_current.int_expanded = self.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded;
 
 				/*
 				 * Determining the sizes in the sticky state. Therefore temporarily adding the sticky class.
 				 */
 				self.el_body.addClass(self.obj_classes.sticky);
 
-				self.int_stickyHeight = self.el_sticky.offsetHeight;
-				self.int_stickyHeightWithChildren = self.el_sticky.scrollHeight;
-				self.int_originalBottomPositionOfStickyElement = self.el_sticky.getCoordinates().bottom;
-				self.int_originalBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElement + (self.int_stickyHeightWithChildren - self.int_stickyHeight);
-				self.int_currentBottomPositionOfStickyElement = self.int_originalBottomPositionOfStickyElement;
-				self.int_currentBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElementWithChildren;
+				self.obj_stickyHeader.obj_height.int_regular = self.el_sticky.offsetHeight;
+				self.obj_stickyHeader.obj_height.int_expanded = self.el_sticky.scrollHeight;
+				self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_regular = self.el_sticky.getCoordinates().bottom;
+				self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded = self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_regular + (self.obj_stickyHeader.obj_height.int_expanded - self.obj_stickyHeader.obj_height.int_regular);
+				self.obj_stickyHeader.obj_bottomPosition.obj_current.int_regular = self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_regular;
+				self.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded = self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded;
 
 				/*
 				 * Making sure that the sticky class is correctly set considering whether or not the header
@@ -145,22 +168,22 @@ var obj_classdef = 	{
 					self.el_body.removeClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
 				}
 
-				if (self.int_stickyHeight < self.int_headerHeight) {
+				if (self.obj_stickyHeader.obj_height.int_regular < self.obj_originalHeader.obj_height.int_regular) {
 					self.bln_stickyHeaderHasReducedHeight = true;
 				}
 
-				// console.log('self.int_headerHeight: '+ self.int_headerHeight);
-				// console.log('self.int_headerHeightWithChildren: '+ self.int_headerHeightWithChildren);
-				// console.log('self.int_originalBottomPositionOfHeaderElement: '+ self.int_originalBottomPositionOfHeaderElement);
-				// console.log('self.int_originalBottomPositionOfHeaderElementWithChildren: '+ self.int_originalBottomPositionOfHeaderElementWithChildren);
-				// console.log('self.int_currentBottomPositionOfHeaderElement: '+ self.int_currentBottomPositionOfHeaderElement);
-				// console.log('self.int_currentBottomPositionOfHeaderElementWithChildren: '+ self.int_currentBottomPositionOfHeaderElementWithChildren);
-				// console.log('self.int_stickyHeight: '+ self.int_stickyHeight);
-				// console.log('self.int_stickyHeightWithChildren: '+ self.int_stickyHeightWithChildren);
-				// console.log('self.int_originalBottomPositionOfStickyElement: '+ self.int_originalBottomPositionOfStickyElement);
-				// console.log('self.int_originalBottomPositionOfStickyElementWithChildren: '+ self.int_originalBottomPositionOfStickyElementWithChildren);
-				// console.log('self.int_currentBottomPositionOfStickyElement: '+ self.int_currentBottomPositionOfStickyElement);
-				// console.log('self.int_currentBottomPositionOfStickyElementWithChildren: '+ self.int_currentBottomPositionOfStickyElementWithChildren);
+				// console.log('self.obj_originalHeader.obj_height.int_regular: '+ self.obj_originalHeader.obj_height.int_regular);
+				// console.log('self.obj_originalHeader.obj_height.int_expanded: '+ self.obj_originalHeader.obj_height.int_expanded);
+				// console.log('self.obj_originalHeader.obj_bottomPosition.obj_initial.int_regular: '+ self.obj_originalHeader.obj_bottomPosition.obj_initial.int_regular);
+				// console.log('self.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded: '+ self.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded);
+				// console.log('self.obj_originalHeader.obj_bottomPosition.obj_current.int_regular: '+ self.obj_originalHeader.obj_bottomPosition.obj_current.int_regular);
+				// console.log('self.obj_originalHeader.obj_bottomPosition.obj_current.int_expanded: '+ self.obj_originalHeader.obj_bottomPosition.obj_current.int_expanded);
+				// console.log('self.obj_stickyHeader.obj_height.int_regular: '+ self.obj_stickyHeader.obj_height.int_regular);
+				// console.log('self.obj_stickyHeader.obj_height.int_expanded: '+ self.obj_stickyHeader.obj_height.int_expanded);
+				// console.log('self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_regular: '+ self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_regular);
+				// console.log('self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded: '+ self.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded);
+				// console.log('self.obj_stickyHeader.obj_bottomPosition.obj_current.int_regular: '+ self.obj_stickyHeader.obj_bottomPosition.obj_current.int_regular);
+				// console.log('self.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded: '+ self.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded);
 			}
 		);
 	},
@@ -191,11 +214,11 @@ var obj_classdef = 	{
 			if (
 				(
 					this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY > this.int_originalBottomPositionOfHeaderElementWithChildren
+					&& this.int_currentScrollY > this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded
 				)
 				|| (
 					!this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY > this.int_originalBottomPositionOfStickyElementWithChildren
+					&& this.int_currentScrollY > this.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded
 				)
 			) {
 				this.makeSticky();
@@ -204,7 +227,7 @@ var obj_classdef = 	{
 			if (
 				(
 					this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY <= this.int_originalBottomPositionOfHeaderElementWithChildren
+					&& this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded
 				)
 				|| (
 					!this.bln_stickyHeaderHasReducedHeight
@@ -224,7 +247,7 @@ var obj_classdef = 	{
 
 			else if (
 				this.bln_stickyHeaderHasReducedHeight
-				&& this.int_currentScrollY <= this.int_originalBottomPositionOfHeaderElementWithChildren + (this.int_stickyHeight * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)
+				&& this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded + (this.obj_stickyHeader.obj_height.int_regular * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)
 				&& this.bln_currentlySticky
 			) {
 				this.hideSticky();
@@ -234,7 +257,7 @@ var obj_classdef = 	{
 				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToShowSticky
 				|| (
 					!this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY <= this.int_originalBottomPositionOfStickyElementWithChildren
+					&& this.int_currentScrollY <= this.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded
 				)
 			) {
 				this.el_body.removeClass(this.obj_classes.subscrolling);
@@ -254,10 +277,10 @@ var obj_classdef = 	{
 			 * can hide the sticky header.
 			 */
 			if (
-				this.int_currentBottomPositionOfStickyElementWithChildren > window.innerHeight
+				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded > window.innerHeight
 				|| this.el_body.hasClass(this.obj_classes.subscrolling)
 			) {
-				if (this.int_currentBottomPositionOfStickyElementWithChildren < window.innerHeight) {
+				if (this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded < window.innerHeight) {
 					if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
 						this.el_body.removeClass(this.obj_classes.subscrolling);
 					}
@@ -325,7 +348,7 @@ var obj_classdef = 	{
 	},
 
 	moveStickyOffCanvas: function() {
-		this.el_sticky.setStyle('top', this.int_stickyHeightWithChildren * -1);
+		this.el_sticky.setStyle('top', this.obj_stickyHeader.obj_height.int_expanded * -1);
 	},
 
 	moveStickyInCanvas: function() {
