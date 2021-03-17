@@ -11,8 +11,17 @@ var obj_classdef_model = {
 		 */
 		str_selectorForElementToSaveSpace: 'body',
 
-		int_minScrollSpeedToShowSticky: 17,
-		int_minScrollSpeedToHideSticky: 10,
+		int_minScrollSpeedToShowSticky: 1,
+		int_minScrollSpeedToHideSticky: 1,
+
+		/*
+		 * When scrolling up, the sticky header should disappear before reaching the original header position to
+		 * make sure that switching from the sticky header to the non-sticky header doesn't look weird.
+		 * If this parameter is set to 1, this means that the sticky header will disappear when reaching the
+		 * non-sticky header's bottom position plus the sticky header's height * 1. If the sticky header has a very
+		 * small height, a factor of 2 or more might be a good choice.
+		 */
+		int_factorForCalculatingPositionToHideStickyHeader: 1,
 
 		bln_debug: false
 	},
