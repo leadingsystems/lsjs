@@ -34,7 +34,8 @@ var obj_classdef = 	{
 		sticky: 'sticky',
 		show: 'show-sticky',
 		moveout: 'move-out-sticky',
-		subscrolling: 'sub-scrolling-sticky'
+		subscrolling: 'sub-scrolling-sticky',
+		temporarilyKeepStickyInShowPosition: 'temporarily-keep-sticky-in-show-position'
 	},
 
 	start: function() {
@@ -82,10 +83,37 @@ var obj_classdef = 	{
 	},
 
 	initializePositionsAndSizes: function() {
-		var self = this;
+		this.getCurrentPositionsAndSizes();
 
+		if (this.el_spaceSaver !== null) {
+			this.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(this.el_spaceSaver)['padding-top']);
+			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_headerHeight);
+		}
+	},
+
+	getCurrentPositionsAndSizes: function() {
+		var self = this;
 		this.el_body.measure(
 			function() {
+				/*
+				 * This function can be executed when the header is already sticky or when its not. Since we have to
+				 * determine sizes both in the sticky and the non-sticky state, we firstly check whether the header is
+				 * currently sticky and then add and remove the sticky class accordingly.
+				 */
+				var bln_currentlyInStickyState = self.el_body.hasClass(self.obj_classes.sticky);
+				var bln_currentlyShowingSticky = self.el_body.hasClass(self.obj_classes.show);
+
+				/*
+				 * Determining the sizes in the non-sticky state. Therefore temporarily removing the sticky class if necessary.
+				 */
+				if (bln_currentlyInStickyState) {
+					self.el_body.removeClass(self.obj_classes.sticky);
+				}
+
+				if (bln_currentlyShowingSticky) {
+					self.el_body.addClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
+				}
+
 				self.int_headerHeight = self.el_sticky.offsetHeight;
 				self.int_headerHeightWithChildren = self.el_sticky.scrollHeight;
 				self.int_originalBottomPositionOfHeaderElement = self.el_sticky.getCoordinates().bottom;
@@ -93,6 +121,9 @@ var obj_classdef = 	{
 				self.int_currentBottomPositionOfHeaderElement = self.int_originalBottomPositionOfHeaderElement;
 				self.int_currentBottomPositionOfHeaderElementWithChildren = self.int_originalBottomPositionOfHeaderElementWithChildren;
 
+				/*
+				 * Determining the sizes in the sticky state. Therefore temporarily adding the sticky class.
+				 */
 				self.el_body.addClass(self.obj_classes.sticky);
 
 				self.int_stickyHeight = self.el_sticky.offsetHeight;
@@ -102,21 +133,36 @@ var obj_classdef = 	{
 				self.int_currentBottomPositionOfStickyElement = self.int_originalBottomPositionOfStickyElement;
 				self.int_currentBottomPositionOfStickyElementWithChildren = self.int_originalBottomPositionOfStickyElementWithChildren;
 
+				/*
+				 * Making sure that the sticky class is correctly set considering whether or not the header
+				 * is currently in the sticky state
+				 */
+				if (!bln_currentlyInStickyState) {
+					self.el_body.removeClass(self.obj_classes.sticky);
+				}
+
+				if (bln_currentlyShowingSticky) {
+					self.el_body.removeClass(self.obj_classes.temporarilyKeepStickyInShowPosition);
+				}
+
 				if (self.int_stickyHeight < self.int_headerHeight) {
 					self.bln_stickyHeaderHasReducedHeight = true;
 				}
 
-				if (self.el_spaceSaver !== null) {
-					self.int_originalSpaceSaverPaddingTop = parseFloat(window.getComputedStyle(self.el_spaceSaver)['padding-top']);
-				}
-
-				self.el_body.removeClass(self.obj_classes.sticky);
+				// console.log('self.int_headerHeight: '+ self.int_headerHeight);
+				// console.log('self.int_headerHeightWithChildren: '+ self.int_headerHeightWithChildren);
+				// console.log('self.int_originalBottomPositionOfHeaderElement: '+ self.int_originalBottomPositionOfHeaderElement);
+				// console.log('self.int_originalBottomPositionOfHeaderElementWithChildren: '+ self.int_originalBottomPositionOfHeaderElementWithChildren);
+				// console.log('self.int_currentBottomPositionOfHeaderElement: '+ self.int_currentBottomPositionOfHeaderElement);
+				// console.log('self.int_currentBottomPositionOfHeaderElementWithChildren: '+ self.int_currentBottomPositionOfHeaderElementWithChildren);
+				// console.log('self.int_stickyHeight: '+ self.int_stickyHeight);
+				// console.log('self.int_stickyHeightWithChildren: '+ self.int_stickyHeightWithChildren);
+				// console.log('self.int_originalBottomPositionOfStickyElement: '+ self.int_originalBottomPositionOfStickyElement);
+				// console.log('self.int_originalBottomPositionOfStickyElementWithChildren: '+ self.int_originalBottomPositionOfStickyElementWithChildren);
+				// console.log('self.int_currentBottomPositionOfStickyElement: '+ self.int_currentBottomPositionOfStickyElement);
+				// console.log('self.int_currentBottomPositionOfStickyElementWithChildren: '+ self.int_currentBottomPositionOfStickyElementWithChildren);
 			}
 		);
-
-		if (this.el_spaceSaver !== null) {
-			this.el_spaceSaver.setStyle('padding-top', this.int_originalSpaceSaverPaddingTop + this.int_headerHeight);
-		}
 	},
 
 	reactOnResizing: function() {
@@ -128,10 +174,14 @@ var obj_classdef = 	{
 	},
 
 	reactOnHeaderClick: function() {
-		this.int_stickyHeightWithChildren = this.el_sticky.scrollHeight;
-		this.int_originalBottomPositionOfStickyElementWithChildren = this.int_originalBottomPositionOfStickyElement + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
-		this.int_currentBottomPositionOfStickyElement = this.el_sticky.getCoordinates().bottom;
-		this.int_currentBottomPositionOfStickyElementWithChildren = this.el_sticky.getCoordinates().bottom + (this.int_stickyHeightWithChildren - this.int_stickyHeight);
+		/*
+		 * If opening subnavigations etc. takes some time due to transitions, we have to make sure not to try to calculate
+		 * sizes and positions to early.
+		 */
+		window.setTimeout(
+			this.getCurrentPositionsAndSizes.bind(this),
+			this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs
+		);
 	},
 
 	reactOnScrolling: function() {
@@ -149,7 +199,6 @@ var obj_classdef = 	{
 				)
 			) {
 				this.makeSticky();
-				console.log('making sticky');
 			}
 		} else if (this.bln_currentlySticky) {
 			if (
@@ -163,7 +212,6 @@ var obj_classdef = 	{
 				)
 			) {
 				this.makeUnsticky();
-				console.log('making unsticky');
 			}
 		}
 
@@ -180,7 +228,6 @@ var obj_classdef = 	{
 				&& this.bln_currentlySticky
 			) {
 				this.hideSticky();
-				console.log('hiding sticky');
 			}
 
 			else if (
@@ -194,7 +241,6 @@ var obj_classdef = 	{
 
 				if (this.el_body.hasClass(this.obj_classes.sticky)) {
 					this.showSticky();
-					console.log('showing sticky');
 				}
 			}
 		}

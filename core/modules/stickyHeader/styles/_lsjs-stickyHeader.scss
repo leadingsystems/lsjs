@@ -37,6 +37,10 @@ $ls-sticky-header-animation-timing-function: ease-in-out;
     top: 0 !important;
   }
 
+  body.temporarily-keep-sticky-in-show-position & {
+    top: 0 !important;
+  }
+
   body.sticky.show-sticky.sub-scrolling-sticky & {
     /*
      * We want to remove the transition because it interferes with subscrolling but we still need it

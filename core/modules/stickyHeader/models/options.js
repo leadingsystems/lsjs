@@ -23,6 +23,13 @@ var obj_classdef_model = {
 		 */
 		int_factorForCalculatingPositionToHideStickyHeader: 1,
 
+		/*
+		 * If opening subnavigations etc. takes some time due to transitions, we have to make sure not to try to calculate
+		 * sizes and positions to early. This parameter defines the time to wait for a recalculation and should correspond
+		 * with css transition times.
+		 */
+		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 800,
+
 		bln_debug: false
 	},
 
