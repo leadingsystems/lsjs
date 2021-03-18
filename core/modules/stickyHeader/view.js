@@ -237,12 +237,10 @@ var obj_classdef = 	{
 		},
 
 		moveOffCanvas: function() {
-			console.log('moveOffCanvas');
 			this.el_header.setStyle('top', this.int_height * -1);
 		},
 
 		moveInCanvas: function() {
-			console.log('moveInCanvas');
 			this.el_header.setStyle('top', null);
 		}
 	},
@@ -325,18 +323,6 @@ var obj_classdef = 	{
 		if (lsjs.scrollAssistant.__view.str_currentDirection !== 'up') {
 			return;
 		}
-
-
-		// /*
-		//  * Hide sticky header if we're already close to the top
-		//  */
-		// if (
-		// 	this.int_currentScrollY > this.obj_verticalPositionToSwitchSticky.int_yPos
-		// 	&& this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPos + (this.obj_stickyHeader.int_height * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)
-		// ) {
-		// 	this.hideSticky();
-		// 	return;
-		// }
 
 		/*
 		 * Show sticky header if the scroll speed was high enough
