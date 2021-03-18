@@ -241,6 +241,14 @@ var obj_classdef = 	{
 		);
 	},
 
+	reactOnScrolling: function() {
+		this.int_currentScrollY = window.getScroll().y;
+		// this.handleSubscrolling();
+		this.toggleStickyStatus();
+		this.handleScrollingUp();
+		this.handleScrollingDown();
+	},
+
 	handleSubscrolling: function() {
 
 		if (
@@ -248,7 +256,7 @@ var obj_classdef = 	{
 			|| !this.obj_status.bln_stickyHeaderIsVisible
 			|| this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded < window.innerHeight * 0.3
 		) {
-			this.el_body.removeClass(this.obj_classes.subscrolling)
+			this.el_body.removeClass(this.obj_classes.subscrolling);
 			this.hideSticky();
 		} else {
 			this.el_body.addClass(this.obj_classes.subscrolling)
@@ -324,14 +332,6 @@ var obj_classdef = 	{
 		if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
 			this.hideSticky();
 		}
-	},
-
-	reactOnScrolling: function() {
-		this.int_currentScrollY = window.getScroll().y;
-		this.handleSubscrolling();
-		this.toggleStickyStatus();
-		this.handleScrollingUp();
-		this.handleScrollingDown();
 	},
 
 	showSticky: function() {
