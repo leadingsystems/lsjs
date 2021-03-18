@@ -58,7 +58,7 @@ var obj_classdef = 	{
 
 	obj_status: {
 		bln_currentlySticky: false,
-		bln_stickyHeaderIsVisible: false,
+		bln_stickyHeaderIsVisible: false
 	},
 
 	obj_classes: {
@@ -66,6 +66,7 @@ var obj_classdef = 	{
 		sticky: 'sticky',
 		show: 'show-sticky',
 		moveout: 'move-out-sticky',
+		movein: 'move-in-sticky',
 		subscrolling: 'sub-scrolling-sticky',
 		temporarilyKeepStickyInShowPosition: 'temporarily-keep-sticky-in-show-position'
 	},
@@ -110,6 +111,7 @@ var obj_classdef = 	{
 			function() {
 				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_regular = this.el_header.getCoordinates().bottom;
 				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded = this.el_header.getCoordinates().bottom + (this.obj_stickyHeader.obj_height.int_expanded - this.obj_stickyHeader.obj_height.int_regular);
+
 				if (this.el_body.hasClass(this.obj_classes.moveout)) {
 					this.el_body.removeClass(this.obj_classes.moveout);
 					this.el_body.removeClass(this.obj_classes.show);
@@ -239,119 +241,124 @@ var obj_classdef = 	{
 		);
 	},
 
-	reactOnScrolling: function() {
-		var float_currentStickyTopPosition = parseFloat(window.getComputedStyle(this.el_header)['top']);
-		this.int_currentScrollY = window.getScroll().y;
-		if (!this.obj_status.bln_currentlySticky) {
-			if (
-				(
-					this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY > this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded
-				)
-				|| (
-					!this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY > this.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded
-				)
-			) {
-				this.makeSticky();
-			}
-		} else if (this.obj_status.bln_currentlySticky) {
-			if (
-				(
-					this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded
-				)
-				|| (
-					!this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY === 0
-				)
-			) {
-				this.makeUnsticky();
-			}
+	handleSubscrolling: function() {
+
+		if (
+			!this.obj_status.bln_currentlySticky
+			|| !this.obj_status.bln_stickyHeaderIsVisible
+			|| this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded < window.innerHeight * 0.3
+		) {
+			this.el_body.removeClass(this.obj_classes.subscrolling)
+			this.hideSticky();
+		} else {
+			this.el_body.addClass(this.obj_classes.subscrolling)
 		}
+
+		if (!this.el_body.hasClass(this.obj_classes.subscrolling)) {
+			return;
+		}
+
+		var float_currentStickyTopPosition = parseFloat(window.getComputedStyle(this.el_header)['top']);
 
 		if (
 			lsjs.scrollAssistant.__view.str_currentDirection === 'up'
 		) {
-			if (this.el_body.hasClass(this.obj_classes.subscrolling) && float_currentStickyTopPosition < 0) {
+			if (float_currentStickyTopPosition < 0) {
 				this.el_header.setStyle('top', float_currentStickyTopPosition + lsjs.scrollAssistant.__view.int_lastScrollSpeed);
 			}
+		} else if (lsjs.scrollAssistant.__view.str_currentDirection === 'down') {
+			this.el_header.setStyle('top', float_currentStickyTopPosition - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
+		}
+	},
 
-			else if (
-				this.bln_stickyHeaderHasReducedHeight
-				&& this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded + (this.obj_stickyHeader.obj_height.int_regular * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)
-				&& this.obj_status.bln_currentlySticky
-			) {
-				this.hideSticky();
+	toggleStickyStatus: function() {
+		if (!this.obj_status.bln_currentlySticky) {
+			if (this.int_currentScrollY > this[this.bln_stickyHeaderHasReducedHeight ? 'obj_originalHeader' : 'obj_stickyHeader'].obj_bottomPosition.obj_initial.int_expanded) {
+				this.makeSticky();
 			}
-
-			else if (
-				lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToShowSticky
-				|| (
-					!this.bln_stickyHeaderHasReducedHeight
-					&& this.int_currentScrollY <= this.obj_stickyHeader.obj_bottomPosition.obj_initial.int_expanded
-				)
-			) {
-				this.el_body.removeClass(this.obj_classes.subscrolling);
-
-				if (this.el_body.hasClass(this.obj_classes.sticky)) {
-					this.showSticky();
-				}
+		} else {
+			if (this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded) {
+				this.makeUnsticky();
 			}
 		}
+	},
 
-		else if (lsjs.scrollAssistant.__view.str_currentDirection === 'down') {
-			/*
-			 * If there is either actually still a way to sub-scroll (as indicated by the position vs. window height
-			 * comparison) or if we're at least currently right in the middle of sub-scrolling (as indicated by the
-			 * given css-class), we don't want the sticky header to be hidden. But if there's in fact no more
-			 * sub-scrolling possible, we only remove the sub-scrolling class so that the next scrolling event
-			 * can hide the sticky header.
-			 */
-			if (
-				this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded > window.innerHeight
-				|| this.el_body.hasClass(this.obj_classes.subscrolling)
-			) {
-				if (this.obj_stickyHeader.obj_bottomPosition.obj_current.int_expanded < window.innerHeight * 0.3) {
-					if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
-						this.el_body.removeClass(this.obj_classes.subscrolling);
-					}
-				} else {
-					if (
-						this.el_body.hasClass(this.obj_classes.sticky)
-						&& this.el_body.hasClass(this.obj_classes.show)
-					) {
-						this.el_header.setStyle('top', float_currentStickyTopPosition - lsjs.scrollAssistant.__view.int_lastScrollSpeed);
-						this.el_body.addClass(this.obj_classes.subscrolling);
-					}
-				}
-			}
-
-			else if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
-				this.el_body.removeClass(this.obj_classes.subscrolling);
-
-				if (
-					this.el_body.hasClass(this.obj_classes.sticky)
-					&& this.el_body.hasClass(this.obj_classes.show)
-				) {
-					if (!this.__models.options.data.bln_alwaysShowStickyHeader) {
-						this.hideSticky();
-					}
-				}
-			}
+	handleScrollingUp: function() {
+		if (lsjs.scrollAssistant.__view.str_currentDirection !== 'up') {
+			return;
 		}
 
+		if (this.el_body.hasClass(this.obj_classes.subscrolling)) {
+			return;
+		}
+
+		/*
+		 * Hide sticky header if we're already close to the top
+		 */
+		if (this.int_currentScrollY <= this.obj_originalHeader.obj_bottomPosition.obj_initial.int_expanded + (this.obj_stickyHeader.obj_height.int_regular * this.__models.options.data.int_factorForCalculatingPositionToHideStickyHeader)) {
+			console.log('that\'s why!');
+			this.hideSticky();
+			return;
+		}
+
+		/*
+		 * Show sticky header if the scroll speed was high enough
+		 */
+		if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToShowSticky) {
+			this.showSticky();
+		}
+	},
+
+	handleScrollingDown: function() {
+		if (lsjs.scrollAssistant.__view.str_currentDirection !== 'down') {
+			return;
+		}
+
+		if (this.el_body.hasClass(this.obj_classes.subscrolling)) {
+			return;
+		}
+
+		/*
+		 * Hide sticky header if the scroll speed was high enough
+		 */
+		if (lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToHideSticky) {
+			this.hideSticky();
+		}
+	},
+
+	reactOnScrolling: function() {
+		this.int_currentScrollY = window.getScroll().y;
+		this.handleSubscrolling();
+		this.toggleStickyStatus();
+		this.handleScrollingUp();
+		this.handleScrollingDown();
 	},
 
 	showSticky: function() {
+		if (this.obj_status.bln_stickyHeaderIsVisible) {
+			/*
+			 * Nothing to do if sticky header is already visible
+			 */
+			return;
+		}
+
 		this.obj_status.bln_stickyHeaderIsVisible = true;
 		this.el_body.addClass(this.obj_classes.show);
+		this.el_body.addClass(this.obj_classes.movein);
 		this.el_body.removeClass(this.obj_classes.moveout);
 	},
 
 	hideSticky: function() {
+		if (!this.obj_status.bln_stickyHeaderIsVisible) {
+			/*
+			 * Nothing to do if sticky header isn't visible
+			 */
+			return;
+		}
+
 		this.obj_status.bln_stickyHeaderIsVisible = false;
 		this.el_body.addClass(this.obj_classes.moveout);
+		this.el_body.removeClass(this.obj_classes.movein);
 		this.moveStickyOffCanvas();
 	},
 
