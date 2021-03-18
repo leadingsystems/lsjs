@@ -1,0 +1,3 @@
+<div class="debugPosYIndicator" style="position: absolute; top: 0; left: 0; z-index: 9999999; width: 100%; color: #FF0000; border-top: 0.1rem solid #FF0000; padding: 0.5rem; background-color: #FFFFFFAA;">
+    <p>Debug sticky header: y position to switch stickyness</p>
+</div>

@@ -114,11 +114,103 @@ var obj_classdef = 	{
 		}
 	},
 
+	obj_verticalPositionToSwitchSticky: {
+		__view: null,
+		el_header: null,
+		el_body: null,
+		str_stickyClassName: '',
+		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 0,
+		int_yPos: 0,
+		bln_debug: true,
+		el_debugPosYIndicator: null,
+
+		initialize: function(__view, el_header, el_body, str_stickyClassName, int_timeToWaitForRecalculationsAfterHeaderClickInMs) {
+			if (typeOf(__view) !== 'object') {
+				console.error('dependency "__view" not ok');
+			}
+			this.__view = __view;
+
+			if (typeOf(el_header) !== 'element') {
+				console.error('dependency "el_header" not ok');
+			}
+			this.el_header = el_header;
+
+			if (typeOf(el_body) !== 'element') {
+				console.error('dependency "el_body" not ok');
+			}
+			this.el_body = el_body;
+
+			if (typeOf(str_stickyClassName) !== 'string') {
+				console.error('dependency "str_stickyClassName" not ok');
+			}
+			this.str_stickyClassName = str_stickyClassName;
+
+			if (typeOf(int_timeToWaitForRecalculationsAfterHeaderClickInMs) !== 'number') {
+				console.error('dependency "int_timeToWaitForRecalculationsAfterHeaderClickInMs" not ok');
+			}
+			this.int_timeToWaitForRecalculationsAfterHeaderClickInMs = int_timeToWaitForRecalculationsAfterHeaderClickInMs;
+
+			if (this.bln_debug) {
+				this.el_debugPosYIndicator = this.__view.tplPure({name: 'debug_positionYIndicator'});
+				this.el_debugPosYIndicator.inject(this.el_body, 'top');
+			}
+
+			window.addEvent(
+				'resize',
+				this.determinePos.bind(this)
+			);
+
+			this.el_header.addEvent(
+				'click',
+				function() {
+					/*
+					 * If opening subnavigations etc. takes some time due to transitions, we have to make sure not to try to calculate
+					 * sizes and positions to early.
+					 */
+					window.setTimeout(
+						this.determinePos.bind(this),
+						this.int_timeToWaitForRecalculationsAfterHeaderClickInMs
+					);
+				}.bind(this)
+			);
+
+			this.determinePos();
+		},
+
+		determinePos: function() {
+			this.el_body.measure(
+				function() {
+					var bln_currentlySticky = this.el_body.hasClass(this.str_stickyClassName);
+					this.el_body.removeClass(this.str_stickyClassName);
+
+					this.int_yPos = this.el_header.getCoordinates().top + this.el_header.scrollHeight;
+
+					if (bln_currentlySticky) {
+						this.el_body.addClass(this.str_stickyClassName);
+					}
+				}.bind(this)
+			);
+
+			if (this.bln_debug) {
+				this.el_debugPosYIndicator.getElement('.debugPosYIndicator').setStyle('top', this.int_yPos);
+				console.log('debug -> y position to switch sticky: ' + this.int_yPos);
+			}
+		}
+	},
+
 	start: function() {
 		this.initializeElements();
 		this.obj_spaceSaver.initialize(
 			this.__models.options.data.str_selectorForElementToSaveSpace,
 			this.el_header
+		);
+
+		this.obj_verticalPositionToSwitchSticky.initialize(
+			this,
+			this.el_header,
+			this.el_body,
+			this.obj_classes.sticky,
+			this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs
 		);
 
 		this.initializeTransitionEndEventListener();
