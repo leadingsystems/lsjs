@@ -10,9 +10,6 @@ var obj_classdef = 	{
 
 	int_currentScrollY: 0,
 
-	bln_currentlySticky: false,
-	bln_currentlyShown: false,
-
 	obj_classes: {
 		stickyElement: 'sticky-element',
 		sticky: 'sticky',
@@ -132,7 +129,7 @@ var obj_classdef = 	{
 		determinePos: function() {
 			this.el_body.measure(
 				function() {
-					var bln_currentlySticky = this.el_body.hasClass(this.obj_classes.sticky);
+					var bln_needToReAddStickyClass = this.__view.check_isCurrentlySticky();
 					this.el_body.removeClass(this.obj_classes.sticky);
 
 					if (this.el_body.hasClass(this.obj_classes.show)) {
@@ -143,7 +140,7 @@ var obj_classdef = 	{
 
 					this.el_body.removeClass(this.obj_classes.temporarilyKeepStickyInShowPosition);
 
-					if (bln_currentlySticky) {
+					if (bln_needToReAddStickyClass) {
 						this.el_body.addClass(this.obj_classes.sticky);
 					}
 				}.bind(this)
@@ -226,13 +223,13 @@ var obj_classdef = 	{
 		determineSizesAndPositions: function() {
 			this.el_body.measure(
 				function () {
-					var bln_currentlySticky = this.el_body.hasClass(this.obj_classes.sticky);
+					var bln_needToRemoveStickyClass = !this.__view.check_isCurrentlySticky();
 
 					this.el_body.addClass(this.obj_classes.sticky);
 
 					this.int_height = this.el_header.scrollHeight;
 
-					if (!bln_currentlySticky) {
+					if (bln_needToRemoveStickyClass) {
 						this.el_body.removeClass(this.obj_classes.sticky);
 					}
 				}.bind(this)
@@ -313,11 +310,11 @@ var obj_classdef = 	{
 
 
 	toggleStickyStatus: function() {
-		if (!this.bln_currentlySticky) {
+		if (!this.check_isCurrentlySticky()) {
 			if (this.int_currentScrollY > this.obj_verticalPositionToSwitchSticky.int_yPos) {
 				this.makeSticky();
 			}
-		} else if (this.bln_currentlySticky) {
+		} else {
 			if (this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPos) {
 				this.makeUnsticky();
 			}
@@ -373,19 +370,16 @@ var obj_classdef = 	{
 	},
 
 	showSticky: function(){
-		this.bln_currentlyShown = true;
 		this.el_body.addClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 	},
 
 	hideSticky: function() {
-		this.bln_currentlyShown = false;
 		this.el_body.addClass(this.obj_classes.moveout);
 		this.obj_stickyHeader.moveOffCanvas();
 	},
 
 	makeSticky: function() {
-		this.bln_currentlySticky = true;
 		this.el_body.addClass(this.obj_classes.sticky);
 		this.obj_stickyHeader.moveOffCanvas();
 	},
@@ -395,7 +389,10 @@ var obj_classdef = 	{
 		this.el_body.removeClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
 		this.obj_stickyHeader.moveInCanvas();
-		this.bln_currentlySticky = false;
+	},
+
+	check_isCurrentlySticky: function() {
+		return this.el_body.hasClass(this.obj_classes.sticky);
 	}
 };
 
