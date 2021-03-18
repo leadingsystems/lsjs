@@ -71,8 +71,55 @@ var obj_classdef = 	{
 		temporarilyKeepStickyInShowPosition: 'temporarily-keep-sticky-in-show-position'
 	},
 
+	obj_spaceSaver: {
+		el_spaceSaver: null,
+		el_header: null,
+
+		int_originalPaddingTop: 0,
+
+		int_requiredPaddingTopInStickyState: 0,
+
+		initialize: function(str_selectorForSpaceSaverElement, el_header) {
+			if (typeOf(str_selectorForSpaceSaverElement) !== 'string') {
+				console.error('dependency "str_selectorForSpaceSaverElement" not ok');
+			}
+
+			if (typeOf(el_header) !== 'element') {
+				console.error('dependency "el_header" not ok');
+			}
+
+			this.el_header = el_header;
+
+			this.el_spaceSaver = $$(str_selectorForSpaceSaverElement)[0];
+
+			if (typeOf(this.el_spaceSaver) !== 'element') {
+				this.el_spaceSaver = null;
+			}
+
+			window.addEvent(
+				'resize',
+				this.setPadding.bind(this)
+			);
+
+			this.setPadding();
+		},
+
+		setPadding: function() {
+			if (!this.el_spaceSaver) {
+				return;
+			}
+
+			this.el_spaceSaver.setStyle('padding-top', null);
+			this.el_spaceSaver.setStyle('padding-top', parseFloat(window.getComputedStyle(this.el_spaceSaver)['padding-top']) + this.el_header.offsetHeight);
+		}
+	},
+
 	start: function() {
 		this.initializeElements();
+		this.obj_spaceSaver.initialize(
+			this.__models.options.data.str_selectorForElementToSaveSpace,
+			this.el_header
+		);
 
 		this.initializeTransitionEndEventListener();
 		this.initializeReactionOnHeaderClick();
