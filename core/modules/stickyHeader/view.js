@@ -74,7 +74,7 @@ var obj_classdef = 	{
 		bln_debug: false,
 		el_debugPosYIndicator: null,
 
-		initialize: function(__view, el_header, el_body, obj_classes, int_timeToWaitForRecalculationsAfterHeaderClickInMs) {
+		initialize: function(__view, el_header, el_body, obj_classes, int_timeToWaitForRecalculationsAfterHeaderClickInMs, bln_debug) {
 			if (typeOf(__view) !== 'object') {
 				console.error('dependency "__view" not ok');
 			}
@@ -99,6 +99,11 @@ var obj_classdef = 	{
 				console.error('dependency "int_timeToWaitForRecalculationsAfterHeaderClickInMs" not ok');
 			}
 			this.int_timeToWaitForRecalculationsAfterHeaderClickInMs = int_timeToWaitForRecalculationsAfterHeaderClickInMs;
+
+			if (typeOf(bln_debug) !== 'boolean') {
+				console.error('dependency "bln_debug" not ok');
+			}
+			this.bln_debug = bln_debug;
 
 			if (this.bln_debug) {
 				this.el_debugPosYIndicator = this.__view.tplPure({name: 'debug_positionYIndicator'});
@@ -263,7 +268,8 @@ var obj_classdef = 	{
 			this.el_header,
 			this.el_body,
 			this.obj_classes,
-			this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs
+			this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs,
+			this.__models.options.data.bln_debug
 		);
 
 		this.obj_stickyHeader.initialize(
