@@ -472,6 +472,9 @@ var obj_classdef = 	{
 	},
 
 	hideSticky: function() {
+		if (this.__models.options.data.bln_alwaysShowStickyHeader) {
+			return;
+		}
 		this.el_body.addClass(this.obj_classes.moveout);
 		this.obj_stickyHeader.moveOffCanvas();
 	},
@@ -479,6 +482,20 @@ var obj_classdef = 	{
 	makeSticky: function() {
 		this.el_body.addClass(this.obj_classes.sticky);
 		this.obj_stickyHeader.moveOffCanvas();
+
+		if (
+			this.__models.options.data.bln_alwaysShowStickyHeader
+			&& this.obj_stickyHeader.int_height <= window.innerHeight
+		) {
+			/*
+             * Since moving the sticky header off canvas can take some time, waiting a few ms before showing the
+             * sticky header can be necessary to make the transition actually work.
+             */
+			window.setTimeout(
+				this.showSticky.bind(this),
+				500
+			);
+		}
 	},
 
 	makeUnsticky: function() {
