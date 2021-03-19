@@ -200,7 +200,10 @@ var obj_classdef = 	{
 					 * sizes and positions to early.
 					 */
 					window.setTimeout(
-						this.determineSizesAndPositions.bind(this),
+						function() {
+							this.determineSizesAndPositions;
+							this.__view.handleSubscrolling();
+						}.bind(this),
 						this.int_timeToWaitForRecalculationsAfterHeaderClickInMs
 					);
 				}.bind(this)
@@ -302,10 +305,48 @@ var obj_classdef = 	{
 	reactOnScrolling: function() {
 		this.int_currentScrollY = window.getScroll().y;
 		this.toggleStickyStatus();
+		this.handleSubscrolling();
 		this.handleScrollingUp();
 		this.handleScrollingDown();
 	},
 
+	handleSubscrolling: function() {
+		if (
+			this.check_isCurrentlySticky()
+			&& this.check_isCurrentlyShowingStickyHeader()
+			&& this.obj_stickyHeader.int_height > window.innerHeight
+		) {
+			this.startSubscrolling();
+		} else {
+			this.stopSubscrolling();
+		}
+	},
+
+	startSubscrolling: function() {
+		if (this.check_isCurrentlySubscrolling()) {
+			/*
+			 * Do nothing if we're already in subscrolling mode.
+			 */
+			return;
+		}
+
+		this.el_header.setStyle('position', 'absolute');
+		this.el_header.setStyle('top', this.int_currentScrollY);
+		this.el_body.addClass(this.obj_classes.subscrolling);
+	},
+
+	stopSubscrolling: function() {
+		if (!this.check_isCurrentlySubscrolling()) {
+			/*
+			 * Do nothing if we're already not in subscrolling mode.
+			 */
+			return;
+		}
+
+		this.el_header.setStyle('position', null);
+		this.el_header.setStyle('top', null);
+		this.el_body.removeClass(this.obj_classes.subscrolling);
+	},
 
 	toggleStickyStatus: function() {
 		if (!this.check_isCurrentlySticky()) {
@@ -314,13 +355,35 @@ var obj_classdef = 	{
 			}
 		} else {
 			if (this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPos) {
-				this.makeUnsticky();
+				if (lsjs.scrollAssistant.__view.str_currentDirection !== 'down') {
+					this.makeUnsticky();
+				}
 			}
 		}
 	},
 
 	handleScrollingUp: function() {
 		if (lsjs.scrollAssistant.__view.str_currentDirection !== 'up') {
+			return;
+		}
+
+		if (
+			!this.check_isCurrentlySubscrolling()
+			&& this.obj_stickyHeader.int_height > window.innerHeight
+		) {
+			/*
+			 * If we're currently not in subscrolling mode but we know that the sticky header is higher than the
+			 * viewport, we don't want to show the sticky header when scrolling up because sliding in such a big
+			 * header seems a bit strange and there doesn't seem to be a way to do it well.
+			 */
+			return;
+		}
+
+
+		if (this.check_isCurrentlySubscrolling()) {
+			if (this.el_header.getCoordinates().top > this.int_currentScrollY) {
+				this.el_header.setStyle('top', this.int_currentScrollY);
+			}
 			return;
 		}
 
@@ -339,6 +402,10 @@ var obj_classdef = 	{
 
 	handleScrollingDown: function() {
 		if (lsjs.scrollAssistant.__view.str_currentDirection !== 'down') {
+			return;
+		}
+
+		if (this.check_isCurrentlySubscrolling()) {
 			return;
 		}
 
@@ -374,11 +441,20 @@ var obj_classdef = 	{
 		this.el_body.removeClass(this.obj_classes.sticky);
 		this.el_body.removeClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
+		this.stopSubscrolling();
 		this.obj_stickyHeader.moveInCanvas();
 	},
 
 	check_isCurrentlySticky: function() {
 		return this.el_body.hasClass(this.obj_classes.sticky);
+	},
+
+	check_isCurrentlyShowingStickyHeader: function() {
+		return this.el_body.hasClass(this.obj_classes.show);
+	},
+
+	check_isCurrentlySubscrolling: function() {
+		return this.el_body.hasClass(this.obj_classes.subscrolling);
 	}
 };
 
