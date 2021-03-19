@@ -16,7 +16,8 @@ var obj_classdef = 	{
 		show: 'show-sticky',
 		moveout: 'move-out-sticky',
 		movein: 'move-in-sticky',
-		subscrolling: 'sub-scrolling-sticky',
+		subscrolling: 'subscrolling-sticky',
+		subscrollingPreparingForMoveout: 'subscrolling-sticky-preparing-for-moveout',
 		temporarilyKeepStickyInShowPosition: 'temporarily-keep-sticky-in-show-position'
 	},
 
@@ -218,6 +219,7 @@ var obj_classdef = 	{
 					if (this.el_body.hasClass(this.obj_classes.moveout)) {
 						this.el_body.removeClass(this.obj_classes.moveout);
 						this.el_body.removeClass(this.obj_classes.show);
+						this.el_body.removeClass(this.obj_classes.subscrollingPreparingForMoveout);
 					}
 				}.bind(this)
 			);
@@ -323,9 +325,9 @@ var obj_classdef = 	{
 	},
 
 	startSubscrolling: function() {
-		if (this.check_isCurrentlySubscrolling()) {
+		if (this.check_isCurrentlySubscrolling() || this.el_body.hasClass(this.obj_classes.moveout)) {
 			/*
-			 * Do nothing if we're already in subscrolling mode.
+			 * Do nothing if we're already in subscrolling mode or if the sticky header is moving out at this moment.
 			 */
 			return;
 		}
@@ -406,7 +408,29 @@ var obj_classdef = 	{
 		}
 
 		if (this.check_isCurrentlySubscrolling()) {
-			return;
+			var int_yPositionToStopSubscrolling = window.innerHeight * 0.7;
+			if (this.int_currentScrollY + int_yPositionToStopSubscrolling < this.el_header.getCoordinates().top + this.obj_stickyHeader.int_height) {
+				/*
+				 * We don't want the sticky header to disappear unless it is scrolled up to a certain point
+				 */
+				return;
+			} else {
+				if (!this.check_isCurrentlyPreparingForSubscrollingMoveout()) {
+					this.prepareForSubscrollingMoveout();
+					/*
+					 * A small delay is required here to make sure that browsers can handle the position change correctly
+					 * before starting the transition to move the sticky header out of the viewport
+					 */
+					window.setTimeout(
+						function() {
+							this.stopSubscrolling();
+							this.hideSticky();
+						}.bind(this),
+						10
+					);
+				}
+				return;
+			}
 		}
 
 		/*
@@ -420,6 +444,20 @@ var obj_classdef = 	{
 				this.hideSticky();
 			}
 		}
+	},
+
+	prepareForSubscrollingMoveout: function() {
+		if (this.check_isCurrentlyPreparingForSubscrollingMoveout()) {
+			return;
+		}
+
+		this.el_body.addClass(this.obj_classes.subscrollingPreparingForMoveout);
+		// console.log(this.el_header.getCoordinates().top);
+		// console.log(this.int_currentScrollY);
+		// console.log(this.el_header.getCoordinates().top - this.int_currentScrollY);
+		var int_yPosToSetFixedTopPositionTo =  this.el_header.getCoordinates().top - this.int_currentScrollY;
+		this.el_header.setStyle('top', int_yPosToSetFixedTopPositionTo);
+		this.el_header.setStyle('position', null);
 	},
 
 	showSticky: function(){
@@ -455,6 +493,10 @@ var obj_classdef = 	{
 
 	check_isCurrentlySubscrolling: function() {
 		return this.el_body.hasClass(this.obj_classes.subscrolling);
+	},
+
+	check_isCurrentlyPreparingForSubscrollingMoveout: function() {
+		return this.el_body.hasClass(this.obj_classes.subscrollingPreparingForMoveout);
 	}
 };
 
