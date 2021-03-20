@@ -70,11 +70,13 @@ var obj_classdef = 	{
 		el_body: null,
 		obj_classes: '',
 		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 0,
-		int_yPos: 0,
+		int_yPosStart: 0,
+		int_yPosEnd: 0,
+		int_startEndDistance: 0,
 		bln_debug: false,
 		el_debugPosYIndicator: null,
 
-		initialize: function(__view, el_header, el_body, obj_classes, int_timeToWaitForRecalculationsAfterHeaderClickInMs, bln_debug) {
+		initialize: function(__view, el_header, el_body, obj_classes, int_timeToWaitForRecalculationsAfterHeaderClickInMs, int_startEndDistance, bln_debug) {
 			if (typeOf(__view) !== 'object') {
 				console.error('dependency "__view" not ok');
 			}
@@ -99,6 +101,11 @@ var obj_classdef = 	{
 				console.error('dependency "int_timeToWaitForRecalculationsAfterHeaderClickInMs" not ok');
 			}
 			this.int_timeToWaitForRecalculationsAfterHeaderClickInMs = int_timeToWaitForRecalculationsAfterHeaderClickInMs;
+
+			if (typeOf(int_startEndDistance) !== 'number') {
+				console.error('dependency "int_startEndDistance" not ok');
+			}
+			this.int_startEndDistance = int_startEndDistance;
 
 			if (typeOf(bln_debug) !== 'boolean') {
 				console.error('dependency "bln_debug" not ok');
@@ -133,6 +140,18 @@ var obj_classdef = 	{
 		},
 
 		determinePos: function() {
+			if (
+				this.__view.__models.options.data.bln_untouchEverythingInHeaderAfterHidingSticky
+				&& this.int_yPosEnd > 0
+			) {
+				/*
+				 * If the header is untouched after hiding sticky, there's no need to recalculate
+				 * the positions to start end end stickyness because then we don't care about
+				 * the expanded height of the header.
+				 */
+				return;
+			}
+
 			this.el_body.measure(
 				function() {
 					var bln_needToReAddStickyClass = this.__view.check_isCurrentlySticky();
@@ -142,7 +161,17 @@ var obj_classdef = 	{
 						this.el_body.addClass(this.obj_classes.temporarilyKeepStickyInShowPosition);
 					}
 
-					this.int_yPos = this.el_header.getCoordinates().top + this.el_header.scrollHeight;
+					/*
+					 * We have to make sure not to add a negative top position if the calculation is
+					 * executed when the header is pulled out of the viewport.
+					 */
+					var float_currentTopPosition = this.el_header.getCoordinates().top;
+					if (float_currentTopPosition < 0 ) {
+						float_currentTopPosition = 0;
+					}
+
+					this.int_yPosEnd = float_currentTopPosition + this.el_header.scrollHeight;
+					this.int_yPosStart = this.int_yPosEnd + this.int_startEndDistance;
 
 					this.el_body.removeClass(this.obj_classes.temporarilyKeepStickyInShowPosition);
 
@@ -153,7 +182,11 @@ var obj_classdef = 	{
 			);
 
 			if (this.bln_debug) {
-				this.el_debugPosYIndicator.getElement('.debugPosYIndicator').setStyle('top', this.int_yPos);
+				this.el_debugPosYIndicator.getElement('.debugPosYIndicatorStart').setStyle('top', this.int_yPosStart);
+				console.log('debugPosYIndicatorStart: ' + this.int_yPosStart);
+
+				this.el_debugPosYIndicator.getElement('.debugPosYIndicatorStop').setStyle('top', this.int_yPosEnd);
+				console.log('debugPosYIndicatorStop: ' + this.int_yPosEnd);
 			}
 		}
 	},
@@ -220,7 +253,12 @@ var obj_classdef = 	{
 			this.el_header.addEventListener(
 				'transitionend',
 				function() {
+					if (this.el_body.hasClass(this.obj_classes.moveout)) {
+						this.__view.untouchHeaderIfNecessary();
+					}
+
 					this.determineSizesAndPositions();
+
 					if (this.el_body.hasClass(this.obj_classes.moveout)) {
 						this.el_body.removeClass(this.obj_classes.moveout);
 						this.el_body.removeClass(this.obj_classes.show);
@@ -269,6 +307,7 @@ var obj_classdef = 	{
 			this.el_body,
 			this.obj_classes,
 			this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs,
+			this.__models.options.data.int_stickyStartEndDistance,
 			this.__models.options.data.bln_debug
 		);
 
@@ -358,11 +397,11 @@ var obj_classdef = 	{
 
 	toggleStickyStatus: function() {
 		if (!this.check_isCurrentlySticky()) {
-			if (this.int_currentScrollY > this.obj_verticalPositionToSwitchSticky.int_yPos) {
+			if (this.int_currentScrollY > this.obj_verticalPositionToSwitchSticky.int_yPosStart) {
 				this.makeSticky();
 			}
 		} else {
-			if (this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPos) {
+			if (this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPosEnd) {
 				if (lsjs.scrollAssistant.__view.str_currentDirection !== 'down') {
 					this.makeUnsticky();
 				}
@@ -400,7 +439,7 @@ var obj_classdef = 	{
 		 */
 		if (
 			lsjs.scrollAssistant.__view.int_lastScrollSpeed > this.__models.options.data.int_minScrollSpeedToShowSticky
-			|| this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPos
+			|| this.int_currentScrollY <= this.obj_verticalPositionToSwitchSticky.int_yPosEnd
 		) {
 			if (this.el_body.hasClass(this.obj_classes.sticky)) {
 				this.showSticky();
@@ -481,6 +520,7 @@ var obj_classdef = 	{
 
 	makeSticky: function() {
 		this.el_body.addClass(this.obj_classes.sticky);
+		this.untouchHeaderIfNecessary();
 		this.obj_stickyHeader.moveOffCanvas();
 
 		if (
@@ -499,6 +539,7 @@ var obj_classdef = 	{
 	},
 
 	makeUnsticky: function() {
+		this.untouchHeaderIfNecessary();
 		this.el_body.removeClass(this.obj_classes.sticky);
 		this.el_body.removeClass(this.obj_classes.show);
 		this.el_body.removeClass(this.obj_classes.moveout);
@@ -520,6 +561,36 @@ var obj_classdef = 	{
 
 	check_isCurrentlyPreparingForSubscrollingMoveout: function() {
 		return this.el_body.hasClass(this.obj_classes.subscrollingPreparingForMoveout);
+	},
+
+	untouchHeaderIfNecessary: function() {
+		if (this.__models.options.data.bln_untouchEverythingInHeaderAfterHidingSticky) {
+			var els_touchedHeaderElements = this.el_header.getElements('.touched');
+			if (typeOf(els_touchedHeaderElements) !== 'elements' || els_touchedHeaderElements.length === 0) {
+				/*
+				 * Nothing to untouch, so just return
+				 */
+				return;
+			}
+
+			/*
+			 * If we fire clicks an all elements with the touched class, we could trigger
+			 * the transition which would fold expanded elements. Unfortunately, we have
+			 * a click event listener on the header which doesn't seem to be okay with it!
+			 */
+			// els_touchedHeaderElements.fireEvent('click');
+
+			els_touchedHeaderElements.removeClass('touched');
+
+			window.setTimeout(
+				function() {
+					this.obj_verticalPositionToSwitchSticky.determinePos();
+					this.obj_stickyHeader.determineSizesAndPositions();
+				}.bind(this),
+				this.__models.options.data.int_timeToWaitForRecalculationsAfterHeaderClickInMs
+			);
+			// this.__view.handleSubscrolling();
+		}
 	}
 };
 

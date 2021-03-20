@@ -27,6 +27,13 @@ var obj_classdef_model = {
 
 		bln_alwaysShowStickyHeader: false,
 
+		bln_untouchEverythingInHeaderAfterHidingSticky: true,
+
+		/*
+		 * Distance in pixels between the vertical position where stickyness starts and where it ends
+		 */
+		int_stickyStartEndDistance: 100,
+
 		/*
 		 * Set to true for helpful debugging output
 		 */
