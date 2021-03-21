@@ -140,16 +140,19 @@ var obj_classdef = 	{
 		},
 
 		determinePos: function() {
+			var int_yPosEndToResetAfterCalculation = 0;
 			if (
 				this.__view.__models.options.data.bln_untouchEverythingInHeaderAfterHidingSticky
 				&& this.int_yPosEnd > 0
 			) {
 				/*
-				 * If the header is untouched after hiding sticky, there's no need to recalculate
-				 * the positions to start end end stickyness because then we don't care about
-				 * the expanded height of the header.
+				 * If the header is going to be untouched after hiding sticky, the expanded height of the
+				 * header is only relevant for the position to start stickyness but the position to end
+				 * it should not be changed. Since calculating the start position requires the end position
+				 * to be calculated first, we memorize the current end position and reset ist after
+				 * the calculation.
 				 */
-				return;
+				int_yPosEndToResetAfterCalculation = this.int_yPosEnd;
 			}
 
 			this.el_body.measure(
@@ -180,6 +183,10 @@ var obj_classdef = 	{
 					}
 				}.bind(this)
 			);
+
+			if (int_yPosEndToResetAfterCalculation > 0) {
+				this.int_yPosEnd = int_yPosEndToResetAfterCalculation;
+			}
 
 			if (this.bln_debug) {
 				this.el_debugPosYIndicator.getElement('.debugPosYIndicatorStart').setStyle('top', this.int_yPosStart);
