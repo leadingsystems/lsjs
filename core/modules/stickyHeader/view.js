@@ -532,7 +532,10 @@ var obj_classdef = 	{
 
 		if (
 			this.__models.options.data.bln_alwaysShowStickyHeader
-			&& this.obj_stickyHeader.int_height <= window.innerHeight
+			&& (
+				this.obj_stickyHeader.int_height <= window.innerHeight
+				|| this.__models.options.data.bln_untouchEverythingInHeaderAfterHidingSticky
+			)
 		) {
 			/*
              * Since moving the sticky header off canvas can take some time, waiting a few ms before showing the
@@ -585,9 +588,12 @@ var obj_classdef = 	{
 			 * the transition which would fold expanded elements. Unfortunately, we have
 			 * a click event listener on the header which doesn't seem to be okay with it!
 			 */
-			// els_touchedHeaderElements.fireEvent('click');
-
-			els_touchedHeaderElements.removeClass('touched');
+			els_touchedHeaderElements.fireEvent('click');
+			/*
+			 * If we didn't want collapsing subnavigations to be transitioned, we could simply
+			 * remove the touched classes instead of firing click events.
+			 */
+			// els_touchedHeaderElements.removeClass('touched');
 
 			window.setTimeout(
 				function() {

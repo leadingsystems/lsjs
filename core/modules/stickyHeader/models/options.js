@@ -25,14 +25,20 @@ var obj_classdef_model = {
 		 */
 		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 800,
 
+		/*
+		 * True if the sticky header should be displayed without the need to scroll upwards.
+		 */
 		bln_alwaysShowStickyHeader: false,
 
+		/*
+		 * Untouching the header means collapsing subnavigations etc. that might be expanded.
+		 */
 		bln_untouchEverythingInHeaderAfterHidingSticky: true,
 
 		/*
 		 * Distance in pixels between the vertical position where stickyness starts and where it ends
 		 */
-		int_stickyStartEndDistance: 100,
+		int_stickyStartEndDistance: 150,
 
 		/*
 		 * Set to true for helpful debugging output
