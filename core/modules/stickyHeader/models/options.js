@@ -26,6 +26,11 @@ var obj_classdef_model = {
 		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 800,
 
 		/*
+		 * True if the header should only be sticky and the non-sticky state should never occur.
+		 */
+		bln_stickyOnly: false,
+
+		/*
 		 * True if the sticky header should be displayed without the need to scroll upwards.
 		 */
 		bln_alwaysShowStickyHeader: false,

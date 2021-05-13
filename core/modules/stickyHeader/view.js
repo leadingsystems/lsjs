@@ -30,7 +30,7 @@ var obj_classdef = 	{
 		int_requiredPaddingTopInStickyState: 0,
 
 		initialize: function(str_selectorForSpaceSaverElement, el_header) {
-			if (typeOf(str_selectorForSpaceSaverElement) !== 'string') {
+			if (str_selectorForSpaceSaverElement !== null && typeOf(str_selectorForSpaceSaverElement) !== 'string') {
 				console.error('dependency "str_selectorForSpaceSaverElement" not ok');
 			}
 
@@ -328,6 +328,11 @@ var obj_classdef = 	{
 
 		this.initializeScrollListener();
 		this.initializeResizingListener();
+
+		if (this.__models.options.data.bln_stickyOnly) {
+			this.makeSticky();
+			this.showSticky();
+		}
 	},
 
 	initializeElements: function() {
@@ -549,6 +554,10 @@ var obj_classdef = 	{
 	},
 
 	makeUnsticky: function() {
+		if (this.__models.options.data.bln_stickyOnly) {
+			return;
+		}
+
 		this.untouchHeaderIfNecessary();
 		this.el_body.removeClass(this.obj_classes.sticky);
 		this.el_body.removeClass(this.obj_classes.show);
