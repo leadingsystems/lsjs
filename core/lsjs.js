@@ -192,6 +192,47 @@ Request.cajax = new Class({
 
 });
 
+var classdef_lsjs_helpers = {
+	/*
+	 * When a form is sent via Request.cajax the data to send is determined using a FormData object.
+	 * Since the FormData object doesn't know which button was used to submit the form, the following function
+	 * writes this information in a hidden input field.
+	 *
+	 * There should be a simpler way but at the current time, IE 11 and Safari don't support direct access
+	 * to the submit event's submitter.
+	 */
+	prepareFormForCajaxRequest: function(el_form) {
+		if (typeOf(el_form) !== 'element') {
+			return;
+		}
+
+		el_form.getElements('[type="submit"]').addEvent(
+			'click',
+			function() {
+				var str_dataAttributeNameForFakeSubmit = 'data-fake-submit-field-for-cajax-request';
+				var el_fakeSubmitField = el_form.getElement('[' + str_dataAttributeNameForFakeSubmit + ']');
+
+				if (el_fakeSubmitField === undefined || el_fakeSubmitField === null) {
+					el_fakeSubmitField = new Element('input');
+					el_fakeSubmitField.setProperty('type', 'hidden');
+					el_fakeSubmitField.setProperty(str_dataAttributeNameForFakeSubmit, '');
+					el_form.adopt(el_fakeSubmitField);
+				}
+
+				el_fakeSubmitField.setProperties(
+					{
+						'name': this.getProperty('name'),
+						'value': this.getProperty('value')
+					}
+				);
+
+				console.log('el_fakeSubmitField', el_fakeSubmitField);
+			}
+		);
+	}
+};
+var class_lsjs_helpers = new Class(classdef_lsjs_helpers);
+
 var classdef_lsjs_apiInterface = {
 	str_apiUrl: '',
 	
@@ -373,7 +414,9 @@ var classdef_lsjs = {
 		this.obj_moduleClasses[str_moduleName].controller = new Class(obj_classDefinition);
 	},
 	
-	apiInterface: new class_lsjs_apiInterface()
+	apiInterface: new class_lsjs_apiInterface(),
+
+	helpers: new class_lsjs_helpers()
 };
 var class_lsjs = new Class(classdef_lsjs);
 
