@@ -225,8 +225,6 @@ var classdef_lsjs_helpers = {
 						'value': this.getProperty('value')
 					}
 				);
-
-				console.log('el_fakeSubmitField', el_fakeSubmitField);
 			}
 		);
 	}
