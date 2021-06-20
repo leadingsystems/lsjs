@@ -76,14 +76,14 @@ lsjs.__moduleHelpers[str_moduleName] = {
          * <-
          */
 
-		el_container.addClass(obj_options.str_classToSetWhenModuleApplied);
-
 		this.self[obj_options.str_uniqueInstanceName] = lsjs.createModule({
 			__name: str_moduleName,
 			__el_container: el_container
 		});
 
 		this.self[obj_options.str_uniqueInstanceName].__models.options.set(obj_options);
+
+		el_container.addClass(this.self[obj_options.str_uniqueInstanceName].__models.options.data.str_classToSetWhenModuleApplied);
 	}
 };
 
