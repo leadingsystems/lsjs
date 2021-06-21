@@ -21,7 +21,8 @@ var obj_classdef_model = {
 			 * being open or closed or running
 			 */
 			str_uniqueInstanceName: '',
-			str_classToSetWhenModuleApplied: 'ocFlexApplied'
+			str_classToSetWhenModuleApplied: 'ocFlexApplied',
+			bln_closeOnOutsideClick: true
 		};
 	},
 	

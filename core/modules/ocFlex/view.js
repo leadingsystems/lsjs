@@ -48,6 +48,17 @@ var obj_classdef = 	{
 			'click',
 			this.toggle.bind(this)
 		);
+
+		if (this.__models.options.data.bln_closeOnOutsideClick) {
+			this.__el_container.addEvent(
+				'click',
+				function(event) {
+					if (event.target === this.__el_container) {
+						this.toggle();
+					}
+				}.bind(this)
+			);
+		}
 	},
 
 	toggle: function(event) {
