@@ -916,6 +916,22 @@ var obj_classdef = 	{
 		}
 
 		return int_width;
+	},
+
+	instantlyOpen: function() {
+		if (this.str_toggleStatus === 'closed') {
+			this.bln_skipAnimation = true;
+			this.onToggleEvent();
+			this.bln_skipAnimation = false;
+		}
+	},
+
+	instantlyClose: function() {
+		if (this.str_toggleStatus === 'open') {
+			this.bln_skipAnimation = true;
+			this.onToggleEvent();
+			this.bln_skipAnimation = false;
+		}
 	}
 };
 
