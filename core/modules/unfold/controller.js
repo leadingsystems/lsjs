@@ -20,6 +20,8 @@ lsjs.__moduleHelpers[str_moduleName] = {
 		});
 		
 		this.self.__models.options.set(obj_options);
+
+		return this.self;
 	}
 };
 
