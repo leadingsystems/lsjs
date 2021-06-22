@@ -69,7 +69,7 @@ var obj_classdef = 	{
 
 	bound_makeCajaxRequest: null,
 	makeCajaxRequest: function(event) {
-		event.stop();
+		event.preventDefault();
 
 		switch (this.__el_container.get('tag')) {
 			case 'a':
