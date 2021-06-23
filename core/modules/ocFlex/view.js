@@ -85,6 +85,7 @@ var obj_classdef = 	{
 			this.el_body.setStyle('top', null);
 			// this.el_body.removeClass(this.obj_classes.general.keepSticky);
 
+			window.fireEvent('ocFlexClose', this.__models.options.data.str_uniqueInstanceName);
 		} else {
 			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
 				window.ocFlexCloseCurrentlyOpen();
@@ -106,7 +107,10 @@ var obj_classdef = 	{
 			this.__el_container.addClass('open');
 			this.els_togglers.removeClass('closed');
 			this.els_togglers.addClass('open');
+
+			window.fireEvent('ocFlexOpen', this.__models.options.data.str_uniqueInstanceName);
 		}
+
 	},
 };
 
