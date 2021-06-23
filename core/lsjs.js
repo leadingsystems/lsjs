@@ -36,8 +36,9 @@
  * matching ids.
  */
 Request.cajax = new Class({
-
 	Extends: Request,
+
+	bln_urlHistoryHasBeenHandled: false,
 
 	options: {
 		cajaxMode: 'update', // can be 'update', 'updateCompletely' or 'append',
@@ -58,7 +59,96 @@ Request.cajax = new Class({
 			options.url = options.url + (String(options.url).includes('?') ? '&' : '?') + 'cajaxCall=' + (new Date).getTime();
         }
 
+		var func_onProgressOption = options.onProgress;
+
+		options.onProgress = function(event, xhr) {
+			if (!options.bln_doNotModifyUrl) {
+				this.handleUrlHistory(xhr);
+			}
+
+			if (typeOf(func_onProgressOption) === 'function') {
+				func_onProgressOption(event, xhr);
+			}
+		};
+
 		this.parent(options);
+	},
+
+	handleUrlHistory: function(xhr) {
+		if (this.bln_urlHistoryHasBeenHandled) {
+			return;
+		}
+
+		if (xhr.responseURL) {
+			var obj_urlToPushToHistory = new URL(xhr.responseURL);
+			var arr_paramsToRemove = ['cajaxCall', 'cajaxRequestData'];
+
+			obj_urlToPushToHistory.searchParams.forEach(
+				function(value, key) {
+					if (value === '') {
+						arr_paramsToRemove.push(key);
+					}
+				}
+			);
+
+			Array.each(
+				arr_paramsToRemove,
+				function(str_paramNameToRemove) {
+					obj_urlToPushToHistory.searchParams.delete(str_paramNameToRemove);
+				}
+			);
+
+			/*
+			 * We're using "replaceState()" because using "pushState()" comes with some problems.
+			 *
+			 * Maybe it would be a good idea to use "pushState()" but there are some things that need to be further
+			 * examined.
+			 *
+			 * === An explanation of the whole situation for future reference: ===
+			 *
+			 * "pushState()" would write the URLs of every cajax call to the history and using history.back() or the
+			 * browser's "step back button" would go through each of them. This seems to be what we want but unfortunately,
+			 * those steps back in history don't change the contents of the page to reflect the URL but ONLY the URL.
+			 * This happens because those states we pushed are only states of the same document and as long as the browser
+			 * is in the same document, going through its states doesn't actually load the URLs of those states.
+			 * Example: If we opened page 1, then page 2, then clicked through a pagination using cajax on page 2 and
+			 * then we opened page 3, this would look something like this:
+			 * 		/page1.html => loaded regularly
+			 * 		/page2.html => loaded regularly
+			 * 		/page2.html?subpage=2 => loaded via cajax
+			 * 		/page2.html?subpage=3 => loaded via cajax
+			 * 		/page3.html => loaded regularly
+			 * Going back from /page3.html to /page2.html?subpage=3 would actually load the page with this URL because
+			 * page2.html is not the same document as page3.html. But then going back from /page2.html?subpage=3 to
+			 * /page2.html?subpage=2 and /page2.html would only change the URL but not a thing in the page's contents.
+			 * We would see subpage 3 all the time. Only when we go on to /page1.html, the page would actually load the
+			 * URL. And if we moved forward in history, we would see /page2.html loading from the URL in history but
+			 * /page2.html?subpage=2 and /page2.html?subpage=3 always showing subpage 1.
+			 *
+			 * We could probably solve this issue by placing this line of code in the app.js (or somewhere else):
+			 *  >> window.addListener('popstate', function(event) { window.location.href = event.target.location.href; }); <<
+			 *
+			 * This event would be triggered every time that one of those history steps which only change the URL occurs
+			 * and then write the changed URL to window.location.href causing the page to actually reload with the given
+			 * URL. We tested this briefly in firefox and it worked. However, this is far too experimental to actually
+			 * use it without massive x-browser testing.
+			 *
+			 * By using "replaceState()" we are not building a real history at all. We simply tell the one document
+			 * that we loaded before that its URL changes after each cajax call. The previously mentioned example
+			 * would result in this history:
+			 * 		/page1.html => loaded regularly
+			 * 		/page2.html?subpage=3 => loaded regularly as /page2.html but then overwritten via cajax/replaceState()
+			 * 		/page3.html => loaded regularly
+			 *
+			 * If we go back in history from /page3.html to /page2.html?subpage=3, this will load the page with this URL
+			 * and going forward in history from /page1.html to /page2.html?subpage=3 will also load the page with this URL.
+			 * But the history doesn't reflect in any way that we called multiple subpages.
+			 *
+			 */
+			history.replaceState({}, '', obj_urlToPushToHistory);
+
+			this.bln_urlHistoryHasBeenHandled = true;
+		}
 	},
 
 	success: function(str_text){

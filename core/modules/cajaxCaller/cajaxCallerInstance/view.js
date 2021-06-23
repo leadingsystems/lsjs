@@ -79,6 +79,7 @@ var obj_classdef = 	{
 					url: this.__el_container.getProperty('href'),
 					method: 'get',
 					noCache: true,
+					bln_doNotModifyUrl: this.__models.options.data.bln_doNotModifyUrl !== undefined && this.__models.options.data.bln_doNotModifyUrl,
 					cajaxMode: this.__models.options.data.str_cajaxMode,
 					data: 'cajaxRequestData=' + JSON.encode(this.__models.options.data.obj_cajaxRequestData),
 					onComplete: function() {
@@ -97,6 +98,7 @@ var obj_classdef = 	{
 					url: this.__el_container.getProperty('action') ? this.__el_container.getProperty('action') : document.location,
 					method: 'post',
 					noCache: true,
+					bln_doNotModifyUrl: this.__models.options.data.bln_doNotModifyUrl !== undefined && this.__models.options.data.bln_doNotModifyUrl,
 					cajaxMode: this.__models.options.data.str_cajaxMode,
 					el_formToUseForFormData: this.__el_container,
 					// obj_additionalFormData: this.__models.options.data.obj_additionalFormData,
