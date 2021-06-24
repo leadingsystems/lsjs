@@ -94,6 +94,10 @@ var obj_classdef = 	{
 			case 'form':
 				lsjs.loadingIndicator.__controller.show();
 
+				if (this.__el_container.getProperty('method') === 'get' || this.__el_container.getProperty('method') === 'GET') {
+					console.warn('Forms using the "get" method are not yet supported by cajaxCaller. Form data will be sent as post data.')
+				}
+
 				new Request.cajax({
 					url: this.__el_container.getProperty('action') ? this.__el_container.getProperty('action') : document.location,
 					method: 'post',
