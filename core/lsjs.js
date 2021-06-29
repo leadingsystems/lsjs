@@ -317,6 +317,10 @@ var classdef_lsjs_helpers = {
 				);
 			}
 		);
+	},
+
+	decimalSaveParseFloat: function(str_number) {
+		return parseFloat(str_number.replace(/[^\d\-.,]/g, "").replace(/,/g, ".").replace(/\.(?=.*\.)/g, ""));
 	}
 };
 var class_lsjs_helpers = new Class(classdef_lsjs_helpers);

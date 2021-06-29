@@ -58,6 +58,18 @@ var obj_classdef = 	{
 				this.setSliderValuesToInputFieldValues();
 			}.bind(this)
 		);
+
+		this.__autoElements.main.sliderInput_inputField.getParent('form').addEvent(
+			'reset',
+			function() {
+				window.setTimeout(
+					function() {
+						this.setSliderValuesToInputFieldValues();
+					}.bind(this),
+					1
+				);
+			}.bind(this)
+		);
 	},
 
 	setSliderValuesToInputFieldValues: function() {
@@ -65,7 +77,7 @@ var obj_classdef = 	{
 		Array.each(
 			this.__autoElements.main.sliderInput_inputField,
 			function(el_input, int_key) {
-				arr_valuesToSet[int_key] = el_input.getProperty('value');
+				arr_valuesToSet[int_key] = lsjs.helpers.decimalSaveParseFloat(el_input.getProperty('value'));
 			}.bind(this)
 		);
 		this.__autoElements.main.sliderInput_targetContainer[0].noUiSlider.set(arr_valuesToSet);
