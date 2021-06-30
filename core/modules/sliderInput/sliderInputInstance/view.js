@@ -5,6 +5,9 @@ var str_moduleName = '__moduleName__';
 // #################################
 
 var obj_classdef = 	{
+	float_minValue: 111111,
+	float_maxValue: 999999,
+
 	start: function() {
 		var self = this;
 
@@ -31,12 +34,15 @@ var obj_classdef = 	{
 			}.bind(this)
 		);
 
+		this.float_minValue = this.__el_container.getProperty('data-lsjs-slider-input-min-value') !== null ? lsjs.helpers.decimalSaveParseFloat(this.__el_container.getProperty('data-lsjs-slider-input-min-value')) : this.float_minValue;
+		this.float_maxValue = this.__el_container.getProperty('data-lsjs-slider-input-max-value') !== null ? lsjs.helpers.decimalSaveParseFloat(this.__el_container.getProperty('data-lsjs-slider-input-max-value')) : this.float_maxValue;
+
 	    noUiSlider.create(
 			this.__autoElements.main.sliderInput_targetContainer[0],
 			{
 				range: {
-					'min': 0,
-					'max': 500
+					'min': this.float_minValue,
+					'max': this.float_maxValue
 				},
 
 				start: this.getStartParameterFromInputs(),
