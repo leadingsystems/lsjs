@@ -59,17 +59,19 @@ Request.cajax = new Class({
 			options.url = options.url + (String(options.url).includes('?') ? '&' : '?') + 'cajaxCall=' + (new Date).getTime();
         }
 
-		var func_onProgressOption = options.onProgress;
+		if (lsjs.obj_preferences.bln_activateUrlModificationInRequestCajax) {
+			var func_onProgressOption = options.onProgress;
 
-		options.onProgress = function(event, xhr) {
-			if (!options.bln_doNotModifyUrl) {
-				this.handleUrlHistory(xhr);
-			}
+			options.onProgress = function(event, xhr) {
+				if (!options.bln_doNotModifyUrl) {
+					this.handleUrlHistory(xhr);
+				}
 
-			if (typeOf(func_onProgressOption) === 'function') {
-				func_onProgressOption(event, xhr);
-			}
-		};
+				if (typeOf(func_onProgressOption) === 'function') {
+					func_onProgressOption(event, xhr);
+				}
+			};
+		}
 
 		this.parent(options);
 	},
@@ -508,7 +510,11 @@ var classdef_lsjs = {
 	
 	apiInterface: new class_lsjs_apiInterface(),
 
-	helpers: new class_lsjs_helpers()
+	helpers: new class_lsjs_helpers(),
+
+	obj_preferences: {
+		bln_activateUrlModificationInRequestCajax: false
+	}
 };
 var class_lsjs = new Class(classdef_lsjs);
 
