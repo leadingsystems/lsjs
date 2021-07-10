@@ -51,7 +51,7 @@ var obj_classdef = 	{
 
 		if (this.__models.options.data.bln_closeOnOutsideClick) {
 			this.__el_container.addEvent(
-				'click',
+				'mousedown',
 				function(event) {
 					if (event.target === this.__el_container) {
 						this.toggle();
