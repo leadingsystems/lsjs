@@ -21,13 +21,20 @@ var obj_classdef = 	{
 
 	show: function(obj_params) {
 		obj_params = typeof obj_params === 'object' ? obj_params : {};
+
+		if (this.bln_debug) {
+			console.info('======> Debugging ' + str_moduleName + ' / show() ======>');
+			console.info('Given parameters',obj_params);
+		}
+
 		var el_target = typeOf(obj_params.var_target) === 'element' ? obj_params.var_target : (obj_params.var_target ? $$(obj_params.var_target)[0] : null);
 		var str_reference = typeof obj_params.str_reference === 'undefined' || !obj_params.str_reference ? this.str_standardReference : obj_params.str_reference;
 		var bln_addOnly = typeof obj_params.bln_addOnly === 'undefined' ? false : !!obj_params.bln_addOnly;
+		var bln_addToBodyIfTargetDoesNotExist = typeof obj_params.bln_addToBodyIfTargetDoesNotExist === 'undefined' ? false : !!obj_params.bln_addToBodyIfTargetDoesNotExist;
 		var str_message = typeof obj_params.str_message === 'undefined' ? this.str_standardMessage : obj_params.str_message;
 
 		if (this.bln_debug && str_reference === this.str_standardReference) {
-			console.info(str_moduleName + ': using default reference "' + this.str_standardReference + '"');
+			console.info('using default reference "' + this.str_standardReference + '"');
 		}
 
 		var el_loadingIndicator = $$('[data-lsjs-loadingindicator-reference="' + str_reference + '"]')[0];
@@ -35,14 +42,22 @@ var obj_classdef = 	{
 		if (typeOf(el_loadingIndicator) !== 'element') {
 			if (str_reference === this.str_standardReference) {
 				if (this.bln_debug) {
-					console.warn(str_moduleName + ': Since the standard reference is used, the target element is always body. If another target element is specified, it will be ignored.');
+					console.warn('Since the standard reference (' + this.str_standardReference + ') is used, the target element is always body. If another target element is specified, it will be ignored.');
 				}
 				el_target = $$('body')[0];
 			} else if (typeOf(el_target) !== 'element') {
-				if (this.bln_debug) {
-					console.warn(str_moduleName + ': The given target element is not a dom element. The loading indicator element was placed in body.');
+				if (bln_addToBodyIfTargetDoesNotExist) {
+					if (this.bln_debug) {
+						console.warn('The given target element (' + obj_params.var_target + ') is not a dom element. The loading indicator element was placed in body because the "bln_addToBodyIfTargetDoesNotExist" option was used.');
+					}
+					el_target = $$('body')[0];
+				} else {
+					if (this.bln_debug) {
+						console.warn('The given target element (' + obj_params.var_target + ') is not a dom element. The loading indicator element was NOT PLACED anywhere because the "bln_addToBodyIfTargetDoesNotExist" option was not used.');
+						console.info('<======');
+					}
+					return;
 				}
-				el_target = $$('body')[0];
 			}
 
 			el_loadingIndicator = this.tplAdd({
@@ -54,9 +69,13 @@ var obj_classdef = 	{
 					str_message: str_message
 				}
 			});
+
+			if (this.bln_debug) {
+				console.info('Added loading indicator to the target element', el_target);
+			}
 		} else {
 			if (this.bln_debug) {
-				console.info(str_moduleName + ': A loading indicator element with this reference already exists. Therefore, if a target element is specified, it will be ignored.');
+				console.info('A loading indicator element with this reference (' + str_reference + ') already exists. Therefore, if a target element is specified, it will be ignored.');
 			}
 		}
 
@@ -75,20 +94,32 @@ var obj_classdef = 	{
 			);
 		} else {
 			if (this.bln_debug) {
-				console.info(str_moduleName + ': Only adding element to dom.');
+				console.info('Only adding element to dom.');
 			}
+		}
+
+		if (this.bln_debug) {
+			console.info('loading indicator element: ', typeOf(el_loadingIndicator) === 'elements' ? el_loadingIndicator[0] : el_loadingIndicator);
+			console.info('<======');
 		}
 	},
 	
 	hide: function(obj_params) {
 		obj_params = typeof obj_params === 'object' ? obj_params : {};
+
+		if (this.bln_debug) {
+			console.info('======> Debugging ' + str_moduleName + ' / hide() ======>');
+			console.info('Given parameters',obj_params);
+		}
+
 		var str_reference = typeof obj_params.str_reference === 'undefined' || !obj_params.str_reference ? this.str_standardReference : obj_params.str_reference;
 		var bln_force = typeof obj_params.bln_force === 'undefined' ? false : !!obj_params.bln_force;
 		var el_loadingIndicator = $$('[data-lsjs-loadingindicator-reference="' + str_reference + '"]')[0];
 
 		if (typeOf(el_loadingIndicator) !== 'element') {
 			if (this.bln_debug) {
-				console.info(str_moduleName + ': loading indicator element not found by reference.');
+				console.info('loading indicator element not found by reference (' + str_reference + ').');
+				console.info('<======');
 			}
 
 			return;
@@ -111,6 +142,10 @@ var obj_classdef = 	{
 			},
 			this.int_showHideDelayMs
 		);
+
+		if (this.bln_debug) {
+			console.info('<======');
+		}
 	},
 
 	debug: function() {
