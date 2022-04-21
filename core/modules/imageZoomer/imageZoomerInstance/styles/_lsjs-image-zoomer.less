@@ -1,0 +1,84 @@
+body {
+  &.lsjs-image-zoomer-open {
+    overflow: hidden;
+  }
+
+  .lsjs-zoomer-overlay {
+    background-color: rgba(0, 0, 0, 0.9);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 99999;
+
+    .btn-close,
+    .btn-zoom-in,
+    .btn-zoom-out {
+      position: fixed;
+      z-index: 99999;
+      right: 2rem;
+      text-shadow: 0 0 0.6rem #000000;
+      &::after {
+        .fa-icon;
+        .fas;
+        color: @ls-color-white;
+      }
+    }
+
+    .big-image {
+      cursor: grab;
+      user-drag: none;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-drag: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+
+      &.dragging {
+        cursor: grabbing;
+      }
+    }
+
+    .btn-close {
+      top: 2rem;
+      cursor: pointer;
+
+      &::after {
+        content: @fa-var-window-close;
+      }
+    }
+
+    .btn-zoom-in {
+      top: 9rem;
+      opacity: .2;
+
+      &::after {
+        content: @fa-var-search-plus;
+      }
+
+      &.possible {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+
+    .btn-zoom-out {
+      top: 14rem;
+      opacity: .2;
+
+      &::after {
+        content: @fa-var-search-minus;
+      }
+
+      &.possible {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .lsjs-image-zoomer-applied {
+    cursor: zoom-in;
+  }
+}
