@@ -94,7 +94,7 @@ var obj_classdef = 	{
 				lsjs.loadingIndicator.__controller.show();
 
 				new Request.cajax({
-					url: this.__el_container.getProperty('action'),
+					url: this.__el_container.getProperty('action') ? this.__el_container.getProperty('action') : document.location,
 					method: 'post',
 					noCache: true,
 					cajaxMode: this.__models.options.data.str_cajaxMode,
