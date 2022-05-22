@@ -41,7 +41,7 @@ Request.cajax = new Class({
 	bln_urlHistoryHasBeenHandled: false,
 
 	options: {
-		cajaxMode: 'update', // can be 'update', 'updateCompletely' or 'append',
+		cajaxMode: 'update', // can be 'update', 'updateCompletely', 'append', 'discard',
 		el_formToUseForFormData: false,
 		obj_additionalFormData: {},
 		headers: {
@@ -160,6 +160,11 @@ Request.cajax = new Class({
 		this.response.html = str_text.stripScripts(function(str_script){
 			this.response.javascript = str_script;
 		}.bind(this));
+
+		if (this.options.cajaxMode === 'discard') {
+			this.onSuccess(els_toPassToOnSuccess, this.response.html, this.response.javascript);
+			return;
+		}
 		
 		/*
 		 * Create a temporary element with the html response because this parses
