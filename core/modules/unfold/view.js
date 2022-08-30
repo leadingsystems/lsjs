@@ -855,6 +855,25 @@ var obj_classdef = 	{
 		/*
 		 * <--
 		 */
+
+		if (this.__models.options.data.arr_selectorsToLimitCloseOnOutsideClick.length > 0) {
+			var bln_clickedElementMatchesSelector = false;
+			Array.each(
+				this.__models.options.data.arr_selectorsToLimitCloseOnOutsideClick,
+				function(str_selector) {
+					if (event.target.matches(str_selector)) {
+						bln_clickedElementMatchesSelector = true;
+					}
+				}
+			);
+
+			/*
+			 * If none of the given selectors matched the clicked element, we don't close the resizeBox
+			 */
+			if (!bln_clickedElementMatchesSelector) {
+				return;
+			}
+		}
 		
 		/*
 		 * Call the onToggleEvent function which actually closes the resizeBox

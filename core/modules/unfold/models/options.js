@@ -1,8 +1,8 @@
 var obj_classdef_model = {
 	name: 'options',
-	
+
 	data: {},
-	
+
 	start: function() {
 		/*
 		 * Initializing the options in the data object with default values which
@@ -128,6 +128,13 @@ var obj_classdef_model = {
 			 * True if a click outside the unfolded element should close it
 			 */
 			bln_closeOnOutsideClick: false,
+
+			/*
+			 * Optional.
+			 * An array of selectors. The outside click target element will be checked against the given selectors and
+			 * the unfolded element will only be closed if the element matches at least one of the selectors.
+			 */
+			arr_selectorsToLimitCloseOnOutsideClick: [],
 
 			/*
 			 * Optional.
@@ -300,7 +307,7 @@ var obj_classdef_model = {
 			}
 		};
 	},
-	
+
 	set: function(obj_options) {
 		/*
 		 * The user calls this function in order to override our default values.
@@ -310,7 +317,7 @@ var obj_classdef_model = {
 		 * the onComplete function possibly given as a user argument.
 		 */
 		Object.merge(this.data, obj_options);
-		
+
 		this.data.obj_morphOptions.onComplete = function() {
 			this.__view.setEndStyles();
 			this.__view.toggleStatus();
@@ -323,7 +330,7 @@ var obj_classdef_model = {
 				obj_options.obj_morphOptions.onComplete();
 			}
 		}.bind(this);
-		
+
 		this.__module.onModelLoaded();
 	}
 };
