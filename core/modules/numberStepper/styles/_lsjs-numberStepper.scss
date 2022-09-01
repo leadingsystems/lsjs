@@ -1,0 +1,15 @@
+.mainNumberStepper {
+
+  input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    margin: 0;
+  }
+}
+
+.minMaxBound {
+  cursor: not-allowed !important;
+  opacity: 0.2 !important;
+}
+
+
