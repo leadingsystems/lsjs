@@ -19,7 +19,7 @@ var obj_classdef = 	{
 //console.log("view: addNumberStepperFunction: els_numberGroup", els_numberGroup);
 
 		Array.each(els_numberGroup, function(el_numberInput) {
-console.log({el_numberInput});
+//console.log({el_numberInput});
 
 			if (el_numberInput.hasClass(this.__models.options.data.str_appliedClass)) {
 //console.log("Klasse bereits gesetzt - return", el_numberInput);
@@ -64,12 +64,7 @@ console.log({el_numberInput});
 				//FUNKTIONIERT AUCH
 				el_numberInputByParent.stepUp()
 
-
-				self.buttonClickable(
-					//this,
-					el_numberInputByParent, parent
-					//, 'up'
-				);
+				self.buttonClickable(el_numberInputByParent, parent);
 			});
 
 			//Minus Button
@@ -82,18 +77,13 @@ console.log({el_numberInput});
 				//FUNKTIONIERT AUCH
 				el_numberInputByParent.stepDown();
 
-
-				self.buttonClickable(
-					//this,
-					el_numberInputByParent, parent
-					//, 'down'
-				);
-
+				self.buttonClickable(el_numberInputByParent, parent);
 			});
 
-			el_templateMain.getElement('button.nsPlus').addEvent('change', function() {
-console.log("Wert geändert");
-
+			//Buttons klickbar aufgrund von Benutzereingaben
+			el_numberInputByParent.addEvent('change', function() {
+//console.log("Wert geändert");
+				self.buttonClickable(el_numberInputByParent, parent);
 			});
 
 
@@ -105,60 +95,45 @@ console.log("Wert geändert");
 	*	Bsp. Ist Min=10 und der Wert ist 10, bringt der Minus-Buttons nichts und kann ausgegraut werden
 	*
 	*/
-	buttonClickable: function(
-		//el_button,
-		el_input,
-		el_parent
-		//, str_direction
-	) {
-
-console.log("el_parent: ", el_parent);
-
+	buttonClickable: function(el_input, el_parent) {
+//console.log("el_parent: ", el_parent);
 //console.log("el_button: ", el_button);
 //console.log("el_input: ", el_input);
 //console.log("str_direction: ", str_direction);
 
-var el_buttonPlus = el_parent.getElement('button.nsPlus');
-console.log("el_buttonPlus: ", el_buttonPlus);
+		//Die Buttons ermitteln
+		var el_buttonPlus = el_parent.getElement('button.nsPlus');
+//console.log("el_buttonPlus: ", el_buttonPlus);
 
-var el_buttonMinus = el_parent.getElement('button.nsMinus');
-console.log("el_buttonMinus: ", el_buttonMinus);
+		var el_buttonMinus = el_parent.getElement('button.nsMinus');
+//console.log("el_buttonMinus: ", el_buttonMinus);
 
+		//Aktueller Wert und Grenzwerte feststellen
+		var dec_inputValue = Number(el_input.value);
+//console.log("dec_inputValue: ", dec_inputValue);
 
-		var valu = Number(el_input.value);
-console.log("valu: ", valu);
+		var dec_max = Number(el_input.getProperty('max'));
+//console.log("dec_max: ", dec_max);
 
-		var max1 = Number(el_input.getProperty('max'));
-console.log("max1: ", max1);
+		var dec_min = Number(el_input.getProperty('min'));
+//console.log("dec_min: ", dec_min);
 
-		var min1 = Number(el_input.getProperty('min'));
-console.log("min1: ", min1);
-
-		if ((
-			//str_direction == 'up' &&
-			valu >= max1)
-			//|| (str_direction == 'down' && valu <= min1)
-			) {
-console.log("Klasse setzen und ausgrauen: ");
+		//Klassen abhängig von Grenzwerten setzen
+		if (dec_inputValue >= dec_max) {
+//console.log("Klasse setzen und ausgrauen: ");
 			el_buttonPlus.addClass('minMaxBound');
 		} else {
-console.log("Klasse entfernen und Button wieder klickbar");
+//console.log("Klasse entfernen und Button wieder klickbar");
 			el_buttonPlus.removeClass('minMaxBound');
 		}
 
-
-		if ((
-			//str_direction == 'up' &&
-			valu <= min1)
-			//|| (str_direction == 'down' && valu <= min1)
-			) {
-console.log("Klasse setzen und ausgrauen: ");
+		if (dec_inputValue <= dec_min) {
+//console.log("Klasse setzen und ausgrauen: ");
 			el_buttonMinus.addClass('minMaxBound');
 		} else {
-console.log("Klasse entfernen und Button wieder klickbar");
+//console.log("Klasse entfernen und Button wieder klickbar");
 			el_buttonMinus.removeClass('minMaxBound');
 		}
-
 
 		return false;
 	}
