@@ -3,7 +3,7 @@
  * How to use this module:
  * 
  * With this functionality you can automatically add plus/minus buttons to numeric input fields.
- * buttons. When pressed, these increase or decrease the value of the input field
+ * When pressed, these increase or decrease the value of the input field
  * by the value specified in "Step" up to the respective limit value.
  * To activate the function simply provide the input fields with the class "useNumberStepper".
  * 

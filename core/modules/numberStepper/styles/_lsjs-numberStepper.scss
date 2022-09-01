@@ -1,15 +1,40 @@
-.mainNumberStepper {
+.number-stepper-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
-    margin: 0;
+    margin: 0 1rem;
+    order: 2;
+  }
+
+  .nsPlus,
+  .nsMinus {
+    @extend .fas;
+
+    &.minMaxBound {
+      cursor: not-allowed;
+      opacity: 0.2;
+    }
+  }
+
+  .nsPlus {
+    order: 1;
+
+    &::after {
+      content: fa-content($fa-var-plus-circle);
+    }
+  }
+  .nsMinus {
+    order: 3;
+
+    &::after {
+      content: fa-content($fa-var-minus-circle);
+    }
   }
 }
 
-.minMaxBound {
-  cursor: not-allowed !important;
-  opacity: 0.2 !important;
-}
 
 

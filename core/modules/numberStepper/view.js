@@ -11,10 +11,9 @@ var obj_classdef = 	{
 	
 	addNumberStepperFunction: function() {
 
-		var	self = this,
-			els_numberGroup
+		var	els_numberGroup = $$(this.__models.options.data.str_selector);
 
-		els_numberGroup = $$(this.__models.options.data.str_selector);
+		console.log(typeOf(els_numberGroup));
 
 		Array.each(els_numberGroup, function(el_numberInput) {
 
@@ -30,29 +29,27 @@ var obj_classdef = 	{
 			el_numberInput.addClass(this.__models.options.data.str_appliedClass);
 
 
-			var el_templateMain = this.tplPure({name: 'main'}).getElement('.mainNumberStepper');
+			var el_templateMain = this.tplPure({name: 'main'}).getElement('.number-stepper-wrapper');
 
 			el_templateMain.wraps(el_numberInput);
 
-			var parent = el_numberInput.getParent('div.mainNumberStepper');
+			var parent = el_numberInput.getParent('.number-stepper-wrapper');
 
 			//Plus Button
-			el_templateMain.getElement('button.nsPlus').addEvent('click', function() {
+			el_templateMain.getElement('.nsPlus').addEvent('click', function() {
 				el_numberInput.stepUp();
-
-				self.buttonClickable(el_numberInput, parent);
+				el_numberInput.fireEvent('change');
 			});
 
 			//Minus Button
-			el_templateMain.getElement('button.nsMinus').addEvent('click', function() {
+			el_templateMain.getElement('.nsMinus').addEvent('click', function() {
 				el_numberInput.stepDown();
-
-				self.buttonClickable(el_numberInput, parent);
+				el_numberInput.fireEvent('change');
 			});
 
 			el_numberInput.addEvent('change', function() {
-				self.buttonClickable(el_numberInput, parent);
-			});
+				this.buttonClickable(el_numberInput, parent);
+			}.bind(this));
 
 
 		}.bind(this));
@@ -66,9 +63,9 @@ var obj_classdef = 	{
 	*/
 	buttonClickable: function(el_input, el_parent) {
 
-		var el_buttonPlus = el_parent.getElement('button.nsPlus');
+		var el_buttonPlus = el_parent.getElement('.nsPlus');
 
-		var el_buttonMinus = el_parent.getElement('button.nsMinus');
+		var el_buttonMinus = el_parent.getElement('.nsMinus');
 
 		var dec_inputValue = Number(el_input.value);
 
