@@ -2,7 +2,24 @@
     -moz-appearance: textfield;
     appearance: textfield;
     margin: 0;
+
+
 }
+
+
+
+.mainNumberStepper button {
+        transition: none !important;
+        content: 'hallo' !important;
+    transform: none;
+    color: white !important;
+}
+
+.minMaxBound {
+    background-color: #ccc !important;
+}
+
+
 
 
 /*

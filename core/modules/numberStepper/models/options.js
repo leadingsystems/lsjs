@@ -9,9 +9,9 @@ var obj_classdef_model = {
 		 * can later be overwritten when the "set" method is called with other options
 		 */
 		this.data = {
-			str_selector: '.useNumberStepper'
-//,
-//str_appliedClass: 'numberStepperApplied'
+			str_selector: '.useNumberStepper',
+			str_selectorClass: 'useNumberStepper',
+			str_appliedClass: 'numberStepperApplied'
 		};
 	},
 	
