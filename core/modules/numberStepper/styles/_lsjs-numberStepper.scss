@@ -1,35 +1,15 @@
-.mainNumberStepper input[type=number] {
+.mainNumberStepper {
+
+  input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
     margin: 0;
-
-
-}
-
-
-
-.mainNumberStepper button {
-        transition: none !important;
-        content: 'hallo' !important;
-    transform: none;
-    color: white !important;
+  }
 }
 
 .minMaxBound {
-    background-color: #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.2 !important;
 }
-
-
-
-
-/*
-.numberStepperApplied {
-  border: 3px solid red !important;
-  height: 65px;
-}
-*/
-
-
-
 
 
