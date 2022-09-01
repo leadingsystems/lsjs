@@ -41,38 +41,22 @@ var obj_classdef = 	{
 			//Den Parent unseres umschließenden (Wrap) Containers holen "mainNumberStepper"
 			var parent = el_numberInput.getParent('div.mainNumberStepper');
 
-
-			//von diesem parent ausgehend das Inputfeld ermitteln
-			//var el_numberInputByParent = parent.getElement('input[type=number].useNumberStepper');
-			var el_numberInputByParent = parent.getElement('input[type=number].' + this.__models.options.data.str_selectorClass);
-
 			//Plus Button
 			el_templateMain.getElement('button.nsPlus').addEvent('click', function() {
-				//FUNKTIONIERT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				//el_numberInput.stepUp();
-//TODO: Nur eine der beiden Varianten nehmen
+				el_numberInput.stepUp();
 
-				//FUNKTIONIERT AUCH
-				el_numberInputByParent.stepUp()
-
-				self.buttonClickable(el_numberInputByParent, parent);
+				self.buttonClickable(el_numberInput, parent);
 			});
 
 			//Minus Button
 			el_templateMain.getElement('button.nsMinus').addEvent('click', function() {
-				//FUNKTIONIERT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				//el_numberInput.stepDown();
-//TODO: Nur eine der beiden Varianten nehmen
+				el_numberInput.stepDown();
 
-				//FUNKTIONIERT AUCH
-				el_numberInputByParent.stepDown();
-
-				self.buttonClickable(el_numberInputByParent, parent);
+				self.buttonClickable(el_numberInput, parent);
 			});
 
-			//Buttons klickbar aufgrund von Benutzereingaben
-			el_numberInputByParent.addEvent('change', function() {
-				self.buttonClickable(el_numberInputByParent, parent);
+			el_numberInput.addEvent('change', function() {
+				self.buttonClickable(el_numberInput, parent);
 			});
 
 
