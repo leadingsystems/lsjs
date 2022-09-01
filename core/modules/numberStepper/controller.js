@@ -44,7 +44,7 @@ lsjs.__moduleHelpers[str_moduleName] = {
 		 * Only allow one single instance of this module to be started!
 		 */
 		if (this.self !== null) {
-			console.error('module ' + str_moduleName + ' has already been started');
+			console.warn('module ' + str_moduleName + ' has already been started');
 			return;
 		}
 		

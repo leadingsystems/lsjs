@@ -13,8 +13,6 @@ var obj_classdef = 	{
 
 		var	els_numberGroup = $$(this.__models.options.data.str_selector);
 
-		console.log(typeOf(els_numberGroup));
-
 		Array.each(els_numberGroup, function(el_numberInput) {
 
 			if (el_numberInput.hasClass(this.__models.options.data.str_appliedClass)) {
@@ -22,7 +20,7 @@ var obj_classdef = 	{
 			}
 
 			if (el_numberInput.nodeName != 'INPUT' || el_numberInput.type != 'number') {
-				console.warn ("Only inputfields of type=number may use the class " + this.__models.options.data.str_selectorClass, el_numberInput);
+				console.warn ("Only input fields of type=number can use the number stepper.", el_numberInput);
 				return;
 			}
 

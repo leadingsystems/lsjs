@@ -13,6 +13,7 @@
   .nsPlus,
   .nsMinus {
     @extend .fas;
+    cursor: pointer;
 
     &.minMaxBound {
       cursor: not-allowed;

@@ -10,7 +10,6 @@ var obj_classdef_model = {
 		 */
 		this.data = {
 			str_selector: '.useNumberStepper',
-			str_selectorClass: 'useNumberStepper',
 			str_appliedClass: 'numberStepperApplied'
 		};
 	},
