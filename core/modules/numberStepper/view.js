@@ -22,23 +22,18 @@ var obj_classdef = 	{
 				return;
 			}
 
-			//Prüfung: nur Inputfelder vom Typ: Number
 			if (el_numberInput.nodeName != 'INPUT' || el_numberInput.type != 'number') {
-				console.warn ("Nur Inputfelder vom Typ: Number dürfen die Klasse " + this.__models.options.data.str_selectorClass + " haben! ", el_numberInput);
+				console.warn ("Only inputfields of type=number may use the class " + this.__models.options.data.str_selectorClass, el_numberInput);
 				return;
 			}
 
-			//Klasse vergeben um erneute bearbeitung zu vermeiden
 			el_numberInput.addClass(this.__models.options.data.str_appliedClass);
 
 
-			//Das Main Template Element einfügen
 			var el_templateMain = this.tplPure({name: 'main'}).getElement('.mainNumberStepper');
 
-			//Das Nummern-Input Feld mit dem Main-Template umschließen (Input kommt nach unten)
 			el_templateMain.wraps(el_numberInput);
 
-			//Den Parent unseres umschließenden (Wrap) Containers holen "mainNumberStepper"
 			var parent = el_numberInput.getParent('div.mainNumberStepper');
 
 			//Plus Button
@@ -64,27 +59,23 @@ var obj_classdef = 	{
 
 	},
 
-	/*	31.08.2022, prüft, ob der Button bezüglich des Input-Werts und der Min-/Max Grenzen überhaupt eine Veränderung bringt.
-	*	Bsp. Ist Min=10 und der Wert ist 10, bringt der Minus-Buttons nichts und kann ausgegraut werden
+	/*	check if buttons are clickable
 	*
-	* 	@param el_input		element, das Input Type=number
-	* 	@param el_parent	element, der Container der Buttons in dem auch das Inputfeld ist
+	* 	@param el_input		element, Input Type=number
+	* 	@param el_parent	element, Container of Buttons and inputfield
 	*/
 	buttonClickable: function(el_input, el_parent) {
 
-		//Die Buttons ermitteln
 		var el_buttonPlus = el_parent.getElement('button.nsPlus');
 
 		var el_buttonMinus = el_parent.getElement('button.nsMinus');
 
-		//Aktueller Wert und Grenzwerte feststellen
 		var dec_inputValue = Number(el_input.value);
 
 		var dec_max = Number(el_input.getProperty('max'));
 
 		var dec_min = Number(el_input.getProperty('min'));
 
-		//Klassen abhängig von Grenzwerten setzen
 		if (dec_inputValue >= dec_max) {
 			el_buttonPlus.addClass('minMaxBound');
 		} else {

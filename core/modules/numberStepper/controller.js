@@ -2,29 +2,24 @@
  * 
  * How to use this module:
  * 
- * If you have multiple checkboxes and want to automatically add an additional
- * checkbox with which all the others can be checked and unchecked at once,
- * simply wrap all your checkboxes in one container element (e.g. a div)
- * and give this container element the class "useAutomaticSelectAllCheckbox"
- * (or whatever is defined as the str_selector property in this module's options model).
+ * With this functionality you can automatically add plus/minus buttons to numeric input fields.
+ * buttons. When pressed, these increase or decrease the value of the input field
+ * by the value specified in "Step" up to the respective limit value.
+ * To activate the function simply provide the input fields with the class "useNumberStepper".
  * 
  * Now, all you have to do is to run this module to automatically apply the
  * functionality:
  * 
- * lsjs.__moduleHelpers.automaticSelectAllCheckbox.start();
+ * lsjs.__moduleHelpers.numberStepper.start();
  * 
- * If other checkbox groups are added to the page dynamically at a later point,
+ * If other Input Type=number groups are added to the page dynamically at a later point,
  * you can use
  * 
- * lsjs.__moduleHelpers.automaticSelectAllCheckbox.refresh();
+ * lsjs.__moduleHelpers.numberStepper.refresh();
  * 
  * in order to rescan the page and apply the functionality wherever necessary.
- * Checkbox groups which already have the functionality are automatically skipped
+ * Input Type=number groups which already have the functionality are automatically skipped
  * in the refresh call.
- *
- *
- * 30.08.2022, tbu, numberStepper Modul angelegt
- *
  *
  */
 
