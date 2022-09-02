@@ -8,6 +8,12 @@
     appearance: textfield;
     margin: 0 1rem;
     order: 2;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 
   .nsPlus,
