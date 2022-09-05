@@ -12,6 +12,10 @@ body {
     left: 0;
     z-index: 99999;
 
+    &.hiddenDuringLoading {
+      background: none;
+    }
+
     .btn-close,
     .btn-zoom-in,
     .btn-zoom-out,

@@ -26,6 +26,8 @@ var obj_classdef = 	{
     str_originalViewportSettings: '',
     str_zoomImageUrl: '',
 
+    obj_referringZoomerToEnd: null,
+
     float_currentZoomFactor: 1,
     float_minZoomFactor: null,
     float_maxZoomFactor: null,
@@ -125,26 +127,27 @@ var obj_classdef = 	{
         )
     },
 
-    zoomStart: function(event) {
+    zoomStart: function(event, obj_referringZoomerToEnd) {
+        if (typeof obj_referringZoomerToEnd !== 'undefined') {
+            this.obj_referringZoomerToEnd = obj_referringZoomerToEnd;
+        }
         event.preventDefault();
         this.insertOverlay();
     },
 
-    zoomEnd: function(event) {
-        this.removeOverlay();
+    zoomEnd: function(bln_doNotReactivateBodyScrolling) {
+        this.removeOverlay(bln_doNotReactivateBodyScrolling);
     },
 
     next: function(event) {
         if (this.__module.obj_nextZoomer !== null) {
-            this.__module.obj_nextZoomer.__view.zoomStart(event);
-            this.zoomEnd(event);
+            this.__module.obj_nextZoomer.__view.zoomStart(event, this);
         }
     },
 
     back: function(event) {
         if (this.__module.obj_previousZoomer !== null) {
-            this.zoomEnd(event);
-            this.__module.obj_previousZoomer.__view.zoomStart(event);
+            this.__module.obj_previousZoomer.__view.zoomStart(event, this);
         }
     },
 
@@ -195,8 +198,8 @@ var obj_classdef = 	{
     },
 
     insertOverlay: function() {
-        lsjs.loadingIndicator.__controller.show();
-        this.el_overlay = new Element('div.lsjs-zoomer-overlay');
+        lsjs.loadingIndicatorNG.show();
+        this.el_overlay = new Element('div.lsjs-zoomer-overlay').addClass('hiddenDuringLoading');
 
         this.el_bigImage = new Element('img.big-image').setProperty('src', this.str_zoomImageUrl).addClass('hiddenDuringLoading').addEvent(
             'load',
@@ -281,8 +284,13 @@ var obj_classdef = 	{
         this.determineNecessaryOffset();
         this.setZoomFactorAndPositionOffset();
         this.checkImageBoundaries();
-        lsjs.loadingIndicator.__controller.hide();
+        lsjs.loadingIndicatorNG.hide();
+        this.el_overlay.removeClass('hiddenDuringLoading');
         this.el_bigImage.removeClass('hiddenDuringLoading');
+        if (this.obj_referringZoomerToEnd !== null) {
+            this.obj_referringZoomerToEnd.zoomEnd(true);
+            this.obj_referringZoomerToEnd = null;
+        }
 
         this.bln_currentlyReinitializing = false;
 
@@ -335,13 +343,15 @@ var obj_classdef = 	{
         this.obj_positionOffset.y = (((this.obj_bigImageNaturalSize.height - this.obj_imageScaledSize.height) / 2) - ((this.obj_overlaySize.height - this.obj_imageScaledSize.height) / 2)) * -1 / this.float_currentZoomFactor;
     },
 
-    removeOverlay: function() {
+    removeOverlay: function(bln_doNotReactivateBodyScrolling) {
         window.removeEvent(
             'resize',
             this.bound_reinitializeZoomImage
         );
 
-        this.el_body.removeClass('lsjs-image-zoomer-open');
+        if (typeof bln_doNotReactivateBodyScrolling === 'undefined' || !bln_doNotReactivateBodyScrolling) {
+            this.el_body.removeClass('lsjs-image-zoomer-open');
+        }
         this.el_overlay.destroy();
         this.el_overlay = null;
     },
