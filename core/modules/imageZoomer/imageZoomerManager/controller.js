@@ -16,8 +16,10 @@ var obj_classdef = {
 		} else {
 			els_toEnhance = $$(this.__models.options.data.str_containerSelector);
 		}
+
+		var obj_modules = {};
 		
-		Array.each(els_toEnhance, function(el_container) {
+		Array.each(els_toEnhance, function(el_container, int_key) {
 			/* ->
 			 * Make sure not to handle an element more than once
 			 */
@@ -30,13 +32,36 @@ var obj_classdef = {
 			 * <-
 			 */
 
-			lsjs.createModule({
+			var str_gallerySetName = el_container.getProperty('lsjs-data-image-zoomer-gallery-set');
+
+			if (str_gallerySetName === null) {
+				return;
+			}
+
+			if (typeof obj_modules[str_gallerySetName] === 'undefined') {
+				obj_modules[str_gallerySetName] = [];
+			}
+
+			obj_modules[str_gallerySetName].push(lsjs.createModule({
 				__name: 'imageZoomerInstance',
 				__parentModule: this.__module,
 				__useLoadingIndicator: false,
 				__el_container: el_container
-			});
+			}));
 		}.bind(this));
+
+		Object.each(
+			obj_modules,
+			function(arr_modules) {
+				Array.each(
+					arr_modules,
+					function(obj_module, int_key) {
+						obj_module.obj_nextZoomer = arr_modules.length > int_key + 1 ? arr_modules[int_key + 1] : null;
+						obj_module.obj_previousZoomer = int_key > 0 ? arr_modules[int_key - 1] : null;
+					}
+				);
+			}
+		);
 	}
 };
 

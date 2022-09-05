@@ -13,6 +13,8 @@ var obj_classdef = 	{
     el_btnClose: null,
     el_btnZoomIn: null,
     el_btnZoomOut: null,
+    el_btnNext: null,
+    el_btnBack: null,
 
     bln_isTouchDevice: false,
 
@@ -132,6 +134,20 @@ var obj_classdef = 	{
         this.removeOverlay();
     },
 
+    next: function(event) {
+        if (this.__module.obj_nextZoomer !== null) {
+            this.__module.obj_nextZoomer.__view.zoomStart(event);
+            this.zoomEnd(event);
+        }
+    },
+
+    back: function(event) {
+        if (this.__module.obj_previousZoomer !== null) {
+            this.zoomEnd(event);
+            this.__module.obj_previousZoomer.__view.zoomStart(event);
+        }
+    },
+
     zoomIn: function() {
         this.deactivateImageTransitionAnimation();
 
@@ -182,7 +198,7 @@ var obj_classdef = 	{
         lsjs.loadingIndicator.__controller.show();
         this.el_overlay = new Element('div.lsjs-zoomer-overlay');
 
-        this.el_bigImage = new Element('img.big-image').setProperty('src', this.str_zoomImageUrl).addEvent(
+        this.el_bigImage = new Element('img.big-image').setProperty('src', this.str_zoomImageUrl).addClass('hiddenDuringLoading').addEvent(
             'load',
             this.initializeZoomImageAfterLoad.bind(this)
         );
@@ -207,6 +223,24 @@ var obj_classdef = 	{
             this.zoomOut.bind(this)
         );
 
+        this.el_btnNext = new Element('div.btn-next');
+        this.el_btnNext.addEvent(
+            'click',
+            this.next.bind(this)
+        );
+        if (this.__module.obj_nextZoomer !== null) {
+            this.el_btnNext.addClass('possible');
+        }
+
+        this.el_btnBack = new Element('div.btn-back');
+        this.el_btnBack.addEvent(
+            'click',
+            this.back.bind(this)
+        );
+        if (this.__module.obj_previousZoomer !== null) {
+            this.el_btnBack.addClass('possible');
+        }
+
         this.el_body.adopt(
             this.el_overlay.adopt(
                 this.el_bigImageContainer.adopt(
@@ -214,7 +248,9 @@ var obj_classdef = 	{
                 ),
                 this.el_btnClose,
                 this.el_btnZoomIn,
-                this.el_btnZoomOut
+                this.el_btnZoomOut,
+                this.el_btnNext,
+                this.el_btnBack
             )
         );
 
@@ -246,6 +282,7 @@ var obj_classdef = 	{
         this.setZoomFactorAndPositionOffset();
         this.checkImageBoundaries();
         lsjs.loadingIndicator.__controller.hide();
+        this.el_bigImage.removeClass('hiddenDuringLoading');
 
         this.bln_currentlyReinitializing = false;
 
