@@ -135,7 +135,7 @@ var obj_classdef = 	{
         this.insertOverlay();
     },
 
-    zoomEnd: function(bln_doNotReactivateBodyScrolling) {
+    zoomEnd: function(event, bln_doNotReactivateBodyScrolling) {
         this.removeOverlay(bln_doNotReactivateBodyScrolling);
     },
 
@@ -288,7 +288,7 @@ var obj_classdef = 	{
         this.el_overlay.removeClass('hiddenDuringLoading');
         this.el_bigImage.removeClass('hiddenDuringLoading');
         if (this.obj_referringZoomerToEnd !== null) {
-            this.obj_referringZoomerToEnd.zoomEnd(true);
+            this.obj_referringZoomerToEnd.zoomEnd(null, true);
             this.obj_referringZoomerToEnd = null;
         }
 
