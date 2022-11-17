@@ -32,7 +32,7 @@ var obj_classdef = {
 			 * <-
 			 */
 
-			var str_gallerySetName = el_container.getProperty('lsjs-data-image-zoomer-gallery-set');
+			var str_gallerySetName = el_container.getProperty(this.__models.options.data.str_attributeToIdentifyGallerySets);
 
 			if (str_gallerySetName === null) {
 				str_gallerySetName = 'no-set_' +  int_key;
