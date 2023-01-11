@@ -22,6 +22,13 @@ var obj_classdef_model = {
 
             float_zoomFactorStep: 0.1,
 
+			/*
+			 * If the elements found with str_containerSelector have this attribute all elements with the same value
+			 * for this attribute will be considered to belong together and therefore the zoomer allows to jump from
+			 * one zoomed image to the previous or next in the gallery set.
+			 */
+			str_attributeToIdentifyGallerySets: 'lsjs-data-image-zoomer-gallery-set',
+
             /*
              * True if warnings should be logged in the developer console
              */

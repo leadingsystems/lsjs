@@ -12,9 +12,15 @@ body {
     left: 0;
     z-index: 99999;
 
+    &.hiddenDuringLoading {
+      background: none;
+    }
+
     .btn-close,
     .btn-zoom-in,
-    .btn-zoom-out {
+    .btn-zoom-out,
+    .btn-next,
+    .btn-back {
       position: fixed;
       z-index: 99999;
       right: 2rem;
@@ -38,6 +44,10 @@ body {
 
       &.dragging {
         cursor: grabbing;
+      }
+
+      &.hiddenDuringLoading {
+        display: none;
       }
     }
 
@@ -70,6 +80,34 @@ body {
 
       &::after {
         content: fa-content($fa-var-search-minus);
+      }
+
+      &.possible {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+
+    .btn-next {
+      top: 21rem;
+      opacity: .2;
+
+      &::after {
+        content: fa-content($fa-var-arrow-right);
+      }
+
+      &.possible {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+
+    .btn-back {
+      top: 27rem;
+      opacity: .2;
+
+      &::after {
+        content: fa-content($fa-var-arrow-left);
       }
 
       &.possible {

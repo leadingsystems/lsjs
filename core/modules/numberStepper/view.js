@@ -33,6 +33,8 @@ var obj_classdef = 	{
 
 			var parent = el_numberInput.getParent('.number-stepper-wrapper');
 
+			this.buttonClickable(el_numberInput, parent);
+
 			//Plus Button
 			el_templateMain.getElement('.nsPlus').addEvent('click', function() {
 				el_numberInput.stepUp();
