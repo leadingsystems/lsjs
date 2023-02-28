@@ -48,33 +48,50 @@ var obj_classdef = 	{
 
 	bound_changeStatus: null,
 	changeStatus: function(event) {
-
 		if (this.__models.options.data.bln_stopEvent) {
 			event.stop();
 		}
 
-		var str_currentStatusValue = this.__el_container.getProperty(this.__models.options.data.str_propertyToToggle);
-		var int_currentStatusIndex = this.__models.options.data.arr_statusValue.indexOf(str_currentStatusValue);
-		if (int_currentStatusIndex < 0) {
-			int_currentStatusIndex = 0;
+		var el_firingToggler = event.event.currentTarget;
+		var str_newStatusValue = null;
+
+		if (typeOf(el_firingToggler) === 'element') {
+			str_newStatusValue = el_firingToggler.getProperty('data-lsjs-statustoggler-toggle-fixed-value');
 		}
 
-		var int_nextStatusIndex = int_currentStatusIndex === this.__models.options.data.arr_statusValue.length - 1 ? 0 : int_currentStatusIndex + 1;
-
-		if (this.__el_container.retrieve('bln_resetOnNextEvent') === true) {
-			int_nextStatusIndex = 0;
-			this.__el_container.store('bln_resetOnNextEvent', false);
-		} else {
-			if (this.__models.options.data.bln_resetOtherElementsWithSamePropertyToToggle) {
-				this.fireElementsWithSamePropertyToToggle(event);
+		if (str_newStatusValue !== null) {
+			if (this.__el_container.getProperty(this.__models.options.data.str_propertyToToggle) === str_newStatusValue) {
+				/*
+				 * The property to toggle already has the requested value, so there's nothing left to do.
+				 */
+				return;
 			}
+		} else {
+			var str_currentStatusValue = this.__el_container.getProperty(this.__models.options.data.str_propertyToToggle);
+			var int_currentStatusIndex = this.__models.options.data.arr_statusValue.indexOf(str_currentStatusValue);
+			if (int_currentStatusIndex < 0) {
+				int_currentStatusIndex = 0;
+			}
+
+			var int_nextStatusIndex = int_currentStatusIndex === this.__models.options.data.arr_statusValue.length - 1 ? 0 : int_currentStatusIndex + 1;
+
+			if (this.__el_container.retrieve('bln_resetOnNextEvent') === true) {
+				int_nextStatusIndex = 0;
+				this.__el_container.store('bln_resetOnNextEvent', false);
+			} else {
+				if (this.__models.options.data.bln_resetOtherElementsWithSamePropertyToToggle) {
+					this.fireElementsWithSamePropertyToToggle(event);
+				}
+			}
+
+			str_newStatusValue = this.__models.options.data.arr_statusValue[int_nextStatusIndex];
 		}
 
-		this.__el_container.setProperty(this.__models.options.data.str_propertyToToggle, this.__models.options.data.arr_statusValue[int_nextStatusIndex]);
+		this.__el_container.setProperty(this.__models.options.data.str_propertyToToggle, str_newStatusValue);
 
 		if (this.__models.options.data.str_sessionStorageKey) {
 			try {
-				sessionStorage.setItem('lsjs_statusToggler_' + this.__models.options.data.str_sessionStorageKey, this.__models.options.data.arr_statusValue[int_nextStatusIndex]);
+				sessionStorage.setItem('lsjs_statusToggler_' + this.__models.options.data.str_sessionStorageKey, str_newStatusValue);
 			} catch(e) {}
 		}
 	},
