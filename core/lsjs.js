@@ -738,6 +738,7 @@ var classdef_lsjs_module = {
 		obj_usageOptions.arg.__controller = this.__controller;
 		obj_usageOptions.bind = obj_usageOptions.bind !== undefined && obj_usageOptions.bind !== null ? obj_usageOptions.bind : this;
 		obj_usageOptions.class = obj_usageOptions.class !== undefined && obj_usageOptions.class !== null ? obj_usageOptions.class : this.__name;
+		obj_usageOptions.autoElementsKey = obj_usageOptions.autoElementsKey !== undefined && obj_usageOptions.autoElementsKey !== null ? obj_usageOptions.autoElementsKey : null;
 		obj_usageOptions.parent = obj_usageOptions.parent !== undefined && obj_usageOptions.parent !== null ? obj_usageOptions.parent : this.__el_container;
 		obj_usageOptions.bln_discardContainerElement = obj_usageOptions.bln_discardContainerElement !== undefined && obj_usageOptions.bln_discardContainerElement;
 		obj_usageOptions.bln_output = obj_usageOptions.bln_output !== undefined && obj_usageOptions.bln_output;
@@ -748,7 +749,7 @@ var classdef_lsjs_module = {
 			return el_renderedTemplate;
 		}
 		
-		this.registerElements(el_renderedTemplate, obj_usageOptions.name, bln_registerSingleElementsInElementList);
+		this.registerElements(el_renderedTemplate, obj_usageOptions.autoElementsKey !== null ? obj_usageOptions.autoElementsKey : obj_usageOptions.name, bln_registerSingleElementsInElementList);
 		this.registerDataBindings(el_renderedTemplate);
 		this.registerMultipleDataBindings(el_renderedTemplate);
 
