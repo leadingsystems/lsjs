@@ -1,6 +1,10 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.0.2 (2023-06-29)
+
+ * Fix double tap bug on iOS
+
 ##### v3.0.1 (2023-02-28)
 
  * Improving statusToggler; Implementing the functionality to use fixed status values which are defined for the togglers using the data-lsjs-statustoggler-toggle-fixed-value attribute

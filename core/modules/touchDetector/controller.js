@@ -21,6 +21,8 @@ var obj_classdef = {
 	bound_tabListener: null,
 	bound_mouseListener: null,
 
+	bln_touchDetected: false,
+
 	start: function() {
 		this.bound_touchStartListener = this.touchStartListener.bind(this);
 		this.bound_tabListener = this.tabListener.bind(this);
@@ -38,8 +40,28 @@ var obj_classdef = {
     },
 
 	touchStartListener: function() {
+		if (this.bln_touchDetected) {
+			return;
+		}
+		
+		this.bln_touchDetected = true;
+		
         $$('body')[0].addClass('user-is-touching');
-        window.removeEvent('touchstart', this.bound_touchStartListener);
+
+		/*
+		 * Since we only want to check for the touch behaviour once, we would want to remove the event listener
+		 * after the event has been fired once. Unfortunately, this can trigger a bug in iOS where after removing
+		 * the event listener there's one tap necessary (anywhere on the page) before another tap e.g. on a button
+		 * can lead to the target. Or in other words: In order for some buttons to work, users would have to tap
+		 * the button twice. Strangely, the bug also occurs if we use addEventListener with the 'once' option. So,
+		 * basically, there seems to be no save way to remove the event listener.
+		 * 
+		 * Our solution is to keep the event listener but to make sure that after detecting touch behaviour once,
+		 * the function doesn't do anything anymore.
+		 *
+		 * window.removeEvent('touchstart', this.bound_touchStartListener);
+		 *
+		 */
 	},
 
 	tabListener: function() {
