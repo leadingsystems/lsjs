@@ -532,7 +532,9 @@ var classdef_lsjs_module = {
 	__view: null, // will later hold the view
 	__models: null, // will later hold the object that provides access to all models
 	__controller: null, // will later hold the controller
-	
+
+	els_renderedTemplates: new Elements(),
+
 	int_numModelsToLoad: 0,
 	
 	obj_args: {},
@@ -703,7 +705,16 @@ var classdef_lsjs_module = {
 	tplPure: function(obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList) {
 		return this.tplUse('pure', obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList);
 	},
-	
+
+	/*
+	 * tplOutput can be used to output a rendered template in another template like this:
+	 * <?= this.tplOutput({name: 'templatexyz', arg: {str_someValue: str_value}}) =?>
+	 */
+	tplOutput: function(obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList) {
+		obj_usageOptions.bln_output = true;
+		return this.tplUse('pure', obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList);
+	},
+
 	tplAdd: function(obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList) {
 		return this.tplUse('add', obj_usageOptions, str_moduleName, bln_registerSingleElementsInElementList);
 	},
@@ -728,7 +739,8 @@ var classdef_lsjs_module = {
 		obj_usageOptions.bind = obj_usageOptions.bind !== undefined && obj_usageOptions.bind !== null ? obj_usageOptions.bind : this;
 		obj_usageOptions.class = obj_usageOptions.class !== undefined && obj_usageOptions.class !== null ? obj_usageOptions.class : this.__name;
 		obj_usageOptions.parent = obj_usageOptions.parent !== undefined && obj_usageOptions.parent !== null ? obj_usageOptions.parent : this.__el_container;
-		obj_usageOptions.bln_discardContainerElement = obj_usageOptions.bln_discardContainerElement !== undefined && obj_usageOptions.bln_discardContainerElement ? true : false;
+		obj_usageOptions.bln_discardContainerElement = obj_usageOptions.bln_discardContainerElement !== undefined && obj_usageOptions.bln_discardContainerElement;
+		obj_usageOptions.bln_output = obj_usageOptions.bln_output !== undefined && obj_usageOptions.bln_output;
 
 		el_renderedTemplate = lsjs.tpl[str_mode](obj_usageOptions, str_moduleName);
 
@@ -746,15 +758,20 @@ var classdef_lsjs_module = {
 		this.replaceTemplatePlaceholders(el_renderedTemplate);
 
 		if (obj_usageOptions.bln_discardContainerElement) {
-			var el_renderedTemplateContent = el_renderedTemplate.getChildren();
-			el_renderedTemplate.getParent().adopt(el_renderedTemplateContent);
+			var els_renderedTemplateContent = el_renderedTemplate.getChildren();
+			el_renderedTemplate.getParent().adopt(els_renderedTemplateContent);
 			el_renderedTemplate.destroy();
-			return el_renderedTemplateContent;
+			return els_renderedTemplateContent;
 		} else {
-			return el_renderedTemplate;
+			if (obj_usageOptions.bln_output) {
+				this.els_renderedTemplates.push(el_renderedTemplate);
+				return '<div data-lsjs-replaceWithElement="this.els_renderedTemplates[' + (this.els_renderedTemplates.length - 1) + ']"></div>';
+			} else {
+				return el_renderedTemplate;
+			}
 		}
 	},
-	
+
 	replaceTemplatePlaceholders: function(el_toSearchForElementsToReplace) {
 		Array.each(el_toSearchForElementsToReplace.getElements('[data-lsjs-replaceWithTemplate]'), function(el_toReplace) {
 			var el_toReplaceWith,
@@ -790,7 +807,7 @@ var classdef_lsjs_module = {
 				arg;
 			
 			/*
-			 * In the scope that this funciton is executed in, the "arg" parameter
+			 * In the scope that this function is executed in, the "arg" parameter
 			 * that would be available in the template's scope does not exist.
 			 * Since the value for the 'data-lsjs-replaceWith' property is written
 			 * in the template we want the parameter "arg" to work, so we create
