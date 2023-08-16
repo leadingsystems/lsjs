@@ -1,5 +1,8 @@
 Leading Systems LSJS changelog
 ===========================================
+##### v3.0.3 (2023-08-16)
+
+ * Improve templating (add tplOutput for directly outputting templates in other templates)
 
 ##### v3.0.2 (2023-06-29)
 
