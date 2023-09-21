@@ -73,7 +73,7 @@ class lsjs_binderController {
 		}
 	}
 	
-	public function outputJS() {
+	public function getJS() {
 
         if(!$this->bln_createFileInsteadOfOutput) {
             header("Content-Type: application/javascript");

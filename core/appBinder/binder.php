@@ -8,7 +8,7 @@ if (!isset($_GET['output'])) {
 
 switch($_GET['output']) {
 	case 'js':
-		$obj_lsjs_appBinder->outputJS();
+		$obj_lsjs_appBinder->getJS();
 		break;
 	
 	case 'moduleStructure':
