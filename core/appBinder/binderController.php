@@ -81,6 +81,10 @@ class lsjs_binderController {
 
 		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.js';
 
+        if (!file_exists(__DIR__ . "/" . self::c_str_pathToCache)) {
+            mkdir(__DIR__ . "/" . self::c_str_pathToCache);
+        }
+
 		if ($this->bln_useCache) {
 			if (file_exists(__DIR__."/".$str_pathToCacheFile)) {
 
