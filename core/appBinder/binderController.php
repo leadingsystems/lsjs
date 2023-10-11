@@ -68,8 +68,8 @@ class lsjs_binderController {
 	}
 
 	protected function createCacheFolderIfNotExists() {
-		if (!is_dir(self::c_str_pathToCache)) {
-			mkdir(self::c_str_pathToCache);
+		if (!is_dir(__DIR__ . '/' . self::c_str_pathToCache)) {
+			mkdir(__DIR__ . '/' . self::c_str_pathToCache);
 		}
 	}
 	
@@ -80,10 +80,6 @@ class lsjs_binderController {
         }
 
 		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.js';
-
-        if (!file_exists(__DIR__ . "/" . self::c_str_pathToCache)) {
-            mkdir(__DIR__ . "/" . self::c_str_pathToCache);
-        }
 
 		if ($this->bln_useCache) {
 			if (file_exists(__DIR__."/".$str_pathToCacheFile)) {
