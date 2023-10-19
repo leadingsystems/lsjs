@@ -551,19 +551,19 @@ class lsjs_binderController {
 		$str_cacheStringRaw .= $this->str_pathToApp;
 
         if (!$this->bln_createFileInsteadOfOutput && isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
+            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
         }
         if ($this->bln_createFileInsteadOfOutput && isset($config['pathToAppCustomization']) && $config['pathToAppCustomization']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($config['pathToAppCustomization']);
+            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($config['pathToAppCustomization']);
         }
 		$str_cacheStringRaw .= $this->str_pathToAppCustomization;
 
 
         if (!$this->bln_createFileInsteadOfOutput && isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
+            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
         }
         if ($this->bln_createFileInsteadOfOutput && isset($config['pathToCoreCustomization']) && $config['pathToCoreCustomization']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($config['pathToCoreCustomization']);
+            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($config['pathToCoreCustomization']);
         }
 		$str_cacheStringRaw .= $this->str_pathToCoreCustomization;
 
@@ -574,7 +574,7 @@ class lsjs_binderController {
         if ($this->bln_createFileInsteadOfOutput && isset($config['whitelist']) && $config['whitelist']) {
             $this->setModuleWhitelist($config['whitelist']);
         }
-        if(! ((isset($_GET['whitelist']) && $_GET['whitelist']) || (isset($_GET['whitelist']) && $_GET['whitelist'])) ){
+        if(! ((isset($_GET['whitelist']) && $_GET['whitelist']) || (isset($config['whitelist']) && $config['whitelist'])) ){
             $str_cacheStringRaw .= '-no-whitelist-';
         }
 
@@ -584,7 +584,7 @@ class lsjs_binderController {
         if ($this->bln_createFileInsteadOfOutput && isset($config['blacklist']) && $config['blacklist']) {
             $this->setModuleWhitelist($config['blacklist']);
         }
-        if(! ((isset($_GET['blacklist']) && $_GET['blacklist']) || (isset($_GET['blacklist']) && $_GET['blacklist'])) ){
+        if(! ((isset($_GET['blacklist']) && $_GET['blacklist']) || (isset($config['blacklist']) && $config['blacklist'])) ){
             $str_cacheStringRaw .= '-no-blacklist-';
         }
 
