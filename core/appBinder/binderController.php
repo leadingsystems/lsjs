@@ -52,14 +52,12 @@ class lsjs_binderController {
 	
 	protected $str_output = '';
 
-	protected $bln_createFileInsteadOfOutput = false;
     private array $config;
 
-    public function __construct($config = [], $bln_createFileInsteadOfOutput = false) {
-        $this->bln_createFileInsteadOfOutput = $bln_createFileInsteadOfOutput;
+    public function __construct($config = []) {
         $this->config = $config;
-        $this->processParameters();
 		$this->createCacheFolderIfNotExists();
+        $this->processParameters();
 		$this->readAllFiles();
     }
 
@@ -70,23 +68,12 @@ class lsjs_binderController {
 	}
 	
 	public function getJS() {
-
-        if(!$this->bln_createFileInsteadOfOutput) {
-            header("Content-Type: application/javascript");
-        }
-
 		$str_pathToCacheFile = self::c_str_pathToCache.'/lsjs_'.$this->str_cacheHash.'.js';
 
 		if ($this->bln_useCache) {
 			if (file_exists(__DIR__."/".$str_pathToCacheFile)) {
-
-                if($this->bln_createFileInsteadOfOutput){
-                    return $str_pathToCacheFile;
-                }else{
-                    echo "/* FROM CACHE */\r\n" . file_get_contents(__DIR__."/".$str_pathToCacheFile);
-                    exit;
-                }
-
+                echo "/* FROM CACHE */\r\n" . file_get_contents(__DIR__."/".$str_pathToCacheFile);
+                exit;
 			}
 		}
 		
@@ -117,16 +104,11 @@ class lsjs_binderController {
 			$this->str_output = $obj_minifier->minify();
 		}
 
-		if ($this->bln_useCache || $this->bln_createFileInsteadOfOutput) {
+		if ($this->bln_useCache) {
             file_put_contents(__DIR__."/".$str_pathToCacheFile, $this->str_output);
 		}
 
-		if($this->bln_createFileInsteadOfOutput){
-		    return $str_pathToCacheFile;
-        }else{
-            echo $this->str_output;
-            exit;
-        }
+        return $this->str_output;
 	}
 	
 	protected function readAllFiles() {

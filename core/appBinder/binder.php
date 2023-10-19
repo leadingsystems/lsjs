@@ -24,7 +24,9 @@ if (!isset($_GET['output'])) {
 
 switch($_GET['output']) {
 	case 'js':
-		$obj_lsjs_appBinder->getJS();
+        header("Content-Type: application/javascript");
+		echo $obj_lsjs_appBinder->getJS();
+		exit;
 		break;
 	
 	case 'moduleStructure':
