@@ -53,19 +53,15 @@ class lsjs_binderController {
 	protected $str_output = '';
 
 	protected $bln_createFileInsteadOfOutput = false;
-	
-	public function __construct($config = []) {
+    private array $config;
 
+    public function __construct($config = [], $bln_createFileInsteadOfOutput = false) {
+        $this->bln_createFileInsteadOfOutput = $bln_createFileInsteadOfOutput;
+        $this->config = $config;
+        $this->processParameters();
 		$this->createCacheFolderIfNotExists();
-
-        if(! empty($config) ){
-            $this->bln_createFileInsteadOfOutput = true;
-        }
-
-        $this->processGetParametersOrConfig($config);
-
 		$this->readAllFiles();
-	}
+    }
 
 	protected function createCacheFolderIfNotExists() {
 		if (!is_dir(__DIR__ . '/' . self::c_str_pathToCache)) {
@@ -79,7 +75,7 @@ class lsjs_binderController {
             header("Content-Type: application/javascript");
         }
 
-		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.js';
+		$str_pathToCacheFile = self::c_str_pathToCache.'/lsjs_'.$this->str_cacheHash.'.js';
 
 		if ($this->bln_useCache) {
 			if (file_exists(__DIR__."/".$str_pathToCacheFile)) {
@@ -511,168 +507,102 @@ class lsjs_binderController {
 
 		return $str_url;
 	}
-	
-	protected function processGetParametersOrConfig($config = []) {
-		$str_cacheStringRaw = '';
 
-        if (
-            (!$this->bln_createFileInsteadOfOutput && isset($_GET['debug']) && $_GET['debug']) ||
-            ($this->bln_createFileInsteadOfOutput && isset($config['debug']) && $config['debug'])
-        ) {
+    protected function processParameters() {
+        $str_cacheStringRaw = '';
+
+        if (isset($this->config['debug']) && $this->config['debug']) {
             $this->bln_debugMode = true;
         }
-		$str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
+        $str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
 
 
-		if (
-            (!$this->bln_createFileInsteadOfOutput && isset($_GET['no-cache']) && $_GET['no-cache']) ||
-            ($this->bln_createFileInsteadOfOutput && isset($config['no-cache']) && $config['no-cache'])
-		) {
-			$this->bln_useCache = false;
-		}
-		$str_cacheStringRaw .= $this->bln_useCache ? '1' : '0';
-
-
-		if (
-            (!$this->bln_createFileInsteadOfOutput && isset($_GET['no-minifier']) && $_GET['no-minifier']) ||
-            ($this->bln_createFileInsteadOfOutput && isset($config['no-minifier']) && $config['no-minifier'])
-		) {
-			$this->bln_useMinifier = false;
-		}
-		$str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
-
-
-		if (!$this->bln_createFileInsteadOfOutput && isset($_GET['pathToApp']) && $_GET['pathToApp']) {
-			$this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToApp']);
-		}
-        if ($this->bln_createFileInsteadOfOutput && isset($config['pathToApp']) && $config['pathToApp']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($config['pathToApp']);
+        if (isset($this->config['no-cache']) && $this->config['no-cache']) {
+            $this->bln_useCache = false;
         }
-		$str_cacheStringRaw .= $this->str_pathToApp;
-
-        if (!$this->bln_createFileInsteadOfOutput && isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
-            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
-        }
-        if ($this->bln_createFileInsteadOfOutput && isset($config['pathToAppCustomization']) && $config['pathToAppCustomization']) {
-            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($config['pathToAppCustomization']);
-        }
-		$str_cacheStringRaw .= $this->str_pathToAppCustomization;
+        $str_cacheStringRaw .= $this->bln_useCache ? '1' : '0';
 
 
-        if (!$this->bln_createFileInsteadOfOutput && isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization']) {
-            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
+        if (isset($this->config['no-minifier']) && $this->config['no-minifier']) {
+            $this->bln_useMinifier = false;
         }
-        if ($this->bln_createFileInsteadOfOutput && isset($config['pathToCoreCustomization']) && $config['pathToCoreCustomization']) {
-            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($config['pathToCoreCustomization']);
-        }
-		$str_cacheStringRaw .= $this->str_pathToCoreCustomization;
+        $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
 
-        if (!$this->bln_createFileInsteadOfOutput && isset($_GET['whitelist']) && $_GET['whitelist']) {
-            $this->setModuleWhitelist($_GET['whitelist']);
+        if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
+            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($this->config['pathToApp']);
         }
-        if ($this->bln_createFileInsteadOfOutput && isset($config['whitelist']) && $config['whitelist']) {
-            $this->setModuleWhitelist($config['whitelist']);
+        $str_cacheStringRaw .= $this->str_pathToApp;
+
+
+        if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
+            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($this->config['pathToAppCustomization']);
         }
-        if(! ((isset($_GET['whitelist']) && $_GET['whitelist']) || (isset($config['whitelist']) && $config['whitelist'])) ){
+        $str_cacheStringRaw .= $this->str_pathToAppCustomization;
+
+
+        if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
+            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($this->config['pathToCoreCustomization']);
+        }
+        $str_cacheStringRaw .= $this->str_pathToCoreCustomization;
+
+
+        if (isset($this->config['whitelist']) && $this->config['whitelist']) {
+            $this->setModuleWhitelist($this->config['whitelist']);
+            $str_cacheStringRaw .= $this->config['whitelist'];
+        } else {
             $str_cacheStringRaw .= '-no-whitelist-';
         }
 
-        if (!$this->bln_createFileInsteadOfOutput && isset($_GET['blacklist']) && $_GET['blacklist']) {
-            $this->setModuleWhitelist($_GET['blacklist']);
-        }
-        if ($this->bln_createFileInsteadOfOutput && isset($config['blacklist']) && $config['blacklist']) {
-            $this->setModuleWhitelist($config['blacklist']);
-        }
-        if(! ((isset($_GET['blacklist']) && $_GET['blacklist']) || (isset($config['blacklist']) && $config['blacklist'])) ){
+
+        if (isset($this->config['blacklist']) && $this->config['blacklist']) {
+            $this->setModuleBlacklist($this->config['blacklist']);
+            $str_cacheStringRaw .= $this->config['blacklist'];
+        } else {
             $str_cacheStringRaw .= '-no-blacklist-';
         }
 
 
-        if(!$this->bln_createFileInsteadOfOutput){
-            if (isset($_GET['includeCore'])) {
-                if ($_GET['includeCore'] == 'yes') {
-                    $this->bln_includeCore = true;
-                } else {
-                    $this->bln_includeCore = false;
-                }
+        if (isset($this->config['includeCore'])) {
+            if ($this->config['includeCore'] == 'yes') {
+                $this->bln_includeCore = true;
+            } else {
+                $this->bln_includeCore = false;
             }
         }
-        if($this->bln_createFileInsteadOfOutput){
-            if (isset($config['includeCore'])) {
-                if ($config['includeCore'] == 'yes') {
-                    $this->bln_includeCore = true;
-                } else {
-                    $this->bln_includeCore = false;
-                }
-            }
-        }
-		$str_cacheStringRaw .= $this->bln_includeCore ? '1' : '0';
+        $str_cacheStringRaw .= $this->bln_includeCore ? '1' : '0';
 
 
-        if(!$this->bln_createFileInsteadOfOutput){
-            if (isset($_GET['includeCoreModules'])) {
-                if ($_GET['includeCoreModules'] == 'yes') {
-                    $this->bln_includeCoreModules = true;
-                } else {
-                    $this->bln_includeCoreModules = false;
-                }
+        if (isset($this->config['includeCoreModules'])) {
+            if ($this->config['includeCoreModules'] == 'yes') {
+                $this->bln_includeCoreModules = true;
+            } else {
+                $this->bln_includeCoreModules = false;
             }
         }
-        if($this->bln_createFileInsteadOfOutput){
-            if (isset($config['includeCoreModules'])) {
-                if ($config['includeCoreModules'] == 'yes') {
-                    $this->bln_includeCoreModules = true;
-                } else {
-                    $this->bln_includeCoreModules = false;
-                }
-            }
-        }
-		$str_cacheStringRaw .= $this->bln_includeCoreModules ? '1' : '0';
+        $str_cacheStringRaw .= $this->bln_includeCoreModules ? '1' : '0';
 
 
-        if(!$this->bln_createFileInsteadOfOutput){
-            if (isset($_GET['includeAppModules'])) {
-                if ($_GET['includeAppModules'] == 'yes') {
-                    $this->bln_includeAppModules = true;
-                } else {
-                    $this->bln_includeAppModules = false;
-                }
+        if (isset($this->config['includeAppModules'])) {
+            if ($this->config['includeAppModules'] == 'yes') {
+                $this->bln_includeAppModules = true;
+            } else {
+                $this->bln_includeAppModules = false;
             }
         }
-        if($this->bln_createFileInsteadOfOutput){
-            if (isset($config['includeAppModules'])) {
-                if ($config['includeAppModules'] == 'yes') {
-                    $this->bln_includeAppModules = true;
-                } else {
-                    $this->bln_includeAppModules = false;
-                }
-            }
-        }
-		$str_cacheStringRaw .= $this->bln_includeAppModules ? '1' : '0';
+        $str_cacheStringRaw .= $this->bln_includeAppModules ? '1' : '0';
 
 
-        if(!$this->bln_createFileInsteadOfOutput){
-            if (isset($_GET['includeApp'])) {
-                if ($_GET['includeApp'] == 'yes') {
-                    $this->bln_includeApp = true;
-                } else {
-                    $this->bln_includeApp = false;
-                }
+        if (isset($this->config['includeApp'])) {
+            if ($this->config['includeApp'] == 'yes') {
+                $this->bln_includeApp = true;
+            } else {
+                $this->bln_includeApp = false;
             }
         }
-        if($this->bln_createFileInsteadOfOutput){
-            if (isset($config['includeApp'])) {
-                if ($config['includeApp'] == 'yes') {
-                    $this->bln_includeApp = true;
-                } else {
-                    $this->bln_includeApp = false;
-                }
-            }
-        }
-		$str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
+        $str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
 
-		
-		$this->str_cacheHash = md5($str_cacheStringRaw);
-	}
+
+        $this->str_cacheHash = md5($str_cacheStringRaw);
+    }
 }

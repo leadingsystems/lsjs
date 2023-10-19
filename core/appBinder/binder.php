@@ -1,6 +1,22 @@
 <?php
 include('binderController.php');
-$obj_lsjs_appBinder = new lsjs_binderController();
+
+$arr_config = [
+    'debug' => $_GET['debug'] ?? null,
+    'no-cache' => $_GET['no-cache'] ?? null,
+    'no-minifier' => $_GET['no-minifier'] ?? null,
+    'pathToApp' => $_GET['pathToApp'] ?? null,
+    'pathToAppCustomization' => $_GET['pathToAppCustomization'] ?? null,
+    'pathToCoreCustomization' => $_GET['pathToCoreCustomization'] ?? null,
+    'whitelist' => $_GET['whitelist'] ?? null,
+    'blacklist' => $_GET['blacklist'] ?? null,
+    'includeCore' => $_GET['includeCore'] ?? null,
+    'includeCoreModules' => $_GET['includeCoreModules'] ?? null,
+    'includeAppModules' => $_GET['includeAppModules'] ?? null,
+    'includeApp' => $_GET['includeApp'] ?? null,
+];
+
+$obj_lsjs_appBinder = new lsjs_binderController($arr_config);
 
 if (!isset($_GET['output'])) {
 	die('Output parameter not given');
