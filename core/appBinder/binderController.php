@@ -124,22 +124,22 @@ class lsjs_binderController {
 			$this->arr_files['coreModuleFiles_original'] = $this->readModules(__DIR__."/".self::c_str_pathToCore.'/'.self::c_str_pathToModules);
 			$this->arr_files['coreModuleFiles_customization'] =
 					$this->str_pathToCoreCustomization
-				?	$this->readModules(__DIR__."/".$this->str_pathToCoreCustomization.'/'.self::c_str_pathToModules)
+				?	$this->readModules($this->str_pathToCoreCustomization.'/'.self::c_str_pathToModules)
 				:	array();
 			$this->arr_files['coreModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles('core');
 		}
 
-		if (!file_exists(__DIR__."/".$this->str_pathToApp)) {
+		if (!file_exists($this->str_pathToApp)) {
 			return;
 		}
 
 		if ($this->bln_includeApp) {
-			$this->arr_files['mainAppFile'] = file_exists(__DIR__."/".$this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? __DIR__."/".$this->str_pathToAppCustomization.'/'.self::c_str_appFileName : __DIR__."/".$this->str_pathToApp.'/'.self::c_str_appFileName;
+			$this->arr_files['mainAppFile'] = file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
 		}
 		
 		if ($this->bln_includeAppModules) {
-			$this->arr_files['appModuleFiles_original'] = $this->readModules(__DIR__."/".$this->str_pathToApp.'/'.self::c_str_pathToModules);
-			$this->arr_files['appModuleFiles_customization'] = $this->str_pathToAppCustomization ? $this->readModules(__DIR__."/".$this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
+			$this->arr_files['appModuleFiles_original'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
+			$this->arr_files['appModuleFiles_customization'] = $this->str_pathToAppCustomization ? $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
 
 			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
 		}

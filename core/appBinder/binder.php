@@ -22,9 +22,9 @@ class lsjs_binder {
             'debug' => $_GET['debug'] ?? null,
             'no-cache' => $_GET['no-cache'] ?? null,
             'no-minifier' => $_GET['no-minifier'] ?? null,
-            'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviation($_GET['pathToApp']) : null),
-            'pathToAppCustomization' => (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']) : null),
-            'pathToCoreCustomization' => (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']) : null),
+            'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null),
+            'pathToAppCustomization' => (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToAppCustomization']) : null),
+            'pathToCoreCustomization' => (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToCoreCustomization']) : null),
             'whitelist' => $_GET['whitelist'] ?? null,
             'blacklist' => $_GET['blacklist'] ?? null,
             'includeCore' => $_GET['includeCore'] ?? null,
@@ -71,9 +71,9 @@ class lsjs_binder {
      * in the url (false positive for apache parent directory attack), we use a special keyword followed by a number
      * (e.g. _dup7_) to name the number of "folder ups" and then translate it into the correct "../../../.." part.
      */
-    private function replaceDirectoryUpAbbreviation($str_url)
+    private function replaceDirectoryUpAbbreviationAndGetAbsolutePath($str_path)
     {
-        $str_url = preg_replace_callback(
+        $str_path = preg_replace_callback(
             '/_dup([0-9]+?)_/',
             function($arr_matches) {
                 $arr_dirUp = array();
@@ -84,9 +84,15 @@ class lsjs_binder {
 
                 return $str_dirUpPrefix;
             },
-            $str_url
+            $str_path
         );
 
-        return $str_url;
+        $str_path = realpath(__DIR__ . '/' . $str_path);
+
+        if (!$str_path) {
+            die('LSJS app path not correct');
+        }
+
+        return $str_path;
     }
 }
