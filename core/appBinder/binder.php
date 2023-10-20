@@ -22,6 +22,7 @@ class lsjs_binder {
             'debug' => $_GET['debug'] ?? null,
             'no-cache' => $_GET['no-cache'] ?? null,
             'no-minifier' => $_GET['no-minifier'] ?? null,
+            'pathForRenderedFiles' => (isset($_GET['pathForRenderedFiles']) && $_GET['pathForRenderedFiles'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathForRenderedFiles']) : null),
             'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null),
             'pathToAppCustomization' => (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToAppCustomization']) : null),
             'pathToCoreCustomization' => (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToCoreCustomization']) : null),
@@ -90,7 +91,7 @@ class lsjs_binder {
         $str_path = realpath(__DIR__ . '/' . $str_path);
 
         if (!$str_path) {
-            die('LSJS app path not correct');
+            die('LSJS: path not correct');
         }
 
         return $str_path;
