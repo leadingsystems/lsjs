@@ -4,13 +4,13 @@ include('templateConverter.php');
 include('modelCombiner.php');
 
 class lsjs_binderController {
-	const c_str_pathToCore = '..';
+	const c_str_pathToCore = __DIR__ . '/..';
 	
 	const c_str_pathToModules = 'modules';
 	const c_str_pathToModels = 'models';
 	const c_str_pathToTemplates = 'templates';
 
-	const c_str_pathToCache = '../../cache';
+	const c_str_pathToCache = __DIR__ . '/../../cache';
 
 	const c_str_viewFileName = 'view.js';
 	const c_str_controllerFileName = 'controller.js';
@@ -21,14 +21,12 @@ class lsjs_binderController {
 	const c_str_lsjsTemplateHandlerFileName = 'lsjs_templateHandler.js';
 	const c_str_lsVersionFileName = 'ls_version.txt';
 	
-	const c_str_pathToAppBinderBaseFiles = 'baseFiles';
+	const c_str_pathToAppBinderBaseFiles = __DIR__ . '/baseFiles';
 	const c_str_mainContainerBasisFileName = 'mainContainer.js';
 	const c_str_templateBasisFileName = 'templateBasis.js';
 	const c_str_modelBasisFileName = 'modelBasis.js';
 	const c_str_moduleBasisFileName = 'moduleBasis.js';
 	
-	const c_str_templatesPath = 'resources/lsjs/app/modules/%s/templates';
-
 	protected $str_cacheHash = '';
 
 	protected $str_pathToApp = '';
@@ -62,8 +60,8 @@ class lsjs_binderController {
     }
 
 	protected function createCacheFolderIfNotExists() {
-		if (!is_dir(__DIR__ . '/' . self::c_str_pathToCache)) {
-			mkdir(__DIR__ . '/' . self::c_str_pathToCache);
+		if (!is_dir(self::c_str_pathToCache)) {
+			mkdir(self::c_str_pathToCache);
 		}
 	}
 	
@@ -71,13 +69,13 @@ class lsjs_binderController {
 		$str_pathToCacheFile = self::c_str_pathToCache.'/lsjs_'.$this->str_cacheHash.'.js';
 
 		if ($this->bln_useCache) {
-			if (file_exists(__DIR__."/".$str_pathToCacheFile)) {
-                echo "/* FROM CACHE */\r\n" . file_get_contents(__DIR__."/".$str_pathToCacheFile);
+			if (file_exists($str_pathToCacheFile)) {
+				echo "/* FROM CACHE */\r\n" . file_get_contents($str_pathToCacheFile);
                 exit;
 			}
 		}
 		
-		$this->str_output = lsjsBinder_file_get_contents(__DIR__."/".self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
+		$this->str_output = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
 		$this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
 		$this->str_output = preg_replace('/__lsjs__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs'])), $this->str_output);
 		$this->str_output = preg_replace('/__lsjs_templateHandler__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs_templateHandler'])), $this->str_output);
@@ -105,7 +103,7 @@ class lsjs_binderController {
 		}
 
 		if ($this->bln_useCache) {
-            file_put_contents(__DIR__."/".$str_pathToCacheFile, $this->str_output);
+			file_put_contents($str_pathToCacheFile, $this->str_output);
 		}
 
         return $this->str_output;
@@ -114,14 +112,14 @@ class lsjs_binderController {
 	protected function readAllFiles() {
 		if ($this->bln_includeCore) {
 			$this->arr_files['mainCoreFiles'] = array(
-				'lsjs' => __DIR__.'/'.self::c_str_pathToCore.'/'.self::c_str_lsjsFileName,
-				'lsjs_templateHandler' => __DIR__.'/'.self::c_str_pathToCore.'/'.self::c_str_lsjsTemplateHandlerFileName,
-				'ls_version' => __DIR__.'/'.self::c_str_pathToCore.'/'.self::c_str_lsVersionFileName
+				'lsjs' => self::c_str_pathToCore.'/'.self::c_str_lsjsFileName,
+				'lsjs_templateHandler' => self::c_str_pathToCore.'/'.self::c_str_lsjsTemplateHandlerFileName,
+				'ls_version' => self::c_str_pathToCore.'/'.self::c_str_lsVersionFileName
 			);
 		}
 
 		if ($this->bln_includeCoreModules) {
-			$this->arr_files['coreModuleFiles_original'] = $this->readModules(__DIR__."/".self::c_str_pathToCore.'/'.self::c_str_pathToModules);
+			$this->arr_files['coreModuleFiles_original'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
 			$this->arr_files['coreModuleFiles_customization'] =
 					$this->str_pathToCoreCustomization
 				?	$this->readModules($this->str_pathToCoreCustomization.'/'.self::c_str_pathToModules)
@@ -372,7 +370,7 @@ class lsjs_binderController {
 			$obj_modelCombiner = new modelCombiner(
 				$str_moduleName,
 				$arr_modelFiles,
-				__DIR__.'/'.self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_modelBasisFileName
+				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_modelBasisFileName
 			);
 			return $obj_modelCombiner->output();
 		} catch (Exception $e) {
@@ -389,7 +387,7 @@ class lsjs_binderController {
 			$obj_lsjs_templateConverter = new lsjs_templateConverter(
 				$str_moduleName,
 				$arr_templateFiles,
-				__DIR__.'/'.self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_templateBasisFileName,
+				self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_templateBasisFileName,
 				$this->bln_debugMode
 			);
 			return $obj_lsjs_templateConverter->output();
@@ -410,7 +408,7 @@ class lsjs_binderController {
 		$str_completeModuleOutput = '';
 		if (isset($this->arr_files[$str_what.'ModuleFiles']) && is_array($this->arr_files[$str_what.'ModuleFiles'])) {
 			foreach($this->arr_files[$str_what.'ModuleFiles'] as $str_moduleName => $arr_moduleFiles) {
-			    $str_moduleOutput = lsjsBinder_file_get_contents(__DIR__.'/'.self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_moduleBasisFileName);
+				$str_moduleOutput = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_moduleBasisFileName);
 				$str_moduleOutput = preg_replace('/__viewFile__/', $this->file_get_contents_envelope($arr_moduleFiles['viewFile']), $str_moduleOutput);
 				$str_moduleOutput = preg_replace('/__controllerFile__/', $this->file_get_contents_envelope($arr_moduleFiles['controllerFile']), $str_moduleOutput);
 
