@@ -20,7 +20,6 @@ class lsjs_binder {
     {
         $this->arr_config = [
             'debug' => $_GET['debug'] ?? null,
-            'no-cache' => $_GET['no-cache'] ?? null,
             'no-minifier' => $_GET['no-minifier'] ?? null,
             'pathForRenderedFiles' => (isset($_GET['pathForRenderedFiles']) && $_GET['pathForRenderedFiles'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathForRenderedFiles']) : null),
             'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null),

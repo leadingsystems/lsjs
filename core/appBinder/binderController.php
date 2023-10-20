@@ -43,8 +43,6 @@ class lsjs_binderController {
 	protected $bln_includeApp = true;
 	protected $bln_debugMode = false;
 	protected $bln_useMinifier = true;
-	protected $bln_useCache = true;
-
 
 	protected $arr_files = array();
 	protected $arr_moduleStructure = array();
@@ -60,8 +58,40 @@ class lsjs_binderController {
 		$this->render();
     }
 
+    private function getHash($str_additionalStringToHash = '')
+    {
+        $arr_pathsToCheck = [
+            self::c_str_pathToAppBinderBaseFiles,
+            self::c_str_pathToCore,
+            $this->str_pathToApp,
+            $this->str_pathToAppCustomization,
+            $this->str_pathToCoreCustomization
+        ];
+
+        $arr_pathHashes = [];
+
+        foreach ($arr_pathsToCheck as $str_pathToCheck) {
+            $str_pathToCheck = trim($str_pathToCheck);
+            if (empty($str_pathToCheck)) {
+                continue;
+            }
+            $arr_pathHashes[] = $this->hashDir($str_pathToCheck);
+        }
+
+        return md5(implode('', $arr_pathHashes) . $str_additionalStringToHash);
+    }
+
 	private function render()
     {
+        /*
+         * Since the filename of the file to render is a hash of everything that defines the content of the file,
+         * it's safe to assume that if a file with this name already exists, it is exactly the same file that we
+         * would render now, so we stop rendering and assume that the already existing file is what we want.
+         */
+        if (file_exists($this->str_pathToRenderedFile)) {
+            return;
+        }
+
         $this->str_output = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
         $this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
         $this->str_output = preg_replace('/__lsjs__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs'])), $this->str_output);
@@ -494,12 +524,6 @@ class lsjs_binderController {
         $str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
 
 
-        if (isset($this->config['no-cache']) && $this->config['no-cache']) {
-            $this->bln_useCache = false;
-        }
-        $str_cacheStringRaw .= $this->bln_useCache ? '1' : '0';
-
-
         if (isset($this->config['no-minifier']) && $this->config['no-minifier']) {
             $this->bln_useMinifier = false;
         }
@@ -580,6 +604,34 @@ class lsjs_binderController {
         $str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
 
 
-        $this->str_pathToRenderedFile = $this->str_pathForRenderedFiles . '/lsjs_' . md5($str_cacheStringRaw) . '.js';
+        $this->str_pathToRenderedFile = $this->str_pathForRenderedFiles . '/lsjs_' . $this->getHash($str_cacheStringRaw) . '.js';
     }
+
+    protected function hashDir($str_dir) {
+        if (!is_dir($str_dir)) {
+            return '';
+        }
+
+        $arr_fileHashes = [];
+        $obj_dir = dir($str_dir);
+
+        while (false !== ($str_file = $obj_dir->read())) {
+            if ($str_file == '.' || $str_file == '..') {
+                continue;
+            }
+
+            $str_filePath = $str_dir . '/' . $str_file;
+
+            if (is_dir($str_filePath)) {
+                $arr_fileHashes[] = $this->hashDir($str_filePath);
+            } else {
+                $arr_fileHashes[] = md5_file($str_filePath);
+            }
+        }
+
+        $obj_dir->close();
+
+        return md5(implode('', $arr_fileHashes));
+    }
+
 }
