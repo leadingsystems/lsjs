@@ -467,29 +467,6 @@ class lsjs_binderController {
 		return $this->arr_files;
 	}
 
-	/*
-	 * Since passing a url as a get parameter can cause the request to be blocked when there are many "folder up" parts
-	 * in the url (false positive for apache parent directory attack), we use a special keyword followed by a number
-	 * (e.g. _dup7_) to name the number of "folder ups" and then translate it into the correct "../../../.." part.
-	 */
-	protected function replaceDirectoryUpAbbreviation($str_url) {
-		$str_url = preg_replace_callback(
-			'/_dup([0-9]+?)_/',
-			function($arr_matches) {
-				$arr_dirUp = array();
-				for ($i = 1; $i <= $arr_matches[1]; $i++) {
-					$arr_dirUp[] = '..';
-				}
-				$str_dirUpPrefix = implode('/', $arr_dirUp);
-
-				return $str_dirUpPrefix;
-			},
-			$str_url
-		);
-
-		return $str_url;
-	}
-
     protected function processParameters() {
         $str_cacheStringRaw = '';
 
@@ -512,19 +489,19 @@ class lsjs_binderController {
 
 
         if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
-            $this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($this->config['pathToApp']);
+            $this->str_pathToApp = $this->config['pathToApp'];
         }
         $str_cacheStringRaw .= $this->str_pathToApp;
 
 
         if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
-            $this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($this->config['pathToAppCustomization']);
+            $this->str_pathToAppCustomization = $this->config['pathToAppCustomization'];
         }
         $str_cacheStringRaw .= $this->str_pathToAppCustomization;
 
 
         if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
-            $this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($this->config['pathToCoreCustomization']);
+            $this->str_pathToCoreCustomization = $this->config['pathToCoreCustomization'];
         }
         $str_cacheStringRaw .= $this->str_pathToCoreCustomization;
 
