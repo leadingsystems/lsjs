@@ -149,7 +149,7 @@ class lsjs_binderController {
 		}
 
 		if ($this->bln_includeApp) {
-			$this->arr_files['mainAppFile'] = file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
+			$this->arr_files['mainAppFile'] = $this->str_pathToAppCustomization && file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
 		}
 		
 		if ($this->bln_includeAppModules) {
