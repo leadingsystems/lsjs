@@ -163,9 +163,9 @@ class lsjs_templateConverter {
 			$str_templateInfoBegin = '';
 			$str_templateInfoEnd = '';
 			if ($this->bln_debugMode) {
-				$str_templatesPathWithoutDirectoryUpPrefix = str_replace(__DIR__, '', str_replace('../', '', $this->arr_templatesPaths[$str_templateName]));
-				$str_templateInfoBegin = '<!-- BEGIN LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
-				$str_templateInfoEnd = '<!-- END LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . '/' . $str_templateName . '.html -->';
+				$str_templatesPathWithoutDirectoryUpPrefix = str_replace($_SERVER['HOME'] . '/' . $_SERVER['SERVER_NAME'] . '/', '', str_replace('../', '', $this->arr_templatesPaths[$str_templateName]));
+				$str_templateInfoBegin = '<!-- BEGIN LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . ' -->';
+				$str_templateInfoEnd = '<!-- END LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . ' -->';
 			}
 
 			$str_templateContent = preg_replace('/__templateInfoBegin__/', $str_templateInfoBegin, $str_templateContent);
