@@ -2,8 +2,8 @@
 require_once(__DIR__ . '/../../core/appBinder/binderController.php');
 
 $arr_coreArguments = [
-    'debug' => 0,
-    'no-minifier' => 0,
+    'debug' => 1,
+    'no-minifier' => 1,
     'pathForRenderedFiles' => __DIR__ . '/renderedFiles',
     'pathToApp' => null,
     'pathToAppCustomization' => null,
@@ -19,8 +19,8 @@ $arr_coreArguments = [
 $coreBinder = new lsjs_binderController($arr_coreArguments);
 
 $arr_appArguments = [
-    'debug' => 0,
-    'no-minifier' => 0,
+    'debug' => 1,
+    'no-minifier' => 1,
     'pathForRenderedFiles' => __DIR__ . '/renderedFiles',
     'pathToApp' => __DIR__ . '/app',
     'pathToAppCustomization' => null,

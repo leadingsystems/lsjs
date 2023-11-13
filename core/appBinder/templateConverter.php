@@ -163,7 +163,15 @@ class lsjs_templateConverter {
 			$str_templateInfoBegin = '';
 			$str_templateInfoEnd = '';
 			if ($this->bln_debugMode) {
-				$str_templatesPathWithoutDirectoryUpPrefix = str_replace($_SERVER['HOME'] . '/' . $_SERVER['SERVER_NAME'] . '/', '', str_replace('../', '', $this->arr_templatesPaths[$str_templateName]));
+                $homePath = $_SERVER['HOME'];
+                $templatesPath = $this->arr_templatesPaths[$str_templateName];
+
+                if (empty($homePath) || strpos($templatesPath, $homePath . '/') === false) {
+                    $str_templatesPathWithoutDirectoryUpPrefix = basename($templatesPath) . " (path removed for security reasons)";
+                } else {
+                    $str_templatesPathWithoutDirectoryUpPrefix = str_replace([$homePath . '/', '../'], '', $templatesPath);
+                }
+
 				$str_templateInfoBegin = '<!-- BEGIN LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . ' -->';
 				$str_templateInfoEnd = '<!-- END LSJS TEMPLATE: ' . $str_templatesPathWithoutDirectoryUpPrefix . ' -->';
 			}
