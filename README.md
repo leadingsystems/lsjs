@@ -21,7 +21,7 @@ coordinates everything but is not responsible for the actual functionality. This
 where LSJS modules come into play.
 
 _Example: Let's say you have a website with a nice slideshow effect, a table in which you can
-sort elements using drag and drop and a news ticker which load new entries via AJAX. In this case you would write three modules, e.g. "my-slideshow", "fancy-table", "new-ticker".
+sort elements using drag and drop and a news ticker which loads new entries via AJAX. In this case you would write three modules, e.g. "my-slideshow", "fancy-table", "new-ticker".
 In your main app file you would load these modules but the slideshow functionality etc. is
 completely located in your modules._
 
@@ -29,8 +29,8 @@ A module is not only a single JS file. It's a folder holding separate JS files f
 models, the view, the controller and of course the templates.
 
 Organizing everything in well structured files and folders makes things easy for you but
-of course LSJS doesn't deliver your application to the browser that way. LSJS comes
-with a binder script which combines all your work in one single file and it also optimizes,
+of course LSJS doesn't deliver your application to the browser like this. LSJS comes
+with a binder script which combines everything in one single file and it also optimizes,
 minimizes and caches it.
 
 Besides the powerful templating engine, LSJS offers you an MVC architecture, bi-directional
@@ -41,43 +41,30 @@ The following explanation can easily be followed with the little example project
 located in the "examples" folder.
 
 To use LSJS on a website it is necessary to load the LSJS core and at least one
-LSJS app. Loading the core or an app means loading the LSJS binder.php file with
-specific GET parameters. binder.php will then deliver a JS response.
-The purpose of binder.php is to combine the scripts of the LSJS core or an app (which are structured
-in folders) in one single file. No JS file of the LSJS core or an app will ever be referenced directly.
+LSJS app.
 
-Example _01 doesn't use any of the cool LSJS features (only the very simple messageBox
-core module). It simply shows how to include an LSJS app in your website.
+There are two ways in which LSJS can be loaded. Which one you use depends on whether or not your
+website is rendered using PHP.
+
+##### Using LSJS in a PHP context
+If the website is rendered using PHP, the binderController script of LSJS can and should be instantiated
+and used to render the LSJS output file and the path to this output file should then be referenced
+in the src attribute of a script element. When instantiating the binderController, the arguments
+defining what to load etc. are passed to the constructor as an array.
+
+Example _00 shows how this works.
+
+Please open: http://yourdomain.com/assets/lsjs/examples/_00/index.php
+
+##### Using LSJS in a non-PHP context
+ 
+If you can't use PHP to render and include LSJS as shown before, you can still use LSJS.
+In this case you have to reference binder.php as the src of a script element and provide all
+arguments as GET parameters.
+
+Example _01 shows how this works.
 
 Please open: http://yourdomain.com/assets/lsjs/examples/_01/index.html
-
-If your browser displays a message box saying "LSJS loaded!" then the javascript of the
-LSJS core and the example app have been loaded successfully.
-
-Take look in "assets/lsjs/examples/_01/index.html" to see how binder.php is being
-referenced there.
-
-First of all, binder.php has to be referenced in the "src" attribute of a script element.
-
-Like this:
-
-`<script src="../../core/appBinder/binder.php?output=js"></script>`
-
-This includes the JS source code of the LSJS core and the core modules.
-
-If we only do this, we don't see anything happening because we don't have any
-application code yet.
-
-In order to load the JS of our app, we use the following "script" element:
- 
-`<script src="../../core/appBinder/binder.php?output=js&pathToApp=_dup2_/examples/_01/app&includeCore=no&includeCoreModules=no"></script>`
-
-The GET parameters `includeCore=no` and `includeCoreModules=no` tell binder.php
-to only load the app and its modules but not the core. Since we loaded the core
-separately before, that's exactly what we want. However, we could load the core and
-the app in one single request with this:
-
-`<script src="../../core/appBinder/binder.php?output=js&pathToApp=_dup2_/examples/_01/app"></script>`
 
 Please note: The path to the app has to be specified relative to the location of
 binder.php. Therefore the path would probably beginn with at least some of those: "../"
@@ -92,9 +79,8 @@ as `_dup1_` ("dup" stands for "directory up" and the following number stands for
 number of steps we want to go up). Therefore, `_dup_4` would mean `../../../../`.
 
 ##### Using the debug mode
-Adding the GET parameter `debug=1` to the binder.php URL activates the debug mode which
-allows us to find out exactly the location of any template file used when generating
-the combined LSJS output.
+The argument `debug=1` activates the debug mode which allows us to find out the exact
+location of any template file used when generating the combined LSJS output.
 
 This is especially useful if we use a third party LSJS app whose output we want to modify.
 In order to be able to modify output, we first need to find the template that is
@@ -117,9 +103,8 @@ app code because future updates would be a real problem or even become impossibl
 
 Therefore, LSJS offers an easy way to customize the modules of an app.
 
-Just like the path to an app can be specified as a GET parameter when referencing
-binder.php, using the GET parameter `pathToAppCustomization` the location of 
-customized versions of the app modules can be specified.
+Just like the path to an app can be specified as an argument, by using the argument
+`pathToAppCustomization`, the location of customized versions of the app modules can be specified.
 
 The given customization path needs to point to a directory which contains the
 customized files in exactly the same structure as in the original app.
@@ -136,8 +121,8 @@ which only prints "Hello World!" to the screen using a template "main.html".
 
 Example _02 doesn't only have the app folder but also another folder called
 "appCustomization" which holds the customized template. By referencing the path
-to the customization folder in the GET parameter `pathToAppCustomization` when
-loading binder.php in the example's index.html, the customization is applied.
+to the customization folder in the argument `pathToAppCustomization`, the customization
+is applied.
 
 Please open: http://yourdomain.com/assets/lsjs/examples/_02/index.html
 
@@ -149,10 +134,10 @@ to the console.
 Even the main app file, app.js, is customized and prints "customized app.js works"
 to the console.
 
-Open the example's index.html and remove the GET parameter `pathToAppCustomization`
+Open the example's index.html and remove the argument `pathToAppCustomization`
 to see what the module originally did.
 
-If you switch between the original and the customized version, take a look in the
+If you switch between the original and the customized version, take a look at the
 generated HTML source and see how the location of the template that we can see
 due to the activated debug mode changes.
 
@@ -160,7 +145,7 @@ due to the activated debug mode changes.
 Customizing core modules in an update-safe way basically works as customizing app
 modules which was described earlier in this document.
 
-Using the GET parameter `pathToCoreCustomization` the folder containing the customized
+Using the argument `pathToCoreCustomization`, the folder containing the customized
 files can be specified. This folder needs to contain a folder called "modules" in
 which customizing works exactly the same way as it does with app modules.
 
@@ -219,7 +204,7 @@ them inside a template:_
 ```<p>But this doesn't work</p>```
 
 ##### Template includes
-Templates can be included in other templates. There are three possible ways of doing this:
+Templates can be included in other templates. There are four possible ways of doing this:
 
 ```
 <div data-lsjs-replaceWithTemplate="sub01"></div>
@@ -234,21 +219,35 @@ or
 or
 
 ```
+/*
+ * tplOutput can be used to output a rendered template in another template like this:
+ */
+
+<?= this.tplOutput({name: 'templatexyz', arg: {str_someValue: str_value}}) =?>
+```
+
+or
+
+```
+/*
+ * This inserts the subtemplate in the main template when the template is converted into
+ * actual JS code in the binder's template converter on the PHP side. Therefore, using this
+ * including technique, you have full access to all variables that are available in the
+ * main template even from the subtemplate.
+ */
+
 {{template::templatename}}
 ```
 
-The last mentioned way to include another template inserts the subtemplate in the main template when the template is converted into actual JS code in the binder's template converter on the PHP side. Therefore, using this including technique you have full access to all variables that are available in the main template even from the subtemplate.
+#### Minifier
+By default, LSJS minifies its output in order to optimize page loading speed.
+This option can be deactivated because during development you probably don't want
+to use it.
 
+Add the argument `no-minifier=1` to deactivate the minifier.
 
-#### Cache and Minifier
-By default, LSJS minifies and caches its output in order to optimize page loading speed.
-Both options can be deactivated because during development you probably don't want
-to use them.
+#### Cache
 
-Add the GET parameter `no-minifier=1` to your binder.php URL to deactivate the minifier.
-
-Add the GET parameter `no-cache=1` to your binder.php URL to deactivate caching.
-
-If you use caching, simply delete the folder named "cache" from your LSJS folder if
-you want to get changes you've made to your app. The next time, you're loading
-binder.php using the cache, LSJS will recreate the cache folder with the updated contents.
+Caching works automatically in LSJS. Changes to the LSJS source and the arguments that
+define what is rendered how, will be detected and if there are changes, a new output file will
+rendered.
