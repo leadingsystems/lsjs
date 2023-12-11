@@ -4,13 +4,13 @@ include('templateConverter.php');
 include('modelCombiner.php');
 
 class lsjs_binderController {
-	const c_str_pathToCore = '..';
+	const c_str_pathToCore = __DIR__ . '/..';
 	
 	const c_str_pathToModules = 'modules';
 	const c_str_pathToModels = 'models';
 	const c_str_pathToTemplates = 'templates';
 
-	const c_str_pathToCache = '../../cache';
+	const c_str_defaultPathForRenderedFiles = __DIR__ . '/../../cache';
 
 	const c_str_viewFileName = 'view.js';
 	const c_str_controllerFileName = 'controller.js';
@@ -21,19 +21,18 @@ class lsjs_binderController {
 	const c_str_lsjsTemplateHandlerFileName = 'lsjs_templateHandler.js';
 	const c_str_lsVersionFileName = 'ls_version.txt';
 	
-	const c_str_pathToAppBinderBaseFiles = 'baseFiles';
+	const c_str_pathToAppBinderBaseFiles = __DIR__ . '/baseFiles';
 	const c_str_mainContainerBasisFileName = 'mainContainer.js';
 	const c_str_templateBasisFileName = 'templateBasis.js';
 	const c_str_modelBasisFileName = 'modelBasis.js';
 	const c_str_moduleBasisFileName = 'moduleBasis.js';
 	
-	const c_str_templatesPath = 'resources/lsjs/app/modules/%s/templates';
-
-	protected $str_cacheHash = '';
+	protected $str_pathToRenderedFile = '';
 
 	protected $str_pathToApp = '';
 	protected $str_pathToAppCustomization = '';
 	protected $str_pathToCoreCustomization = '';
+	protected $str_pathForRenderedFiles = '';
 
 	protected $str_useBlackOrWhitelist = '';
 	protected $arr_moduleBlackOrWhitelist = array();
@@ -44,71 +43,87 @@ class lsjs_binderController {
 	protected $bln_includeApp = true;
 	protected $bln_debugMode = false;
 	protected $bln_useMinifier = true;
-	protected $bln_useCache = true;
-
 
 	protected $arr_files = array();
 	protected $arr_moduleStructure = array();
 	
 	protected $str_output = '';
-	
-	public function __construct() {
-		$this->createCacheFolderIfNotExists();
-		$this->processGetParameters();
+
+    private array $config;
+
+    public function __construct($config = []) {
+        $this->config = $config;
+        $this->processParameters();
 		$this->readAllFiles();
-	}
+		$this->render();
+    }
 
-	protected function createCacheFolderIfNotExists() {
-		if (!is_dir(self::c_str_pathToCache)) {
-			mkdir(self::c_str_pathToCache);
-		}
-	}
+    private function getHash($str_additionalStringToHash = '')
+    {
+        $arr_pathsToCheck = [
+            self::c_str_pathToAppBinderBaseFiles,
+            self::c_str_pathToCore,
+            $this->str_pathToApp,
+            $this->str_pathToAppCustomization,
+            $this->str_pathToCoreCustomization
+        ];
+
+        $arr_pathHashes = [];
+
+        foreach ($arr_pathsToCheck as $str_pathToCheck) {
+            $str_pathToCheck = trim($str_pathToCheck);
+            if (empty($str_pathToCheck)) {
+                continue;
+            }
+            $arr_pathHashes[] = $this->hashDir($str_pathToCheck);
+        }
+
+        return md5(implode('', $arr_pathHashes) . $str_additionalStringToHash);
+    }
+
+	private function render()
+    {
+        /*
+         * Since the filename of the file to render is a hash of everything that defines the content of the file,
+         * it's safe to assume that if a file with this name already exists, it is exactly the same file that we
+         * would render now, so we stop rendering and assume that the already existing file is what we want.
+         */
+        if (file_exists($this->str_pathToRenderedFile)) {
+            return;
+        }
+
+        $this->str_output = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
+        $this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
+        $this->str_output = preg_replace('/__lsjs__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs'])), $this->str_output);
+        $this->str_output = preg_replace('/__lsjs_templateHandler__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs_templateHandler'])), $this->str_output);
+        $this->str_output = preg_replace('/__app__/', (!$this->bln_includeApp || !isset($this->arr_files['mainAppFile']) ? '' : $this->file_get_contents_envelope($this->arr_files['mainAppFile'])), $this->str_output);
+
+        $this->generateModuleOutput('core');
+        $this->generateModuleOutput('app');
+
+        if ($this->bln_useMinifier) {
+            $minifier_path = __DIR__.'/../../../../vendor/matthiasmullie';
+            require_once $minifier_path . '/minify/src/Minify.php';
+            require_once $minifier_path . '/minify/src/CSS.php';
+            require_once $minifier_path . '/minify/src/JS.php';
+            require_once $minifier_path . '/minify/src/Exception.php';
+            require_once $minifier_path . '/minify/src/Exceptions/BasicException.php';
+            require_once $minifier_path . '/minify/src/Exceptions/FileImportException.php';
+            require_once $minifier_path . '/minify/src/Exceptions/IOException.php';
+            require_once $minifier_path . '/path-converter/src/ConverterInterface.php';
+            require_once $minifier_path . '/path-converter/src/Converter.php';
+
+
+            $obj_minifier = new \MatthiasMullie\Minify\JS();
+            $obj_minifier->add($this->str_output);
+            $this->str_output = $obj_minifier->minify();
+        }
+
+        file_put_contents($this->str_pathToRenderedFile, $this->str_output);
+    }
 	
-	public function outputJS() {
-		header("Content-Type: application/javascript");
-
-		$str_pathToCacheFile = self::c_str_pathToCache.'/'.$this->str_cacheHash.'.js';
-
-		if ($this->bln_useCache) {
-			if (file_exists($str_pathToCacheFile)) {
-				echo "/* FROM CACHE */\r\n" . file_get_contents($str_pathToCacheFile);
-				exit;
-			}
-		}
-		
-		$this->str_output = lsjsBinder_file_get_contents(self::c_str_pathToAppBinderBaseFiles.'/'.self::c_str_mainContainerBasisFileName);
-		$this->str_output = preg_replace('/__ls_version__/', (!$this->bln_includeCore ? '' : '/* '.$this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['ls_version']).' */'), $this->str_output);
-		$this->str_output = preg_replace('/__lsjs__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs'])), $this->str_output);
-		$this->str_output = preg_replace('/__lsjs_templateHandler__/', (!$this->bln_includeCore ? '' : $this->file_get_contents_envelope($this->arr_files['mainCoreFiles']['lsjs_templateHandler'])), $this->str_output);
-		$this->str_output = preg_replace('/__app__/', (!$this->bln_includeApp || !isset($this->arr_files['mainAppFile']) ? '' : $this->file_get_contents_envelope($this->arr_files['mainAppFile'])), $this->str_output);
-
-		$this->generateModuleOutput('core');
-		$this->generateModuleOutput('app');
-
-		if ($this->bln_useMinifier) {
-			$minifier_path = '../../../../vendor/matthiasmullie';
-			require_once $minifier_path . '/minify/src/Minify.php';
-			require_once $minifier_path . '/minify/src/CSS.php';
-			require_once $minifier_path . '/minify/src/JS.php';
-			require_once $minifier_path . '/minify/src/Exception.php';
-			require_once $minifier_path . '/minify/src/Exceptions/BasicException.php';
-			require_once $minifier_path . '/minify/src/Exceptions/FileImportException.php';
-			require_once $minifier_path . '/minify/src/Exceptions/IOException.php';
-			require_once $minifier_path . '/path-converter/src/ConverterInterface.php';
-			require_once $minifier_path . '/path-converter/src/Converter.php';
-
-
-			$obj_minifier = new \MatthiasMullie\Minify\JS();
-			$obj_minifier->add($this->str_output);
-			$this->str_output = $obj_minifier->minify();
-		}
-
-		if ($this->bln_useCache) {
-			file_put_contents($str_pathToCacheFile, $this->str_output);
-		}
-
-		echo $this->str_output;
-		exit;
+	public function getJS() {
+        return file_get_contents($this->str_pathToRenderedFile);
 	}
 	
 	protected function readAllFiles() {
@@ -134,7 +149,7 @@ class lsjs_binderController {
 		}
 
 		if ($this->bln_includeApp) {
-			$this->arr_files['mainAppFile'] = file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
+			$this->arr_files['mainAppFile'] = $this->str_pathToAppCustomization && file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
 		}
 		
 		if ($this->bln_includeAppModules) {
@@ -467,124 +482,156 @@ class lsjs_binderController {
 		return $this->arr_files;
 	}
 
-	/*
-	 * Since passing a url as a get parameter can cause the request to be blocked when there are many "folder up" parts
-	 * in the url (false positive for apache parent directory attack), we use a special keyword followed by a number
-	 * (e.g. _dup7_) to name the number of "folder ups" and then translate it into the correct "../../../.." part.
-	 */
-	protected function replaceDirectoryUpAbbreviation($str_url) {
-		$str_url = preg_replace_callback(
-			'/_dup([0-9]+?)_/',
-			function($arr_matches) {
-				$arr_dirUp = array();
-				for ($i = 1; $i <= $arr_matches[1]; $i++) {
-					$arr_dirUp[] = '..';
-				}
-				$str_dirUpPrefix = implode('/', $arr_dirUp);
+	public function getPathToRenderedFile()
+    {
+        return $this->str_pathToRenderedFile;
+    }
 
-				return $str_dirUpPrefix;
-			},
-			$str_url
-		);
+    protected function createDefaultFolderForRenderedFilesIfNotExists() {
+        if (!is_dir(self::c_str_defaultPathForRenderedFiles)) {
+            mkdir(self::c_str_defaultPathForRenderedFiles);
+        }
+    }
 
-		return $str_url;
-	}
-	
-	protected function processGetParameters() {
-		$str_cacheStringRaw = '';
+    protected function handlePathForRenderedFiles()
+    {
+        /*
+         * If the path for rendered files is not set because it wasn't given as a config parameter on instantiation,
+         * we use the default path and create the respective folder if it doesn't exist yet.
+         */
+        if (!$this->str_pathForRenderedFiles) {
+            $this->createDefaultFolderForRenderedFilesIfNotExists();
+            $this->str_pathForRenderedFiles = self::c_str_defaultPathForRenderedFiles;
+        } elseif (!file_exists($this->str_pathForRenderedFiles) || !is_dir($this->str_pathForRenderedFiles)) {
+            throw new Exception('Path for rendered files does not exist or is not a directory: ' . $this->str_pathForRenderedFiles);
+        }
 
-		if (isset($_GET['debug']) && $_GET['debug']) {
-			$this->bln_debugMode = true;
-		}
-		$str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
+        $this->str_pathForRenderedFiles = realpath($this->str_pathForRenderedFiles);
+    }
 
+    protected function processParameters() {
+        $str_cacheStringRaw = '';
 
-		if (isset($_GET['no-cache']) && $_GET['no-cache']) {
-			$this->bln_useCache = false;
-		}
-		$str_cacheStringRaw .= $this->bln_useCache ? '1' : '0';
+        if (isset($this->config['pathForRenderedFiles']) && $this->config['pathForRenderedFiles']) {
+            $this->str_pathForRenderedFiles = $this->config['pathForRenderedFiles'];
+        }
 
+        $this->handlePathForRenderedFiles();
 
-		if (isset($_GET['no-minifier']) && $_GET['no-minifier']) {
-			$this->bln_useMinifier = false;
-		}
-		$str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
+        if (isset($this->config['debug']) && $this->config['debug']) {
+            $this->bln_debugMode = true;
+        }
+        $str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
 
 
-		if (isset($_GET['pathToApp']) && $_GET['pathToApp']) {
-			$this->str_pathToApp = $this->replaceDirectoryUpAbbreviation($_GET['pathToApp']);
-		}
-		$str_cacheStringRaw .= $this->str_pathToApp;
+        if (isset($this->config['no-minifier']) && $this->config['no-minifier']) {
+            $this->bln_useMinifier = false;
+        }
+        $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
 
-		if (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization']) {
-			$this->str_pathToAppCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToAppCustomization']);
-		}
-		$str_cacheStringRaw .= $this->str_pathToAppCustomization;
+        if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
+            $this->str_pathToApp = $this->config['pathToApp'];
+        }
+        $str_cacheStringRaw .= $this->str_pathToApp;
 
 
-		if (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization']) {
-			$this->str_pathToCoreCustomization = $this->replaceDirectoryUpAbbreviation($_GET['pathToCoreCustomization']);
-		}
-		$str_cacheStringRaw .= $this->str_pathToCoreCustomization;
+        if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
+            $this->str_pathToAppCustomization = $this->config['pathToAppCustomization'];
+        }
+        $str_cacheStringRaw .= $this->str_pathToAppCustomization;
 
 
-		if (isset($_GET['whitelist']) && $_GET['whitelist']) {
-			$this->setModuleWhitelist($_GET['whitelist']);
-			$str_cacheStringRaw .= $_GET['whitelist'];
-		} else {
-			$str_cacheStringRaw .= '-no-whitelist-';
-		}
+        if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
+            $this->str_pathToCoreCustomization = $this->config['pathToCoreCustomization'];
+        }
+        $str_cacheStringRaw .= $this->str_pathToCoreCustomization;
 
 
-		if (isset($_GET['blacklist']) && $_GET['blacklist']) {
-			$this->setModuleBlacklist($_GET['blacklist']);
-			$str_cacheStringRaw .= $_GET['blacklist'];
-		} else {
-			$str_cacheStringRaw .= '-no-blacklist-';
-		}
+        if (isset($this->config['whitelist']) && $this->config['whitelist']) {
+            $this->setModuleWhitelist($this->config['whitelist']);
+            $str_cacheStringRaw .= $this->config['whitelist'];
+        } else {
+            $str_cacheStringRaw .= '-no-whitelist-';
+        }
 
 
-		if (isset($_GET['includeCore'])) {
-			if ($_GET['includeCore'] == 'yes') {
-				$this->bln_includeCore = true;
-			} else {
-				$this->bln_includeCore = false;
-			}
-		}
-		$str_cacheStringRaw .= $this->bln_includeCore ? '1' : '0';
-
-		
-		if (isset($_GET['includeCoreModules'])) {
-			if ($_GET['includeCoreModules'] == 'yes') {
-				$this->bln_includeCoreModules = true;
-			} else {
-				$this->bln_includeCoreModules = false;
-			}
-		}
-		$str_cacheStringRaw .= $this->bln_includeCoreModules ? '1' : '0';
+        if (isset($this->config['blacklist']) && $this->config['blacklist']) {
+            $this->setModuleBlacklist($this->config['blacklist']);
+            $str_cacheStringRaw .= $this->config['blacklist'];
+        } else {
+            $str_cacheStringRaw .= '-no-blacklist-';
+        }
 
 
-		if (isset($_GET['includeAppModules'])) {
-			if ($_GET['includeAppModules'] == 'yes') {
-				$this->bln_includeAppModules = true;
-			} else {
-				$this->bln_includeAppModules = false;
-			}
-		}
-		$str_cacheStringRaw .= $this->bln_includeAppModules ? '1' : '0';
+        if (isset($this->config['includeCore'])) {
+            if ($this->config['includeCore'] == 'yes') {
+                $this->bln_includeCore = true;
+            } else {
+                $this->bln_includeCore = false;
+            }
+        }
+        $str_cacheStringRaw .= $this->bln_includeCore ? '1' : '0';
 
 
-		if (isset($_GET['includeApp'])) {
-			if ($_GET['includeApp'] == 'yes') {
-				$this->bln_includeApp = true;
-			} else {
-				$this->bln_includeApp = false;
-			}
-		}
-		$str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
+        if (isset($this->config['includeCoreModules'])) {
+            if ($this->config['includeCoreModules'] == 'yes') {
+                $this->bln_includeCoreModules = true;
+            } else {
+                $this->bln_includeCoreModules = false;
+            }
+        }
+        $str_cacheStringRaw .= $this->bln_includeCoreModules ? '1' : '0';
 
-		
-		$this->str_cacheHash = md5($str_cacheStringRaw);
-	}
+
+        if (isset($this->config['includeAppModules'])) {
+            if ($this->config['includeAppModules'] == 'yes') {
+                $this->bln_includeAppModules = true;
+            } else {
+                $this->bln_includeAppModules = false;
+            }
+        }
+        $str_cacheStringRaw .= $this->bln_includeAppModules ? '1' : '0';
+
+
+        if (isset($this->config['includeApp'])) {
+            if ($this->config['includeApp'] == 'yes') {
+                $this->bln_includeApp = true;
+            } else {
+                $this->bln_includeApp = false;
+            }
+        }
+        $str_cacheStringRaw .= $this->bln_includeApp ? '1' : '0';
+
+
+        $this->str_pathToRenderedFile = $this->str_pathForRenderedFiles . '/lsjs_' . $this->getHash($str_cacheStringRaw) . '.js';
+    }
+
+    protected function hashDir($str_dir) {
+        if (!is_dir($str_dir)) {
+            return '';
+        }
+
+        $arr_fileHashes = [];
+        $obj_dir = dir($str_dir);
+
+        while (false !== ($str_file = $obj_dir->read())) {
+            if ($str_file == '.' || $str_file == '..') {
+                continue;
+            }
+
+            $str_filePath = $str_dir . '/' . $str_file;
+
+            if (is_dir($str_filePath)) {
+                $arr_fileHashes[] = $this->hashDir($str_filePath);
+            } else {
+                $arr_fileHashes[] = md5_file($str_filePath);
+            }
+        }
+
+        $obj_dir->close();
+
+        return md5(implode('', $arr_fileHashes));
+    }
+
 }
