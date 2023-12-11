@@ -1,7 +1,8 @@
 Leading Systems LSJS changelog
 ===========================================
-##### v3.0.4 (nry: 2023-12-04)
+##### v3.1.0 (2023-12-11)
  * Improve caching
+ * deprecated: lsjs_binder class will be removed in version 4.0
 
 ##### v3.0.3 (2023-08-16)
  * Improve templating (add tplOutput for directly outputting templates in other templates)

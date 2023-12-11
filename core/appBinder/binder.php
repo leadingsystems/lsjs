@@ -7,6 +7,8 @@
  *
  * It is strongly suggested not to do that anymore but instead use the binderController to render the JS file and then
  * reference the JS file in a script using whatever way your framework might offer.
+ *
+ * @deprecated: class will be removed in version 4.0
  */
 
 include('binderController.php');
