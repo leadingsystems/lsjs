@@ -1,5 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
+
+##### v3.1.1 (2023-12-11)
+ * fix slider thumbnail
+
 ##### v3.1.0 (2023-12-11)
  * Improve caching
  * deprecated: lsjs_binder class will be removed in version 4.0

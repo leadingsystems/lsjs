@@ -155,11 +155,15 @@ var obj_classdef = 	{
             function(float_slideOffset, int_slideKey) {
                 var el_navigationDot = new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey);
 
+                var pictureElement = this.els_items[int_slideKey].getElementsByTagName('picture')[0].cloneNode(true)
+                el_navigationDot.append(pictureElement)
+
+
                 if (bln_useDotNavigationImages) {
                     el_navigationDot.addClass('use-image');
-                    el_navigationDot.setStyles({
-                        'background-image': 'url(' +this.els_items[int_slideKey].retrieve('previewImageSrc') + ')',
-                        'background-size': 'cover'
+
+                    pictureElement.setStyles({
+                        'pointer-events': 'none'
                     });
                 }
 
