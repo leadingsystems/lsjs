@@ -34,7 +34,11 @@
 		initializeScrollToTop: function() {
 			this.el_scrollToTop = this.tplPure({ name: 'scrollToTop' });
 			this.el_scrollToTop.inject(this.el_body, 'top');
-			this.el_scrollToTop.classList.add(this.__models.options.data.str_containerSelector);
+
+			//Sicherstellen das es Empty ist und nicht nur ein leerzeichen
+			if (this.__models.options.data.str_containerSelector && this.__models.options.data.str_containerSelector.trim() !== '') {
+				this.el_scrollToTop.classList.add(this.__models.options.data.str_containerSelector);
+			}
 
 			document.addEventListener("scroll", () => {
 				let showElement = false;

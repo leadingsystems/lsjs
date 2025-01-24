@@ -3,7 +3,7 @@ var obj_classdef_model = {
 
 	data: {
 		str_moduleName: '__moduleName__',
-		str_containerSelector: 'myCssSelector',
+		str_containerSelector: '',
 		str_fadeInLogic: 'page-length',
 		float_fadeInValue: 0.0,
 		int_scrollToTop: 0,
