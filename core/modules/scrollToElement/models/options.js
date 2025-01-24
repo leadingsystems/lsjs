@@ -34,11 +34,8 @@ var obj_classdef_model = {
 			console.error('Fehler: str_scrollToBehavior muss entweder "smooth", "instant" oder "auto" sein');
 		}
 
-		console.log(this.data.str_fadeInLogic)
 		if (this.data.str_fadeInLogic === 'page-length' || this.data.str_fadeInLogic === 'viewportheight') {
-			console.log(this.data.float_fadeInValue)
 			if (this.data.float_fadeInValue < 0 || this.data.float_fadeInValue > 1.0) {
-				console.log(this.data.float_fadeInValue)
 				console.error('Fehler: Bei "page-length" oder "viewportheight" muss float_fadeInValue zwischen 0 und 1.0 liegen');
 			}
 		} else if (this.data.str_fadeInLogic === 'fixed-value') {
