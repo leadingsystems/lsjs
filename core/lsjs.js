@@ -332,6 +332,35 @@ var classdef_lsjs_helpers = {
 };
 var class_lsjs_helpers = new Class(classdef_lsjs_helpers);
 
+var classdef_lsjs_hooks = {
+	registered_hooks: {},
+
+	registerHook: function(str_hook, func_hookedFunction, obj_properties) {
+        if (!this.registered_hooks[str_hook]) {
+            this.registered_hooks[str_hook] = [];
+        }
+
+        this.registered_hooks[str_hook].push({
+            function: func_hookedFunction,
+            properties: obj_properties || {}
+        });
+    },
+
+    callHook: function(str_hook, thisArg, ...args) {
+        if (this.registered_hooks[str_hook]) {
+            this.registered_hooks[str_hook].forEach(
+				function(hook) {
+					hook.function.apply(thisArg, args);
+				},
+				this
+			);
+		}
+	}
+};
+
+var class_lsjs_hooks = new Class(classdef_lsjs_hooks);
+
+
 var classdef_lsjs_apiInterface = {
 	str_apiUrl: '',
 	
@@ -516,6 +545,8 @@ var classdef_lsjs = {
 	apiInterface: new class_lsjs_apiInterface(),
 
 	helpers: new class_lsjs_helpers(),
+
+	hooks: new class_lsjs_hooks(),
 
 	obj_preferences: {
 		bln_activateUrlModificationInRequestCajax: false
