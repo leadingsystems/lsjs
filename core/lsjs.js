@@ -340,14 +340,34 @@ var classdef_lsjs_hooks = {
             this.registered_hooks[str_hook] = [];
         }
 
-        this.registered_hooks[str_hook].push({
-            function: func_hookedFunction,
-            properties: obj_properties || {}
-        });
+        // Check if the function is already registered for this hook
+        const alreadyRegistered = this.registered_hooks[str_hook].some(
+            (hook) => hook.function === func_hookedFunction
+        );
+
+        // Only register if the function is not already registered
+        if (!alreadyRegistered) {
+			this.registered_hooks[str_hook].push({
+				function: func_hookedFunction,
+				properties: obj_properties || {},
+				order: obj_properties?.order ?? null // Use `null` for unordered hooks
+			});
+        }
     },
 
     callHook: function(str_hook, thisArg, ...args) {
         if (this.registered_hooks[str_hook]) {
+            this.registered_hooks[str_hook].sort((a, b) => {
+                if (a.order === null && b.order === null) {
+                    return 0; // Both hooks are unordered; maintain registration order
+                } else if (a.order === null) {
+                    return 1; // Unordered hooks go last
+                } else if (b.order === null) {
+                    return -1; // Unordered hooks go last
+                }
+                return a.order - b.order; // Sort by order (ascending)
+            });
+
             this.registered_hooks[str_hook].forEach(
 				function(hook) {
 					hook.function.apply(thisArg, args);
