@@ -368,13 +368,14 @@ var classdef_lsjs_hooks = {
                 return a.order - b.order; // Sort by order (ascending)
             });
 
-            this.registered_hooks[str_hook].forEach(
+            return this.registered_hooks[str_hook].map(
 				function(hook) {
-					hook.function.apply(thisArg, args);
+                    return hook.function.apply(thisArg, args);
 				},
 				this
-			);
+            ).filter(result => result !== undefined); // Remove undefined values
 		}
+        return [];
 	}
 };
 
