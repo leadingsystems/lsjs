@@ -939,6 +939,7 @@ var classdef_lsjs_module = {
 						var str_bindToModel = obj_binding.model;
 						var str_bindToPath = obj_binding.path !== undefined && obj_binding.path !== null ? obj_binding.path : '';
 						var str_bindToProperty = obj_binding.property !== undefined && obj_binding.property !== null ? obj_binding.property : '';
+						var str_bindToEvent = obj_binding.event !== undefined && obj_binding.event !== null ? obj_binding.event : 'change';
 
 						/*
 						 * use the new way to declare a binding translation but also accept the old way
@@ -955,9 +956,9 @@ var classdef_lsjs_module = {
 						var str_bindToCallbackViewToModel = obj_binding.callbackViewToModel !== undefined && obj_binding.callbackViewToModel !== null ? obj_binding.callbackViewToModel : '';
 
 						if (bln_performDeregistration) {
-							this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+							this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 						} else {
-							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 						}
 					}.bind(this)
 				);
@@ -972,6 +973,7 @@ var classdef_lsjs_module = {
 			var	str_bindToModel,
 				str_bindToPath,
 				str_bindToProperty,
+				str_bindToEvent,
 				str_bindToTranslation,
 				str_bindToTranslationViewToModel,
 				str_bindToCallbackViewToModel;
@@ -983,6 +985,9 @@ var classdef_lsjs_module = {
 
 			str_bindToProperty = el_toBind.getProperty('data-lsjs-bindToProperty');
 			str_bindToProperty = str_bindToProperty ? str_bindToProperty : '';
+
+			str_bindToEvent = el_toBind.getProperty('data-lsjs-bindToEvent');
+			str_bindToEvent = str_bindToEvent ? str_bindToEvent : 'change';
 
 			/*
 			 * use the new way to declare a binding translation but also accept the old way
@@ -1003,9 +1008,9 @@ var classdef_lsjs_module = {
 			str_bindToCallbackViewToModel = str_bindToCallbackViewToModel ? str_bindToCallbackViewToModel : '';
 
 			if (bln_performDeregistration) {
-				this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+				this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 			} else {
-				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 			}
 
 		}.bind(this));
@@ -1015,7 +1020,7 @@ var classdef_lsjs_module = {
 		console.log('DEBUG BINDINGS: this.obj_registeredDataBindings', Object.clone(this.obj_registeredDataBindings));
 	},
 
-	deregisterSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
+	deregisterSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
 		if (this.obj_registeredDataBindings[str_bindToModel] === undefined || this.obj_registeredDataBindings[str_bindToModel] === null) {
 			return;
 		}
@@ -1038,7 +1043,7 @@ var classdef_lsjs_module = {
 					 * If we remove the binding, we have to remove corresponding events as well
 					 */
 					if (obj_binding.func_bound !== null) {
-						el_toBind.removeEvent('change', obj_binding.func_bound);
+						el_toBind.removeEvent(str_bindToEvent, obj_binding.func_bound);
 					}
 				}
 
@@ -1051,7 +1056,7 @@ var classdef_lsjs_module = {
 		}
 	},
 
-	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
+	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
 		if (this.obj_registeredDataBindings[str_bindToModel] === undefined || this.obj_registeredDataBindings[str_bindToModel] === null) {
 			this.obj_registeredDataBindings[str_bindToModel] = {};
 		}
@@ -1211,7 +1216,7 @@ var classdef_lsjs_module = {
 		});
 
 		if (func_bound !== null) {
-			el_toBind.addEvent('change', func_bound);
+			el_toBind.addEvent(str_bindToEvent, func_bound);
 		}
 
 		/*
