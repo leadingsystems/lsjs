@@ -436,6 +436,7 @@ var classdef_lsjs_apiInterface = {
 			onComplete: function(obj_response) {
 				if (obj_response === undefined || obj_response.status !== 'success') {
 					console.info('ajax/api request not successful');
+					obj_options.func_onFailure(obj_response, this);
 					return;
 				}
 				
