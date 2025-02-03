@@ -30,6 +30,47 @@
  * <==
  */
 
+(function() {
+	function getPropertyList(element, property) {
+		return (element.getAttribute(property) || '').split(/\s+/).filter(Boolean);
+	}
+
+	// Only add the methods if they don't exist already
+	if (!Element.prototype.lsjs_addPropertyValue) {
+		Element.prototype.lsjs_addPropertyValue = function(property, value) {
+			let values = getPropertyList(this, property);
+			if (!values.includes(value)) {
+				values.push(value);
+				this.setAttribute(property, values.join(' '));
+			}
+			return this;
+		};
+	}
+
+	if (!Element.prototype.lsjs_removePropertyValue) {
+		Element.prototype.lsjs_removePropertyValue = function(property, value) {
+			let values = getPropertyList(this, property).filter(v => v !== value);
+			this.setAttribute(property, values.join(' '));
+			return this;
+		};
+	}
+
+	if (!Element.prototype.lsjs_togglePropertyValue) {
+		Element.prototype.lsjs_togglePropertyValue = function(property, value) {
+			return this.lsjs_hasPropertyValue(property, value)
+				? this.lsjs_removePropertyValue(property, value)
+				: this.lsjs_addPropertyValue(property, value);
+		};
+	}
+
+	if (!Element.prototype.lsjs_hasPropertyValue) {
+		Element.prototype.lsjs_hasPropertyValue = function(property, value) {
+			return getPropertyList(this, property).includes(value);
+		};
+	}
+})();
+
+
 /*
  * Request.cajax makes an ajax call and expects an html response with cajax elements
  * whose contents replace the contents of elements currently in the dom with
