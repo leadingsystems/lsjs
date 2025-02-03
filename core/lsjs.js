@@ -997,10 +997,12 @@ var classdef_lsjs_module = {
 
 						var str_bindToCallbackViewToModel = obj_binding.callbackViewToModel !== undefined && obj_binding.callbackViewToModel !== null ? obj_binding.callbackViewToModel : '';
 
+						var bln_allowInsideEvent = !!(obj_binding.allowInsideEvents ?? null);
+
 						if (bln_performDeregistration) {
 							this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 						} else {
-							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent);
 						}
 					}.bind(this)
 				);
@@ -1018,7 +1020,8 @@ var classdef_lsjs_module = {
 				str_bindToEvent,
 				str_bindToTranslation,
 				str_bindToTranslationViewToModel,
-				str_bindToCallbackViewToModel;
+				str_bindToCallbackViewToModel,
+				bln_allowInsideEvent;
 
 			str_bindToModel = el_toBind.getProperty('data-lsjs-bindToModel');
 
@@ -1049,10 +1052,12 @@ var classdef_lsjs_module = {
 			str_bindToCallbackViewToModel = el_toBind.getProperty('data-lsjs-bindToCallbackViewToModel');
 			str_bindToCallbackViewToModel = str_bindToCallbackViewToModel ? str_bindToCallbackViewToModel : '';
 
+			bln_allowInsideEvent = !!(el_toBind.getProperty('data-lsjs-bindToAllowInsideEvents') ?? null);
+
 			if (bln_performDeregistration) {
 				this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 			} else {
-				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent);
 			}
 
 		}.bind(this));
@@ -1098,7 +1103,7 @@ var classdef_lsjs_module = {
 		}
 	},
 
-	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
+	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent) {
 		if (this.obj_registeredDataBindings[str_bindToModel] === undefined || this.obj_registeredDataBindings[str_bindToModel] === null) {
 			this.obj_registeredDataBindings[str_bindToModel] = {};
 		}
@@ -1135,9 +1140,9 @@ var classdef_lsjs_module = {
 				/* ->
 				 * !!! Important: !!!
 				 * Don't react on change events that did not originate on the bound element itself but another
-				 * element inside from which the event bubbled up!
+				 * element inside from which the event bubbled up - unless this is explicitly allowed!
 				 */
-				if (el_target !== el_toBind) {
+				if (!bln_allowInsideEvent && el_target !== el_toBind) {
 					return;
 				}
 				/*
@@ -1465,6 +1470,18 @@ var classdef_lsjs_module = {
 				var var_valueToSet = this.readData(str_registeredDataPath);
 				if (obj_binding.str_bindToTranslation) {
 					var_valueToSet = this[obj_binding.str_bindToTranslation](var_valueToSet, obj_binding.el_bound);
+					if (typeof var_valueToSet === 'undefined') {
+						/*
+						 * If there's a translation and this translation does not return anyhting, that means that
+						 * there's no value to set and therefore we return here in order to skip the attempt of
+						 * setting the bound element's value.
+						 *
+						 * Returning nothing is a way for the translation function to intentionally stop execution here.
+						 * This can be necessary/helpful if the translation does not only translate the value to write
+						 * but also writes the value to the bound element itself.
+						 */
+						return;
+					}
 				}
 				
 				/*
