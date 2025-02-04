@@ -1258,6 +1258,8 @@ var classdef_lsjs_module = {
 			str_bindToTranslation: str_bindToTranslation,
 			str_bindToTranslationViewToModel: str_bindToTranslationViewToModel,
 			str_bindToCallbackViewToModel: str_bindToCallbackViewToModel,
+			str_bindToEvent: str_bindToEvent,
+			bln_allowInsideEvent: bln_allowInsideEvent,
 			el_bound: el_toBind,
 			func_bound: func_bound
 		});
