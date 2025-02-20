@@ -30,6 +30,47 @@
  * <==
  */
 
+(function() {
+	function getPropertyList(element, property) {
+		return (element.getAttribute(property) || '').split(/\s+/).filter(Boolean);
+	}
+
+	// Only add the methods if they don't exist already
+	if (!Element.prototype.lsjs_addPropertyValue) {
+		Element.prototype.lsjs_addPropertyValue = function(property, value) {
+			let values = getPropertyList(this, property);
+			if (!values.includes(value)) {
+				values.push(value);
+				this.setAttribute(property, values.join(' '));
+			}
+			return this;
+		};
+	}
+
+	if (!Element.prototype.lsjs_removePropertyValue) {
+		Element.prototype.lsjs_removePropertyValue = function(property, value) {
+			let values = getPropertyList(this, property).filter(v => v !== value);
+			this.setAttribute(property, values.join(' '));
+			return this;
+		};
+	}
+
+	if (!Element.prototype.lsjs_togglePropertyValue) {
+		Element.prototype.lsjs_togglePropertyValue = function(property, value) {
+			return this.lsjs_hasPropertyValue(property, value)
+				? this.lsjs_removePropertyValue(property, value)
+				: this.lsjs_addPropertyValue(property, value);
+		};
+	}
+
+	if (!Element.prototype.lsjs_hasPropertyValue) {
+		Element.prototype.lsjs_hasPropertyValue = function(property, value) {
+			return getPropertyList(this, property).includes(value);
+		};
+	}
+})();
+
+
 /*
  * Request.cajax makes an ajax call and expects an html response with cajax elements
  * whose contents replace the contents of elements currently in the dom with
@@ -332,6 +373,56 @@ var classdef_lsjs_helpers = {
 };
 var class_lsjs_helpers = new Class(classdef_lsjs_helpers);
 
+var classdef_lsjs_hooks = {
+	registered_hooks: {},
+
+	registerHook: function(str_hook, func_hookedFunction, obj_properties) {
+        if (!this.registered_hooks[str_hook]) {
+            this.registered_hooks[str_hook] = [];
+        }
+
+        // Check if the function is already registered for this hook
+        const alreadyRegistered = this.registered_hooks[str_hook].some(
+            (hook) => hook.function === func_hookedFunction
+        );
+
+        // Only register if the function is not already registered
+        if (!alreadyRegistered) {
+			this.registered_hooks[str_hook].push({
+				function: func_hookedFunction,
+				properties: obj_properties || {},
+				order: obj_properties?.order ?? null // Use `null` for unordered hooks
+			});
+        }
+    },
+
+    callHook: function(str_hook, thisArg, ...args) {
+        if (this.registered_hooks[str_hook]) {
+            this.registered_hooks[str_hook].sort((a, b) => {
+                if (a.order === null && b.order === null) {
+                    return 0; // Both hooks are unordered; maintain registration order
+                } else if (a.order === null) {
+                    return 1; // Unordered hooks go last
+                } else if (b.order === null) {
+                    return -1; // Unordered hooks go last
+                }
+                return a.order - b.order; // Sort by order (ascending)
+            });
+
+            return this.registered_hooks[str_hook].map(
+				function(hook) {
+                    return hook.function.apply(thisArg, args);
+				},
+				this
+            ).filter(result => result !== undefined); // Remove undefined values
+		}
+        return [];
+	}
+};
+
+var class_lsjs_hooks = new Class(classdef_lsjs_hooks);
+
+
 var classdef_lsjs_apiInterface = {
 	str_apiUrl: '',
 	
@@ -386,6 +477,7 @@ var classdef_lsjs_apiInterface = {
 			onComplete: function(obj_response) {
 				if (obj_response === undefined || obj_response.status !== 'success') {
 					console.info('ajax/api request not successful');
+					obj_options.func_onFailure(obj_response, this);
 					return;
 				}
 				
@@ -516,6 +608,8 @@ var classdef_lsjs = {
 	apiInterface: new class_lsjs_apiInterface(),
 
 	helpers: new class_lsjs_helpers(),
+
+	hooks: new class_lsjs_hooks(),
 
 	obj_preferences: {
 		bln_activateUrlModificationInRequestCajax: false
@@ -887,6 +981,7 @@ var classdef_lsjs_module = {
 						var str_bindToModel = obj_binding.model;
 						var str_bindToPath = obj_binding.path !== undefined && obj_binding.path !== null ? obj_binding.path : '';
 						var str_bindToProperty = obj_binding.property !== undefined && obj_binding.property !== null ? obj_binding.property : '';
+						var str_bindToEvent = obj_binding.event !== undefined && obj_binding.event !== null ? obj_binding.event : 'change';
 
 						/*
 						 * use the new way to declare a binding translation but also accept the old way
@@ -902,10 +997,12 @@ var classdef_lsjs_module = {
 
 						var str_bindToCallbackViewToModel = obj_binding.callbackViewToModel !== undefined && obj_binding.callbackViewToModel !== null ? obj_binding.callbackViewToModel : '';
 
+						var bln_allowInsideEvent = !!(obj_binding.allowInsideEvents ?? null);
+
 						if (bln_performDeregistration) {
-							this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+							this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 						} else {
-							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+							this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent);
 						}
 					}.bind(this)
 				);
@@ -920,9 +1017,11 @@ var classdef_lsjs_module = {
 			var	str_bindToModel,
 				str_bindToPath,
 				str_bindToProperty,
+				str_bindToEvent,
 				str_bindToTranslation,
 				str_bindToTranslationViewToModel,
-				str_bindToCallbackViewToModel;
+				str_bindToCallbackViewToModel,
+				bln_allowInsideEvent;
 
 			str_bindToModel = el_toBind.getProperty('data-lsjs-bindToModel');
 
@@ -931,6 +1030,9 @@ var classdef_lsjs_module = {
 
 			str_bindToProperty = el_toBind.getProperty('data-lsjs-bindToProperty');
 			str_bindToProperty = str_bindToProperty ? str_bindToProperty : '';
+
+			str_bindToEvent = el_toBind.getProperty('data-lsjs-bindToEvent');
+			str_bindToEvent = str_bindToEvent ? str_bindToEvent : 'change';
 
 			/*
 			 * use the new way to declare a binding translation but also accept the old way
@@ -950,10 +1052,12 @@ var classdef_lsjs_module = {
 			str_bindToCallbackViewToModel = el_toBind.getProperty('data-lsjs-bindToCallbackViewToModel');
 			str_bindToCallbackViewToModel = str_bindToCallbackViewToModel ? str_bindToCallbackViewToModel : '';
 
+			bln_allowInsideEvent = !!(el_toBind.getProperty('data-lsjs-bindToAllowInsideEvents') ?? null);
+
 			if (bln_performDeregistration) {
-				this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+				this.deregisterSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
 			} else {
-				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel);
+				this.registerSingleDataBinding(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent);
 			}
 
 		}.bind(this));
@@ -963,7 +1067,7 @@ var classdef_lsjs_module = {
 		console.log('DEBUG BINDINGS: this.obj_registeredDataBindings', Object.clone(this.obj_registeredDataBindings));
 	},
 
-	deregisterSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
+	deregisterSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
 		if (this.obj_registeredDataBindings[str_bindToModel] === undefined || this.obj_registeredDataBindings[str_bindToModel] === null) {
 			return;
 		}
@@ -986,7 +1090,7 @@ var classdef_lsjs_module = {
 					 * If we remove the binding, we have to remove corresponding events as well
 					 */
 					if (obj_binding.func_bound !== null) {
-						el_toBind.removeEvent('change', obj_binding.func_bound);
+						el_toBind.removeEvent(str_bindToEvent, obj_binding.func_bound);
 					}
 				}
 
@@ -999,7 +1103,7 @@ var classdef_lsjs_module = {
 		}
 	},
 
-	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel) {
+	registerSingleDataBinding: function(el_toBind, str_bindToModel, str_bindToPath, str_bindToProperty, str_bindToEvent, str_bindToTranslation, str_bindToTranslationViewToModel, str_bindToCallbackViewToModel, bln_allowInsideEvent) {
 		if (this.obj_registeredDataBindings[str_bindToModel] === undefined || this.obj_registeredDataBindings[str_bindToModel] === null) {
 			this.obj_registeredDataBindings[str_bindToModel] = {};
 		}
@@ -1036,9 +1140,9 @@ var classdef_lsjs_module = {
 				/* ->
 				 * !!! Important: !!!
 				 * Don't react on change events that did not originate on the bound element itself but another
-				 * element inside from which the event bubbled up!
+				 * element inside from which the event bubbled up - unless this is explicitly allowed!
 				 */
-				if (el_target !== el_toBind) {
+				if (!bln_allowInsideEvent && el_target !== el_toBind) {
 					return;
 				}
 				/*
@@ -1154,12 +1258,14 @@ var classdef_lsjs_module = {
 			str_bindToTranslation: str_bindToTranslation,
 			str_bindToTranslationViewToModel: str_bindToTranslationViewToModel,
 			str_bindToCallbackViewToModel: str_bindToCallbackViewToModel,
+			str_bindToEvent: str_bindToEvent,
+			bln_allowInsideEvent: bln_allowInsideEvent,
 			el_bound: el_toBind,
 			func_bound: func_bound
 		});
 
 		if (func_bound !== null) {
-			el_toBind.addEvent('change', func_bound);
+			el_toBind.addEvent(str_bindToEvent, func_bound);
 		}
 
 		/*
@@ -1366,6 +1472,18 @@ var classdef_lsjs_module = {
 				var var_valueToSet = this.readData(str_registeredDataPath);
 				if (obj_binding.str_bindToTranslation) {
 					var_valueToSet = this[obj_binding.str_bindToTranslation](var_valueToSet, obj_binding.el_bound);
+					if (typeof var_valueToSet === 'undefined') {
+						/*
+						 * If there's a translation and this translation does not return anyhting, that means that
+						 * there's no value to set and therefore we return here in order to skip the attempt of
+						 * setting the bound element's value.
+						 *
+						 * Returning nothing is a way for the translation function to intentionally stop execution here.
+						 * This can be necessary/helpful if the translation does not only translate the value to write
+						 * but also writes the value to the bound element itself.
+						 */
+						return;
+					}
 				}
 				
 				/*
