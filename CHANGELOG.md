@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.2 (2025-02-20)
+ * fix SamSite attribute for unfold cookie
+
 ##### v3.1.1 (2024-11-26)
  * fix slider thumbnail
 
