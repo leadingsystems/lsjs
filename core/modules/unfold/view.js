@@ -212,7 +212,9 @@ var obj_classdef = 	{
 				Cookie.read(this.__models.options.data.str_cookieIdentifierName) !== 'open'
 			&&	Cookie.read(this.__models.options.data.str_cookieIdentifierName) !== 'closed'
 		) {
-			Cookie.write(this.__models.options.data.str_cookieIdentifierName, this.__models.options.data.str_initialCookieStatus ? this.__models.options.data.str_initialCookieStatus : this.str_toggleStatus);
+			Cookie.write(this.__models.options.data.str_cookieIdentifierName, this.__models.options.data.str_initialCookieStatus ? this.__models.options.data.str_initialCookieStatus : this.str_toggleStatus, {
+				sameSite: 'Lax'
+			});
 		}
 		if (this.str_toggleStatus != Cookie.read(this.__models.options.data.str_cookieIdentifierName)) {
 			this.bln_skipAnimation = true;
@@ -621,7 +623,9 @@ var obj_classdef = 	{
 		}
 		
 		if (this.__models.options.data.str_cookieIdentifierName) {
-			Cookie.write(this.__models.options.data.str_cookieIdentifierName, this.str_toggleStatus);
+			Cookie.write(this.__models.options.data.str_cookieIdentifierName, this.str_toggleStatus, {
+				sameSite: 'Lax'
+			});
 		}
 	},
 	

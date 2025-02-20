@@ -1513,6 +1513,26 @@ var classdef_lsjs_module = {
 };
 var class_lsjs_module = new Class(classdef_lsjs_module);
 
+
+	Cookie.write = function (key, value, options = {}) {
+		if (options.encode !== false) value = encodeURIComponent(value);
+		let cookieString = `${key}=${value}`;
+
+		if (options.domain) cookieString += `; domain=${options.domain}`;
+		if (options.path) cookieString += `; path=${options.path}`;
+		if (options.duration) {
+			let date = new Date();
+			date.setTime(date.getTime() + options.duration * 24 * 60 * 60 * 1000);
+			cookieString += `; expires=${date.toUTCString()}`;
+		}
+		if (options.secure) cookieString += `; Secure`;
+		if (options.httpOnly) cookieString += `; HttpOnly`;
+		if (options.sameSite) cookieString += '; SameSite=' + options.sameSite;
+
+		document.cookie = cookieString;
+	};
+
+
 if (window.lsjs === undefined || window.lsjs === null) {
 	window.lsjs = new class_lsjs();
 
