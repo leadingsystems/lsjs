@@ -172,14 +172,7 @@ var obj_classdef = 	{
                                 'pointer-events': 'none',
                             });
                         }
-                    }else {
-                        // Fallback
-                        el_navigationDot.set('html', '•'); // Einfacher Punkt als Fallback
                     }
-
-                } else {
-                    // Fallback
-                    el_navigationDot.set('html', '•'); // Einfacher Punkt als Fallback
                 }
 
                 this.els_navigationDots.push(el_navigationDot);
