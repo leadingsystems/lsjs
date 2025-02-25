@@ -155,16 +155,31 @@ var obj_classdef = 	{
             function(float_slideOffset, int_slideKey) {
                 var el_navigationDot = new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey);
 
-                var pictureElement = this.els_items[int_slideKey].getElementsByTagName('picture')[0].cloneNode(true)
-                el_navigationDot.append(pictureElement)
+                var slideElement = this.els_items[int_slideKey];
+                var contentContainer = slideElement.getElement('a');
 
+                if (contentContainer) {
+                    var firstChildElement = contentContainer ? contentContainer.getFirst() : null;
 
-                if (bln_useDotNavigationImages) {
-                    el_navigationDot.addClass('use-image');
+                    if (firstChildElement) {
 
-                    pictureElement.setStyles({
-                        'pointer-events': 'none'
-                    });
+                        var clonedElement = firstChildElement.cloneNode(true);
+                        el_navigationDot.append(clonedElement);
+
+                        if (bln_useDotNavigationImages) {
+                            el_navigationDot.addClass('use-image');
+                            clonedElement.setStyles({
+                                'pointer-events': 'none',
+                            });
+                        }
+                    }else {
+                        // Fallback
+                        el_navigationDot.set('html', '•'); // Einfacher Punkt als Fallback
+                    }
+
+                } else {
+                    // Fallback
+                    el_navigationDot.set('html', '•'); // Einfacher Punkt als Fallback
                 }
 
                 this.els_navigationDots.push(el_navigationDot);
