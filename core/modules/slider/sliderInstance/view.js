@@ -157,13 +157,12 @@ var obj_classdef = 	{
 
                 var slideElement = this.els_items[int_slideKey];
 
-		// Look for a picture or img element anywhere within the slide, prioritizing picture
-		var pictureElement = slideElement.querySelector('picture') || slideElement.querySelector('img');
+		        // Look for a picture or img element anywhere within the slide, prioritizing picture
+		        var pictureElement = slideElement.querySelector('picture') || slideElement.querySelector('img');
 
                 if (pictureElement) {
-		    var clonedElement = pictureElement.cloneNode(true);
+		            var clonedElement = pictureElement.cloneNode(true);
 
-                    var clonedElement = firstChildElement.cloneNode(true);
                     el_navigationDot.append(clonedElement);
 			
                     if (bln_useDotNavigationImages) {
