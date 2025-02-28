@@ -155,16 +155,22 @@ var obj_classdef = 	{
             function(float_slideOffset, int_slideKey) {
                 var el_navigationDot = new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey);
 
-                var pictureElement = this.els_items[int_slideKey].getElementsByTagName('picture')[0].cloneNode(true)
-                el_navigationDot.append(pictureElement)
+                var slideElement = this.els_items[int_slideKey];
 
+		        // Look for a picture or img element anywhere within the slide, prioritizing picture
+		        var pictureElement = slideElement.querySelector('picture') || slideElement.querySelector('img');
 
-                if (bln_useDotNavigationImages) {
-                    el_navigationDot.addClass('use-image');
+                if (pictureElement) {
+		            var clonedElement = pictureElement.cloneNode(true);
 
-                    pictureElement.setStyles({
-                        'pointer-events': 'none'
-                    });
+                    el_navigationDot.append(clonedElement);
+			
+                    if (bln_useDotNavigationImages) {
+                        el_navigationDot.addClass('use-image');
+                        clonedElement.setStyles({
+                            'pointer-events': 'none',
+                        });
+                    }
                 }
 
                 this.els_navigationDots.push(el_navigationDot);
