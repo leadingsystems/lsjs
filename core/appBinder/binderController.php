@@ -500,11 +500,18 @@ class lsjs_binderController {
         }
         $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
-
-        if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
-            $this->arr_pathToAppCustomization = $this->config['pathToAppCustomization'];
+        // This is for the old config
+        if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
+            $this->arr_pathToAppCustomization = [
+                $this->config['pathToApp']
+            ];
         } else {
             $this->arr_pathToAppCustomization = [];
+        }
+
+        if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
+
+            $this->arr_pathToAppCustomization = array_merge($this->arr_pathToAppCustomization, $this->config['pathToAppCustomization']);
         }
         $str_cacheStringRaw .= implode(',', $this->arr_pathToAppCustomization);
 
