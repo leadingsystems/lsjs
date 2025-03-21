@@ -30,7 +30,7 @@ class lsjs_binderController {
 	protected $str_pathToRenderedFile = '';
 
 	protected $arr_pathsToApps = '';
-	protected $arr_pathToCoreCustomization = '';
+	protected $arr_pathsToCoreCustomizations = '';
 	protected $str_pathForRenderedFiles = '';
 
 	protected $str_useBlackOrWhitelist = '';
@@ -63,7 +63,7 @@ class lsjs_binderController {
             self::c_str_pathToAppBinderBaseFiles,
             self::c_str_pathToCore,
             $this->arr_pathsToApps,
-            $this->arr_pathToCoreCustomization
+            $this->arr_pathsToCoreCustomizations
         ];
 
         $arr_pathHashes = [];
@@ -148,8 +148,8 @@ class lsjs_binderController {
         if ($this->bln_includeCoreModules) {
             $coreGroups = [];
             $coreGroups[] = $this->readModules(self::c_str_pathToCore . '/' . self::c_str_pathToModules);
-            if (!empty($this->arr_pathToCoreCustomization) && is_array($this->arr_pathToCoreCustomization)) {
-                foreach ($this->arr_pathToCoreCustomization as $customCorePath) {
+            if (!empty($this->arr_pathsToCoreCustomizations) && is_array($this->arr_pathsToCoreCustomizations)) {
+                foreach ($this->arr_pathsToCoreCustomizations as $customCorePath) {
                     $coreGroups[] = $this->readModules($customCorePath . '/' . self::c_str_pathToModules);
                 }
             }
@@ -517,12 +517,13 @@ class lsjs_binderController {
 
 
         if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
-            $this->arr_pathToCoreCustomization = $this->config['pathToCoreCustomization'];
+            $this->arr_pathsToCoreCustomizations = [
+                $this->config['pathToCoreCustomization']
+            ];
         }else{
-            $this->arr_pathToCoreCustomization = [];
+            $this->arr_pathsToCoreCustomizations = [];
         }
-        $str_cacheStringRaw .= implode(',', $this->arr_pathToCoreCustomization);
-
+        $str_cacheStringRaw .= implode(',', $this->arr_pathsToCoreCustomizations);
 
         if (isset($this->config['whitelist']) && $this->config['whitelist']) {
             $this->setModuleWhitelist($this->config['whitelist']);
