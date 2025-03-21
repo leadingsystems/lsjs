@@ -29,7 +29,7 @@ class lsjs_binderController {
 	
 	protected $str_pathToRenderedFile = '';
 
-	protected $arr_pathToAppCustomization = '';
+	protected $arr_pathsToApps = '';
 	protected $arr_pathToCoreCustomization = '';
 	protected $str_pathForRenderedFiles = '';
 
@@ -62,7 +62,7 @@ class lsjs_binderController {
         $arr_pathsToCheck = [
             self::c_str_pathToAppBinderBaseFiles,
             self::c_str_pathToCore,
-            $this->arr_pathToAppCustomization,
+            $this->arr_pathsToApps,
             $this->arr_pathToCoreCustomization
         ];
 
@@ -159,8 +159,8 @@ class lsjs_binderController {
         // App-Module
         if ($this->bln_includeAppModules) {
             $appGroups = [];
-            if (!empty($this->arr_pathToAppCustomization) && is_array($this->arr_pathToAppCustomization)) {
-                foreach ($this->arr_pathToAppCustomization as $customAppPath) {
+            if (!empty($this->arr_pathsToApps) && is_array($this->arr_pathsToApps)) {
+                foreach ($this->arr_pathsToApps as $customAppPath) {
                     $appGroups[] = $this->readModules($customAppPath . '/' . self::c_str_pathToModules);
                 }
             }
@@ -502,18 +502,18 @@ class lsjs_binderController {
 
         // This is for the old config
         if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
-            $this->arr_pathToAppCustomization = [
+            $this->arr_pathsToApps = [
                 $this->config['pathToApp']
             ];
         } else {
-            $this->arr_pathToAppCustomization = [];
+            $this->arr_pathsToApps = [];
         }
 
         if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
 
-            $this->arr_pathToAppCustomization = array_merge($this->arr_pathToAppCustomization, $this->config['pathToAppCustomization']);
+            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, $this->config['pathToAppCustomization']);
         }
-        $str_cacheStringRaw .= implode(',', $this->arr_pathToAppCustomization);
+        $str_cacheStringRaw .= implode(',', $this->arr_pathsToApps);
 
 
         if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
