@@ -501,6 +501,7 @@ class lsjs_binderController {
         $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
         // This is for the old config
+        // @toDo remove support for old config. Will be dealt with in the binder.
         if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
             $this->arr_pathsToApps = [
                 $this->config['pathToApp']
@@ -510,8 +511,7 @@ class lsjs_binderController {
         }
 
         if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
-
-            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, $this->config['pathToAppCustomization']);
+            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, [$this->config['pathToAppCustomization']]);
         }
         $str_cacheStringRaw .= implode(',', $this->arr_pathsToApps);
 
