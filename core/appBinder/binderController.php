@@ -29,8 +29,8 @@ class lsjs_binderController {
 	
 	protected $str_pathToRenderedFile = '';
 
-	protected $arr_pathsToApps = '';
-	protected $arr_pathsToCoreCustomizations = '';
+	protected $arr_pathsToApps = [];
+	protected $arr_pathsToCoreCustomizations = [];
 	protected $str_pathForRenderedFiles = '';
 
 	protected $str_useBlackOrWhitelist = '';
@@ -156,14 +156,23 @@ class lsjs_binderController {
             $this->arr_files['coreModuleFiles'] = $this->combineMultipleModuleFileArrays($coreGroups);
         }
 
-        // App-Module
+        // App Module
         if ($this->bln_includeAppModules) {
             $appGroups = [];
             if (!empty($this->arr_pathsToApps) && is_array($this->arr_pathsToApps)) {
                 foreach ($this->arr_pathsToApps as $customAppPath) {
+                    $potentialMainFilePath = $customAppPath . '/' . self::c_str_appFileName;
+
+                    // Check if the file exists before setting it
+                    if (file_exists($potentialMainFilePath)) {
+                        $this->arr_files['mainAppFile'] = $potentialMainFilePath;
+                    }
+
+                    // Read modules from this path and add them to the appGroups array
                     $appGroups[] = $this->readModules($customAppPath . '/' . self::c_str_pathToModules);
                 }
             }
+            // Combine modules from different paths
             $this->arr_files['appModuleFiles'] = $this->combineMultipleModuleFileArrays($appGroups);
         }
     }
@@ -483,6 +492,8 @@ class lsjs_binderController {
     protected function processParameters() {
         $str_cacheStringRaw = '';
 
+        //dump($this->config);
+
         if (isset($this->config['pathForRenderedFiles']) && $this->config['pathForRenderedFiles']) {
             $this->str_pathForRenderedFiles = $this->config['pathForRenderedFiles'];
         }
@@ -500,29 +511,38 @@ class lsjs_binderController {
         }
         $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
-        // This is for the old config
-        // @toDo remove support for old config. Will be dealt with in the binder.
-        if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
-            $this->arr_pathsToApps = [
-                $this->config['pathToApp']
-            ];
-        } else {
-            $this->arr_pathsToApps = [];
+        if (isset($this->config['pathsToApps']) && $this->config['pathsToApps']) {
+            $this->arr_pathsToApps = $this->config['pathsToApps'];
         }
 
+        // This block is for backward compatibility and can be safely removed - start
+        if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
+            trigger_error('pathToApp is deprecated use pathsToApps instead', E_USER_DEPRECATED);
+            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, [$this->config['pathToApp']]);
+        }
         if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
+            trigger_error('pathToAppCustomization is deprecated use pathsToCoreCustomizations instead', E_USER_DEPRECATED);
             $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, [$this->config['pathToAppCustomization']]);
         }
+        // This block is for backward compatibility and can be safely removed - end
+
         $str_cacheStringRaw .= implode(',', $this->arr_pathsToApps);
 
 
-        if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
-            $this->arr_pathsToCoreCustomizations = [
-                $this->config['pathToCoreCustomization']
-            ];
-        }else{
-            $this->arr_pathsToCoreCustomizations = [];
+        if (isset($this->config['pathsToCoreCustomizations']) && $this->config['pathsToCoreCustomizations']) {
+            $this->arr_pathsToCoreCustomizations = $this->config['pathsToCoreCustomizations'];
         }
+
+        // This block is for backward compatibility and can be safely removed - start
+        if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
+            trigger_error('pathToCoreCustomization is deprecated use pathsToCoreCustomizations instead', E_USER_DEPRECATED);
+            $this->arr_pathsToCoreCustomizations = array_merge( $this->arr_pathsToCoreCustomizations, [
+                $this->config['pathToCoreCustomization']
+            ]);
+        }
+        // This block is for backward compatibility and can be safely removed - end
+
+
         $str_cacheStringRaw .= implode(',', $this->arr_pathsToCoreCustomizations);
 
         if (isset($this->config['whitelist']) && $this->config['whitelist']) {
