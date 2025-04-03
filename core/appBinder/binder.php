@@ -20,13 +20,23 @@ class lsjs_binder {
 
     public function run()
     {
+        $pathToApp = isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null;
+        $pathToAppCustomization = isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToAppCustomization']) : null;
+        $arr_pathsToApps = [$pathToApp, $pathToAppCustomization];
+        $arr_pathsToCoreCustomizations = [isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToCoreCustomization']) : null];
+
         $this->arr_config = [
             'debug' => $_GET['debug'] ?? null,
             'no-minifier' => $_GET['no-minifier'] ?? null,
             'pathForRenderedFiles' => (isset($_GET['pathForRenderedFiles']) && $_GET['pathForRenderedFiles'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathForRenderedFiles']) : null),
-            'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null),
-            'pathToAppCustomization' => (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToAppCustomization']) : null),
-            'pathToCoreCustomization' => (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToCoreCustomization']) : null),
+
+//            'pathToApp' => (isset($_GET['pathToApp']) && $_GET['pathToApp'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToApp']) : null),
+//            'pathToAppCustomization' => (isset($_GET['pathToAppCustomization']) && $_GET['pathToAppCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToAppCustomization']) : null),
+//            'pathToCoreCustomization' => (isset($_GET['pathToCoreCustomization']) && $_GET['pathToCoreCustomization'] ? $this->replaceDirectoryUpAbbreviationAndGetAbsolutePath($_GET['pathToCoreCustomization']) : null),
+
+            'pathsToApps' => $arr_pathsToApps,
+            'pathsToCoreCustomizations' => $arr_pathsToCoreCustomizations,
+
             'whitelist' => $_GET['whitelist'] ?? null,
             'blacklist' => $_GET['blacklist'] ?? null,
             'includeCore' => $_GET['includeCore'] ?? null,
