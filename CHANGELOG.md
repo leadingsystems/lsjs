@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.4 (2025-04-03)
+ * add new cajaxMode "updateByAttribute"
+
 ##### v3.1.3 (2025-02-28)
  * fix slider thumbnail
 
