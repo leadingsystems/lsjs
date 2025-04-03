@@ -221,9 +221,13 @@ Request.cajax = new Class({
 		var els_updated = el_temp.getChildren();
 		
 		var els_toPassToOnSuccess = new Elements();
+
+		if (this.options.cajaxMode === 'updateByAttribute' && !this.options.attributeForUpdateTargetDetection) {
+			console.error('cajaxMode is "updateByAttribute" but no attribute is specified');
+		}
 		
 		Array.each(els_updated, function(el_updated) {
-			if ($(el_updated.getProperty('id')) === null) {
+			if (this.options.cajaxMode !== 'updateByAttribute' && $(el_updated.getProperty('id')) === null) {
 				console.info('cajax response contains elements without IDs, which therefore can\'t be considered for content updates:')
 				console.log(el_updated);
 				return;
@@ -250,6 +254,21 @@ Request.cajax = new Class({
 
 				case 'append':
 					$(el_updated.getProperty('id')).adopt(el_updated.childNodes);
+					break;
+
+				case 'updateByAttribute':
+					const attributeValue = el_updated.getAttribute(this.options.attributeForUpdateTargetDetection);
+
+					if (!attributeValue) {
+						console.info('cajax response element without the attribute "' + this.options.attributeForUpdateTargetDetection + '" or an empty value for this attribute can\'t be considered for content updates:', el_updated)
+						return;
+					}
+
+					document.querySelectorAll('[' + this.options.attributeForUpdateTargetDetection + ']').forEach(targetElement => {
+						if (targetElement !== el_updated && targetElement.getAttribute(this.options.attributeForUpdateTargetDetection) === attributeValue) {
+							targetElement.empty().adopt(el_updated.clone().childNodes);
+						}
+					});
 					break;
 			}
 		}.bind(this));
