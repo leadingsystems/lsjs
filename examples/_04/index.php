@@ -22,7 +22,8 @@ $arr_appArguments = [
     'no-minifier' => 1,
     'pathForRenderedFiles' => __DIR__ . '/renderedFiles',
     'pathsToApps' => [
-            __DIR__ . '/app'
+            __DIR__ . '/app',
+            __DIR__ . '/app2'
     ],
     'pathsToCoreCustomizations' => null,
     'whitelist' => null,

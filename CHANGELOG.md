@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.5 (2025-04-11)
+ * add feature multi app
+
 ##### v3.1.4 (2025-04-03)
  * add new cajaxMode "updateByAttribute"
 
