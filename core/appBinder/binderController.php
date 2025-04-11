@@ -29,9 +29,8 @@ class lsjs_binderController {
 	
 	protected $str_pathToRenderedFile = '';
 
-	protected $str_pathToApp = '';
-	protected $str_pathToAppCustomization = '';
-	protected $str_pathToCoreCustomization = '';
+	protected $arr_pathsToApps = [];
+	protected $arr_pathsToCoreCustomizations = [];
 	protected $str_pathForRenderedFiles = '';
 
 	protected $str_useBlackOrWhitelist = '';
@@ -63,22 +62,31 @@ class lsjs_binderController {
         $arr_pathsToCheck = [
             self::c_str_pathToAppBinderBaseFiles,
             self::c_str_pathToCore,
-            $this->str_pathToApp,
-            $this->str_pathToAppCustomization,
-            $this->str_pathToCoreCustomization
+            $this->arr_pathsToApps,
+            $this->arr_pathsToCoreCustomizations
         ];
 
         $arr_pathHashes = [];
 
-        foreach ($arr_pathsToCheck as $str_pathToCheck) {
-            $str_pathToCheck = trim($str_pathToCheck);
-            if (empty($str_pathToCheck)) {
-                continue;
+        foreach ($arr_pathsToCheck as $var_pathToCheck) {
+            if (is_array($var_pathToCheck)) {
+                foreach ($var_pathToCheck as $str_path) {
+                    $this->processPath($str_path, $arr_pathHashes);
+                }
+            } else {
+                $this->processPath($var_pathToCheck, $arr_pathHashes);
             }
-            $arr_pathHashes[] = $this->hashDir($str_pathToCheck);
         }
 
         return md5(implode('', $arr_pathHashes) . $str_additionalStringToHash);
+    }
+
+    private function processPath($str_path, &$arr_pathHashes)
+    {
+        $str_path = trim($str_path);
+        if (!empty($str_path)) {
+            $arr_pathHashes[] = $this->hashDir($str_path);
+        }
     }
 
 	private function render()
@@ -125,132 +133,104 @@ class lsjs_binderController {
 	public function getJS() {
         return file_get_contents($this->str_pathToRenderedFile);
 	}
-	
-	protected function readAllFiles() {
-		if ($this->bln_includeCore) {
-			$this->arr_files['mainCoreFiles'] = array(
-				'lsjs' => self::c_str_pathToCore.'/'.self::c_str_lsjsFileName,
-				'lsjs_templateHandler' => self::c_str_pathToCore.'/'.self::c_str_lsjsTemplateHandlerFileName,
-				'ls_version' => self::c_str_pathToCore.'/'.self::c_str_lsVersionFileName
-			);
-		}
 
-		if ($this->bln_includeCoreModules) {
-			$this->arr_files['coreModuleFiles_original'] = $this->readModules(self::c_str_pathToCore.'/'.self::c_str_pathToModules);
-			$this->arr_files['coreModuleFiles_customization'] =
-					$this->str_pathToCoreCustomization
-				?	$this->readModules($this->str_pathToCoreCustomization.'/'.self::c_str_pathToModules)
-				:	array();
-			$this->arr_files['coreModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles('core');
-		}
+    protected function readAllFiles() {
 
-		if (!file_exists($this->str_pathToApp)) {
-			return;
-		}
+        if ($this->bln_includeCore) {
+            $this->arr_files['mainCoreFiles'] = array(
+                'lsjs' => self::c_str_pathToCore . '/' . self::c_str_lsjsFileName,
+                'lsjs_templateHandler' => self::c_str_pathToCore . '/' . self::c_str_lsjsTemplateHandlerFileName,
+                'ls_version' => self::c_str_pathToCore . '/' . self::c_str_lsVersionFileName
+            );
+        }
 
-		if ($this->bln_includeApp) {
-			$this->arr_files['mainAppFile'] = $this->str_pathToAppCustomization && file_exists($this->str_pathToAppCustomization.'/'.self::c_str_appFileName) ? $this->str_pathToAppCustomization.'/'.self::c_str_appFileName : $this->str_pathToApp.'/'.self::c_str_appFileName;
-		}
-		
-		if ($this->bln_includeAppModules) {
-			$this->arr_files['appModuleFiles_original'] = $this->readModules($this->str_pathToApp.'/'.self::c_str_pathToModules);
-			$this->arr_files['appModuleFiles_customization'] = $this->str_pathToAppCustomization ? $this->readModules($this->str_pathToAppCustomization . '/' . self::c_str_pathToModules) : array();
+        // Core-Module
+        if ($this->bln_includeCoreModules) {
+            $coreGroups = [];
+            $coreGroups[] = $this->readModules(self::c_str_pathToCore . '/' . self::c_str_pathToModules);
+            if (!empty($this->arr_pathsToCoreCustomizations) && is_array($this->arr_pathsToCoreCustomizations)) {
+                foreach ($this->arr_pathsToCoreCustomizations as $customCorePath) {
+                    $coreGroups[] = $this->readModules($customCorePath . '/' . self::c_str_pathToModules);
+                }
+            }
+            $this->arr_files['coreModuleFiles'] = $this->combineMultipleModuleFileArrays($coreGroups);
+        }
 
-			$this->arr_files['appModuleFiles'] = $this->combineOriginalAndCustomizationModuleFiles();
-		}
-	}
+        // App Module
+        if ($this->bln_includeAppModules) {
+            $appGroups = [];
+            if (!empty($this->arr_pathsToApps) && is_array($this->arr_pathsToApps)) {
+                foreach ($this->arr_pathsToApps as $customAppPath) {
+                    $potentialMainFilePath = $customAppPath . '/' . self::c_str_appFileName;
+
+                    // Check if the file exists before setting it
+                    if (file_exists($potentialMainFilePath)) {
+                        $this->arr_files['mainAppFile'] = $potentialMainFilePath;
+                    }
+
+                    // Read modules from this path and add them to the appGroups array
+                    $appGroups[] = $this->readModules($customAppPath . '/' . self::c_str_pathToModules);
+                }
+            }
+            // Combine modules from different paths
+            $this->arr_files['appModuleFiles'] = $this->combineMultipleModuleFileArrays($appGroups);
+        }
+    }
+
 
 	/*
 	 * the original module files array and the "customization module files" array have to be combined in such a way
 	 * that the resulting array contains all modules that are defined in the two input array and that the content
 	 * of the "customization module files" array is prioritized if there are overlaps.
 	 */
-	protected function combineOriginalAndCustomizationModuleFiles($str_mode = 'app') {
-		$arr_combinedModuleFiles = $str_mode === 'app' ? $this->arr_files['appModuleFiles_original'] : $this->arr_files['coreModuleFiles_original'];
-		foreach (($str_mode === 'app' ? $this->arr_files['appModuleFiles_customization'] : $this->arr_files['coreModuleFiles_customization']) as $str_moduleName => $arr_customizationModuleFiles) {
-			/*
-			 * If there's a module defined in the customization files array that does not exist in the original files
-			 * array, then we add it as a whole ...
-			 */
-			if (!key_exists($str_moduleName, $arr_combinedModuleFiles)) {
-				$arr_combinedModuleFiles[$str_moduleName] = $arr_customizationModuleFiles;
-			}
+    protected function combineMultipleModuleFileArrays(array $groups)
+    {
+        $combined = [];
 
-			/*
-			 * ... but if the original files array already defines this module, we have to combine the module files
-			 * and prioritize module files contained in the customization files array while still keeping files from
-			 * the original files array that are not overriden by the customization files array.
-			 */
-			else {
-				if ($arr_customizationModuleFiles['viewFile']) {
-					$arr_combinedModuleFiles[$str_moduleName]['viewFile'] = $arr_customizationModuleFiles['viewFile'];
-				}
+        // Durchlaufe die Gruppen in der Reihenfolge der Priorität:
+        foreach ($groups as $group) {
+            foreach ($group as $moduleName => $moduleFiles) {
+                // Existiert das Modul noch nicht in der kombinierten Liste, einfach hinzufügen:
+                if (!isset($combined[$moduleName])) {
+                    $combined[$moduleName] = $moduleFiles;
+                }
+                // Existiert das Modul bereits, dann einzelne Datei-Typen zusammenführen:
+                else {
+                    // Bei einfachen Dateien: Falls in der aktuellen Gruppe ein Wert gesetzt ist,
+                    // überschreibe den bereits vorhandenen Wert.
+                    if (!empty($moduleFiles['viewFile'])) {
+                        $combined[$moduleName]['viewFile'] = $moduleFiles['viewFile'];
+                    }
+                    if (!empty($moduleFiles['controllerFile'])) {
+                        $combined[$moduleName]['controllerFile'] = $moduleFiles['controllerFile'];
+                    }
 
-				if ($arr_customizationModuleFiles['controllerFile']) {
-					$arr_combinedModuleFiles[$str_moduleName]['controllerFile'] = $arr_customizationModuleFiles['controllerFile'];
-				}
+                    // Für Dateilisten (z.B. Templates, Models) – kombiniere unter Beachtung der Priorität.
+                    $combined[$moduleName]['templateFiles'] = $this->mergeFileLists(
+                        $combined[$moduleName]['templateFiles'],
+                        $moduleFiles['templateFiles']
+                    );
+                    $combined[$moduleName]['modelFiles'] = $this->mergeFileLists(
+                        $combined[$moduleName]['modelFiles'],
+                        $moduleFiles['modelFiles']
+                    );
+                }
+            }
+        }
+        return $combined;
+    }
 
-				$arr_combinedModuleFiles[$str_moduleName]['templateFiles'] = $this->combineOriginalAndCustomizationFileArrays(
-					$arr_combinedModuleFiles[$str_moduleName]['templateFiles'],
-					$arr_customizationModuleFiles['templateFiles'],
-					$str_mode
-				);
+    protected function mergeFileLists(array $highPriority, array $lowPriority)
+    {
+        $merged = $highPriority;
+        foreach ($lowPriority as $file) {
+            if (!in_array($file, $merged)) {
+                $merged[] = $file;
+            }
+        }
+        return $merged;
+    }
 
-				$arr_combinedModuleFiles[$str_moduleName]['modelFiles'] = $this->combineOriginalAndCustomizationFileArrays(
-					$arr_combinedModuleFiles[$str_moduleName]['modelFiles'],
-					$arr_customizationModuleFiles['modelFiles'],
-					$str_mode
-				);
-			}
-		}
-		return $arr_combinedModuleFiles;
-	}
-
-	protected function combineOriginalAndCustomizationFileArrays($arr_original, $arr_customization, $str_mode = 'app') {
-		$arr_keysOfPositionsAlreadyDealtWith = array();
-
-		$str_customizationPathToUse = $str_mode === 'app' ? $this->str_pathToAppCustomization : $this->str_pathToCoreCustomization;
-		$str_originalPathToUse = $str_mode === 'app' ? $this->str_pathToApp : self::c_str_pathToCore;
-
-		$arr_combined = $arr_original;
-		/*
-		 * Remove the front part of the file paths, which is different for the original files and the
-		 * customization files, in order make the two arrays more easily comparable.
-		 */
-		array_walk(
-			$arr_combined,
-			function(&$str_filename) use ($str_originalPathToUse) {
-				$str_filename = str_replace($str_originalPathToUse, '', $str_filename);
-			}
-		);
-
-		array_walk(
-			$arr_customization,
-			function(&$str_filename) use ($str_customizationPathToUse) {
-				$str_filename = str_replace($str_customizationPathToUse, '', $str_filename);
-			}
-		);
-
-		foreach ($arr_customization as $str_customizationFilename) {
-			$int_keyForPositionToReplace = array_search($str_customizationFilename, $arr_combined);
-			if ($int_keyForPositionToReplace !== false) {
-				$arr_combined[$int_keyForPositionToReplace] = $str_customizationPathToUse.$str_customizationFilename;
-				$arr_keysOfPositionsAlreadyDealtWith[] = $int_keyForPositionToReplace;
-			} else {
-				$arr_combined[] = $str_customizationPathToUse.$str_customizationFilename;
-				$arr_keysOfPositionsAlreadyDealtWith[] = count($arr_combined) - 1;
-			}
-		}
-
-		foreach ($arr_combined as $int_key => $str_filename) {
-			if (!in_array($int_key, $arr_keysOfPositionsAlreadyDealtWith)) {
-				$arr_combined[$int_key] = $str_originalPathToUse.$str_filename;
-			}
-		}
-
-		return $arr_combined;
-	}
-	
 	protected function readCssFiles() {
 		$this->readAllFiles();
 	}
@@ -523,30 +503,42 @@ class lsjs_binderController {
         }
         $str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
 
-
         if (isset($this->config['no-minifier']) && $this->config['no-minifier']) {
             $this->bln_useMinifier = false;
         }
         $str_cacheStringRaw .= $this->bln_useMinifier ? '1' : '0';
 
+        if (isset($this->config['pathsToApps']) && $this->config['pathsToApps']) {
+            $this->arr_pathsToApps = $this->config['pathsToApps'];
+        }
 
+        // This block is for backward compatibility and can be safely removed - start
         if (isset($this->config['pathToApp']) && $this->config['pathToApp']) {
-            $this->str_pathToApp = $this->config['pathToApp'];
+            trigger_error('pathToApp is deprecated use pathsToApps instead', E_USER_DEPRECATED);
+            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, [$this->config['pathToApp']]);
         }
-        $str_cacheStringRaw .= $this->str_pathToApp;
-
-
         if (isset($this->config['pathToAppCustomization']) && $this->config['pathToAppCustomization']) {
-            $this->str_pathToAppCustomization = $this->config['pathToAppCustomization'];
+            trigger_error('pathToAppCustomization is deprecated use pathsToCoreCustomizations instead', E_USER_DEPRECATED);
+            $this->arr_pathsToApps = array_merge($this->arr_pathsToApps, [$this->config['pathToAppCustomization']]);
         }
-        $str_cacheStringRaw .= $this->str_pathToAppCustomization;
+        // This block is for backward compatibility and can be safely removed - end
 
+        $str_cacheStringRaw .= implode(',', $this->arr_pathsToApps);
 
+        if (isset($this->config['pathsToCoreCustomizations']) && $this->config['pathsToCoreCustomizations']) {
+            $this->arr_pathsToCoreCustomizations = $this->config['pathsToCoreCustomizations'];
+        }
+
+        // This block is for backward compatibility and can be safely removed - start
         if (isset($this->config['pathToCoreCustomization']) && $this->config['pathToCoreCustomization']) {
-            $this->str_pathToCoreCustomization = $this->config['pathToCoreCustomization'];
+            trigger_error('pathToCoreCustomization is deprecated use pathsToCoreCustomizations instead', E_USER_DEPRECATED);
+            $this->arr_pathsToCoreCustomizations = array_merge( $this->arr_pathsToCoreCustomizations, [
+                $this->config['pathToCoreCustomization']
+            ]);
         }
-        $str_cacheStringRaw .= $this->str_pathToCoreCustomization;
+        // This block is for backward compatibility and can be safely removed - end
 
+        $str_cacheStringRaw .= implode(',', $this->arr_pathsToCoreCustomizations);
 
         if (isset($this->config['whitelist']) && $this->config['whitelist']) {
             $this->setModuleWhitelist($this->config['whitelist']);
@@ -554,7 +546,6 @@ class lsjs_binderController {
         } else {
             $str_cacheStringRaw .= '-no-whitelist-';
         }
-
 
         if (isset($this->config['blacklist']) && $this->config['blacklist']) {
             $this->setModuleBlacklist($this->config['blacklist']);
