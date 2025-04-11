@@ -492,8 +492,6 @@ class lsjs_binderController {
     protected function processParameters() {
         $str_cacheStringRaw = '';
 
-        //dump($this->config);
-
         if (isset($this->config['pathForRenderedFiles']) && $this->config['pathForRenderedFiles']) {
             $this->str_pathForRenderedFiles = $this->config['pathForRenderedFiles'];
         }
@@ -504,7 +502,6 @@ class lsjs_binderController {
             $this->bln_debugMode = true;
         }
         $str_cacheStringRaw .= $this->bln_debugMode ? '1' : '0';
-
 
         if (isset($this->config['no-minifier']) && $this->config['no-minifier']) {
             $this->bln_useMinifier = false;
@@ -528,7 +525,6 @@ class lsjs_binderController {
 
         $str_cacheStringRaw .= implode(',', $this->arr_pathsToApps);
 
-
         if (isset($this->config['pathsToCoreCustomizations']) && $this->config['pathsToCoreCustomizations']) {
             $this->arr_pathsToCoreCustomizations = $this->config['pathsToCoreCustomizations'];
         }
@@ -542,7 +538,6 @@ class lsjs_binderController {
         }
         // This block is for backward compatibility and can be safely removed - end
 
-
         $str_cacheStringRaw .= implode(',', $this->arr_pathsToCoreCustomizations);
 
         if (isset($this->config['whitelist']) && $this->config['whitelist']) {
@@ -551,7 +546,6 @@ class lsjs_binderController {
         } else {
             $str_cacheStringRaw .= '-no-whitelist-';
         }
-
 
         if (isset($this->config['blacklist']) && $this->config['blacklist']) {
             $this->setModuleBlacklist($this->config['blacklist']);
