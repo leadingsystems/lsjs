@@ -20,25 +20,25 @@ lsjs.__moduleHelpers[str_moduleName] = {
 
 		arr_libraries.forEach(function(libEntry) {
 			if (typeof libEntry === 'string' && libEntry.trim().startsWith('<script')) {
-				// Analysiere das Script-Tag
+				// Analyze the script tag
 				var temp = document.createElement('div');
 				temp.innerHTML = libEntry.trim();
 				var oldScript = temp.querySelector('script');
 				if (oldScript) {
 					var newScript = document.createElement('script');
 
-					// Alle Attribute übertragen (z.B. src, type, etc.)
+					// Transfer all attributes (e.g. src, type, etc.)
 					for (var i = 0; i < oldScript.attributes.length; i++) {
 						var attr = oldScript.attributes[i];
 						newScript.setAttribute(attr.name, attr.value);
 					}
 
-					// Wenn Inline-JS: Inhalt übertragen
+					// If inline JS: transfer content
 					if (!newScript.src) {
 						newScript.text = oldScript.textContent;
 					}
 
-					// Events wie vorher
+					// Events as before
 					newScript.onload = function() {
 						console.log('Library loaded:', newScript.src || '[inline-script]');
 						self.arr_loadedLibraries.push(newScript.src || '[inline-script]');
@@ -48,13 +48,13 @@ lsjs.__moduleHelpers[str_moduleName] = {
 
 					document.head.appendChild(newScript);
 
-					// Das onload-Event feuert nur bei externen Scripts
+					// The onload event only fires for external scripts
 					if (!newScript.src) {
 						newScript.onload();
 					}
 				}
 			} else {
-				// Normale Handhabung wie bisher
+				// Normal handling as before
 				var script = document.createElement('script');
 				script.src = libEntry;
 				script.onload = function() {
@@ -67,7 +67,7 @@ lsjs.__moduleHelpers[str_moduleName] = {
 			}
 		});
 
-		// Warte auf DOM Ready
+		// Wait for DOM Ready
 		if (document.readyState === "complete" || document.readyState === "interactive") {
 			self.domReady = true;
 			self.checkAllLoaded();
