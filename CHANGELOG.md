@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.6 (2025-05-13)
+ * add modul "libraryLoader"
+
 ##### v3.1.5 (2025-04-11)
  * add feature multi app
 
