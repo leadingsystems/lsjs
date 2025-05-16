@@ -143,6 +143,18 @@
 		}
 	});
 	window.addEvent('domready', function(el_domReference) {
+		var arr_libraries = [];
+
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					console.log(lsjs.__moduleHelpers[key].getLibraryToLoad())
+					arr_libraries.push(... lsjs.__moduleHelpers[key].getLibraryToLoad())
+				}
+			}
+		}
+
+		lsjs.__moduleHelpers.libraryLoader.start(arr_libraries);
 
 		for (const key in lsjs.__moduleHelpers) {
 			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
