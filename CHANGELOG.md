@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.7 (2025-05-16)
+ * extend modul "libraryLoader"
+
 ##### v3.1.6 (2025-05-13)
  * add modul "libraryLoader"
 
