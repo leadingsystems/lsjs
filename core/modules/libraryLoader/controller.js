@@ -1,94 +1,178 @@
 (function() {
 	
-// ### ENTER MODULE NAME HERE ######
-var str_moduleName = '__moduleName__';
-// #################################
+	// ### ENTER MODULE NAME HERE ######
+	var str_moduleName = '__moduleName__';
+	// #################################
 
 
-lsjs.__moduleHelpers[str_moduleName] = {
-	self: null,
-	arr_loadedLibraries: [],
-	arr_totalLibraries: [],
-	domReady: false,
-	
-	start: function(arr_libraries) {
+	lsjs.__moduleHelpers[str_moduleName] = {
+		self: null,
+		arr_loadedLibraries: [],
+		arr_totalLibraries: [],
+		domReady: false,
+		_currentIndex: 0,
 
+		start: function(arr_libraries) {
+			this.arr_totalLibraries = arr_libraries;
+			this.arr_loadedLibraries = [];
+			this._currentIndex = 0;
+			var self = this;
 
-		this.arr_totalLibraries = arr_libraries;
+			if (this.arr_totalLibraries.length > 0) {
+				this._loadNextScript();
+			} else {
+				this._checkDomAndFinalize();
+			}
 
-		var self = this;
+			if (document.readyState === "complete" || document.readyState === "interactive") {
+				self.domReady = true;
+				self._checkDomAndFinalize();
+			} else {
+				document.addEventListener('DOMContentLoaded', function() {
+					self.domReady = true;
+					self._checkDomAndFinalize();
+				});
+			}
+		},
 
-		arr_libraries.forEach(function(libEntry) {
+		_loadNextScript: function() {
+			var self = this;
+
+			if (this._currentIndex >= this.arr_totalLibraries.length) {
+				this._checkDomAndFinalize();
+				return;
+			}
+
+			var libEntry = this.arr_totalLibraries[this._currentIndex];
+
+			var scriptLoadHandler = function() {
+				var loadedIdentifier = this.src || (this.dataset ? this.dataset.originalSrc : null) || '[inline-script]';
+
+				self.arr_loadedLibraries.push(loadedIdentifier);
+				window.fireEvent('libraryLoaded', loadedIdentifier);
+
+				self._currentIndex++;
+				self._loadNextScript();
+			};
+
+			var scriptErrorHandler = function() {
+				var errorIdentifier = this.src || (this.dataset ? this.dataset.originalSrc : null) || '[inline-script-error]';
+				console.error('Error loading library:', errorIdentifier);
+				// Push library to Error loaded because we check later how much are in this array see: _checkDomAndFinalize
+				self.arr_loadedLibraries.push('[ERROR] ' + errorIdentifier);
+
+				self._currentIndex++;
+				self._loadNextScript();
+			};
+
 			if (typeof libEntry === 'string' && libEntry.trim().startsWith('<script')) {
-				// Analyze the script tag
 				var temp = document.createElement('div');
 				temp.innerHTML = libEntry.trim();
 				var oldScript = temp.querySelector('script');
 				if (oldScript) {
 					var newScript = document.createElement('script');
-
-					// Transfer all attributes (e.g. src, type, etc.)
 					for (var i = 0; i < oldScript.attributes.length; i++) {
 						var attr = oldScript.attributes[i];
-						newScript.setAttribute(attr.name, attr.value);
+						if (attr.name.toLowerCase() !== 'onload' && attr.name.toLowerCase() !== 'onerror') {
+							newScript.setAttribute(attr.name, attr.value);
+						}
 					}
-
-					// If inline JS: transfer content
 					if (!newScript.src) {
 						newScript.text = oldScript.textContent;
 					}
+					newScript.dataset.originalSrc = oldScript.src || '[inline-script-' + this._currentIndex + ']';
 
-					// Events as before
-					newScript.onload = function() {
-						console.log('Library loaded:', newScript.src || '[inline-script]');
-						self.arr_loadedLibraries.push(newScript.src || '[inline-script]');
-						window.fireEvent('libraryLoaded', newScript.src || '[inline-script]');
-						self.checkAllLoaded();
-					};
-
+					newScript.onload = scriptLoadHandler;
+					newScript.onerror = scriptErrorHandler;
 					document.head.appendChild(newScript);
 
-					// The onload event only fires for external scripts
 					if (!newScript.src) {
-						newScript.onload();
+						setTimeout(function() {
+							if (typeof newScript.onload === 'function') {
+								newScript.onload();
+							}
+						}, 0);
 					}
+				} else {
+					console.error('Could not parse script tag:', libEntry);
+					return;
 				}
 			} else {
-				// Normal handling as before
 				var script = document.createElement('script');
 				script.src = libEntry;
-				script.onload = function() {
-					console.log('Library loaded:', libEntry);
-					self.arr_loadedLibraries.push(libEntry);
-					window.fireEvent('libraryLoaded', libEntry);
-					self.checkAllLoaded();
-				};
+				script.dataset.originalSrc = libEntry;
+				script.onload = scriptLoadHandler;
+				script.onerror = scriptErrorHandler;
 				document.head.appendChild(script);
 			}
-		});
+		},
 
-		// Wait for DOM Ready
-		if (document.readyState === "complete" || document.readyState === "interactive") {
-			self.domReady = true;
-			self.checkAllLoaded();
-		} else {
-			document.addEventListener('DOMContentLoaded', function() {
-				self.domReady = true;
-				self.checkAllLoaded();
-			});
+		_checkDomAndFinalize: function() {
+			if (this.domReady && this._currentIndex >= this.arr_totalLibraries.length) {
+				this.checkAllLoaded();
+			}
+		},
+
+		checkAllLoaded: function() {
+			if (typeof window.fireEvent === 'function') {
+				window.fireEvent('librariesLoadedAndDomReady');
+			} else {
+				console.warn("window.fireEvent nicht definiert.");
+			}
+		}
+	};
+
+	window.addEvent('libraryLoaded', function(el_domReference) {
+
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					lsjs.__moduleHelpers[key].onLibraryLoaded(el_domReference);
+				}
+			}
+		}
+	});
+	window.addEvent('librariesLoadedAndDomReady', function(el_domReference) {
+
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					lsjs.__moduleHelpers[key].onLibrariesLoadedAndDomReady(el_domReference);
+				}
+			}
+		}
+	});
+	window.addEvent('domready', function(el_domReference) {
+		var arr_libraries = [];
+
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					console.log(lsjs.__moduleHelpers[key].getLibraryToLoad())
+					arr_libraries.push(... lsjs.__moduleHelpers[key].getLibraryToLoad())
+				}
+			}
 		}
 
+		lsjs.__moduleHelpers.libraryLoader.start(arr_libraries);
 
-
-	},
-
-	checkAllLoaded: function() {
-		if (this.domReady && this.arr_loadedLibraries.length === this.arr_totalLibraries.length) {
-			console.log("Alle Libraries geladen und DOM bereit.");
-			window.fireEvent('librariesLoadedAndDomReady');
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					lsjs.__moduleHelpers[key].onDomReady(el_domReference);
+				}
+			}
 		}
-	}
-};
+	});
+	window.addEvent('cajax_domUpdate', function(el_domReference) {
 
+		for (const key in lsjs.__moduleHelpers) {
+			if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+				if (key.startsWith("customCode")) {
+					lsjs.__moduleHelpers[key].onCajaxDomUpdate(el_domReference);
+				}
+			}
+		}
+	});
 
 })();
