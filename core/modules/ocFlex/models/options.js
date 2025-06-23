@@ -15,6 +15,13 @@ var obj_classdef_model = {
 			str_ocTogglerSelector: '', // This selector may match multiple elements
 
 			/*
+			 * selector for an element holding content that should be dynamically moved to an auto-generated
+			 * oc container when it is being opened and moved back to its original position when the container
+			 * is being closed.
+			 */
+			str_ocContentSelector: '', // This selector must only match exactly one element
+
+			/*
 			 * Each instance of this module must have a unique instance name to make sure that classes
 			 * that will be applied to wrapper elements (e.g. the body) are really specific because it is
 			 * important for stylesheets to know which of possibly multiple ocFlex elements is currently

@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.8 (2025-06-23)
+ * improve modul "ocFlex"
+
 ##### v3.1.7 (2025-05-16)
  * extend modul "libraryLoader"
 
