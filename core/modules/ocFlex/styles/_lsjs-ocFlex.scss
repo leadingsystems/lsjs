@@ -87,6 +87,43 @@ $ocFlexMarginLeftToHide: -110%;
   animation-duration: $ocFlexAnimationDuration;
   animation-fill-mode: forwards;
   transition: margin-left $ocFlexAnimationDuration ease-in-out;
+
+  &.auto-generated-oc {
+    background-color: rgba($ls-color-black, 0.5);
+    display: flex;
+
+    .auto-generated-oc-inside {
+      color: $ls-color-black;
+
+      width: 90rem;
+      min-height: 30rem;
+      max-width: unset;
+      position: relative;
+      background-color: $ls-color-white;
+      padding: 5rem;
+      margin: auto;
+      line-height: normal;
+
+      .close-button {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        cursor: pointer;
+
+        &::after {
+          @extend .fas;
+          content: fa-content($fa-var-window-close);
+          font-size: 2rem;
+        }
+      }
+    }
+
+    @media screen and (max-width: 499.98px) {
+      .auto-generated-oc-inside {
+        padding: 3rem;
+      }
+    }
+  }
 }
 
 body.ocFlexOpen {
