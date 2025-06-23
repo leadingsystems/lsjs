@@ -38,52 +38,79 @@ lsjs.__moduleHelpers[str_moduleName] = {
 	self: {},
 
 	start: function(obj_options) {
-		var els_container,
-			el_container;
+		var el_containerOrContent;
+
+		if (obj_options.str_ocContainerSelector && obj_options.str_ocContentSelector) {
+			if (obj_options.bln_debug) {
+				console.warn(str_moduleName + ': "str_ocContainerSelector" and "str_ocContentSelector" cannot be used at the same time');
+			}
+			return;
+		}
+
+		if (obj_options.str_ocContainerSelector) {
+			el_containerOrContent = this.getContainerOrContentElement(obj_options.el_domReference, obj_options.str_ocContainerSelector, obj_options.bln_debug);
+		} else if (obj_options.str_ocContentSelector) {
+			el_containerOrContent = this.getContainerOrContentElement(obj_options.el_domReference, obj_options.str_ocContentSelector, obj_options.bln_debug);
+		}
+
+		if (el_containerOrContent === null) {
+			if (obj_options.bln_debug) {
+				console.warn(str_moduleName + ': unable to start');
+			}
+			return;
+		}
+
+		this.self[obj_options.str_uniqueInstanceName] = lsjs.createModule({
+			__name: str_moduleName,
+			__el_container: obj_options.str_ocContainerSelector ? el_containerOrContent : null,
+			el_content: obj_options.str_ocContentSelector ? el_containerOrContent : null
+		});
+
+		this.self[obj_options.str_uniqueInstanceName].__models.options.set(obj_options);
+
+		el_containerOrContent.addClass(this.self[obj_options.str_uniqueInstanceName].__models.options.data.str_classToSetWhenModuleApplied);
+	},
+
+	getContainerOrContentElement: function(el_domReference, selector, bln_debug) {
+		var els_containerOrContent,
+			el_containerOrContent;
 
 		/*
-		 * Look for the required container element
+		 * Look for the required element
 		 */
-		if (obj_options.el_domReference !== undefined && typeOf(obj_options.el_domReference) === 'element') {
-			els_container = obj_options.el_domReference.getElements(obj_options.str_ocContainerSelector);
+		if (el_domReference !== undefined && typeOf(el_domReference) === 'element') {
+			els_containerOrContent = el_domReference.getElements(selector);
 		} else {
-			els_container = $$(obj_options.str_ocContainerSelector);
+			els_containerOrContent = $$(selector);
 		}
 
-		if (els_container.length === 0) {
-			if (obj_options.bln_debug) {
-				console.warn(str_moduleName + ': no container element found for selector "' + obj_options.str_ocContainerSelector + '"');
+		if (els_containerOrContent.length === 0) {
+			if (bln_debug) {
+				console.warn(str_moduleName + ': no element found for selector "' + selector + '"');
 			}
-			return;
-		} else if (els_container.length > 1) {
-			if (obj_options.bln_debug) {
-				console.warn(str_moduleName + ': more than one container element found for selector "' + obj_options.str_ocContainerSelector + '"');
+			return null;
+		} else if (els_containerOrContent.length > 1) {
+			if (bln_debug) {
+				console.warn(str_moduleName + ': more than one element found for selector "' + selector + '"');
 			}
-			return;
+			return null;
 		}
 
-		el_container = els_container[0];
+		el_containerOrContent = els_containerOrContent[0];
 
 		/* ->
          * Make sure not to handle an element more than once
          */
-		if (!el_container.retrieve('alreadyHandledBy_' + str_moduleName)) {
-			el_container.store('alreadyHandledBy_' + str_moduleName, true);
+		if (!el_containerOrContent.retrieve('alreadyHandledBy_' + str_moduleName)) {
+			el_containerOrContent.store('alreadyHandledBy_' + str_moduleName, true);
 		} else {
-			return;
+			return null;
 		}
 		/*
          * <-
          */
 
-		this.self[obj_options.str_uniqueInstanceName] = lsjs.createModule({
-			__name: str_moduleName,
-			__el_container: el_container
-		});
-
-		this.self[obj_options.str_uniqueInstanceName].__models.options.set(obj_options);
-
-		el_container.addClass(this.self[obj_options.str_uniqueInstanceName].__models.options.data.str_classToSetWhenModuleApplied);
+		return el_containerOrContent;
 	}
 };
 

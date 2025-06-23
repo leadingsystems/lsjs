@@ -6,6 +6,7 @@ var str_moduleName = '__moduleName__';
 
 var obj_classdef = 	{
 	el_body: null,
+	el_content: null,
 	els_togglers: null,
 	obj_classes: {
 		general: {
@@ -22,18 +23,33 @@ var obj_classdef = 	{
 	},
 	float_documentScrollY: 0,
 
+	bln_isExternalContentSituation: false,
+
 	start: function() {
 		this.el_body = $$('body')[0];
-
 		this.obj_classes.specific.standard = this.obj_classes.general.standard + '-' + this.__models.options.data.str_uniqueInstanceName;
 		this.obj_classes.specific.open = this.obj_classes.general.open + '-' + this.__models.options.data.str_uniqueInstanceName;
 		this.obj_classes.specific.closed = this.obj_classes.general.closed + '-' + this.__models.options.data.str_uniqueInstanceName;
+
+		this.el_content = this.__module.obj_args.el_content;
+
+		this.detectExternalContentSituation();
+		this.initializeFallbackContainerIfRequired()
+
+
 
 		/*
 		 * We intentionally look for the togglers in the entire dom and not only inside the container because
 		 * it must be possible to place togglers everywhere without any restrictions.
 		 */
 		this.els_togglers = $$(this.__models.options.data.str_ocTogglerSelector);
+
+		if (this.bln_isExternalContentSituation) {
+			let el_closeButtonToggler = this.__el_container.getElement('.close-button');
+			if (typeOf(el_closeButtonToggler) === 'element') {
+				this.els_togglers.push(el_closeButtonToggler);
+			}
+		}
 
 		if (this.els_togglers.length === 0) {
 			if (this.__models.options.data.bln_debug) {
@@ -61,6 +77,53 @@ var obj_classdef = 	{
 		}
 	},
 
+	detectExternalContentSituation: function() {
+		/*
+		 * If el_content is an element, we know that we this ocFlex instance was started with a content element
+		 * instead of a container element. That means that we need an auto-generated fallback container that must
+		 * be filled with the given content.
+		 */
+		this.bln_isExternalContentSituation = typeOf(this.el_content) === 'element';
+	},
+
+	initializeFallbackContainerIfRequired: function() {
+		if (this.bln_isExternalContentSituation) {
+			let potentiallyAlreadyExistingAutoContainer = $(this.__models.options.data.str_uniqueInstanceName + '-container');
+			if (typeOf(potentiallyAlreadyExistingAutoContainer) === 'element') {
+				potentiallyAlreadyExistingAutoContainer.remove();
+			}
+
+			this.__el_container = this.tplPure({
+				name: 'autoOcContainer',
+				arg: {
+					str_contentId: this.__models.options.data.str_uniqueInstanceName
+				}
+			}).getElement('div').inject($$('body')[0], 'bottom');
+		}
+	},
+
+	moveContentFromOriginalPositionToContainer: function() {
+		if (!this.bln_isExternalContentSituation) {
+			return;
+		}
+
+		this.el_content._originalParent = this.el_content.parentNode;
+		this.el_content._originalNextSibling = this.el_content.nextSibling;
+		this.__autoElements.autoOcContainer.contentBox.appendChild(this.el_content);
+	},
+
+	moveContentFromContainerToOriginalPosition: function() {
+		if (!this.bln_isExternalContentSituation) {
+			return;
+		}
+
+		if (this.el_content._originalParent) {
+			this.el_content._originalParent.insertBefore(this.el_content, this.el_content._originalNextSibling);
+			delete this.el_content._originalParent;
+			delete this.el_content._originalNextSibling;
+		}
+	},
+
 	toggle: function(event) {
 		if (event !== undefined) {
 			/*
@@ -85,11 +148,17 @@ var obj_classdef = 	{
 			this.el_body.setStyle('top', null);
 			// this.el_body.removeClass(this.obj_classes.general.keepSticky);
 
+			window.setTimeout(
+				this.moveContentFromContainerToOriginalPosition.bind(this),
+				300
+			)
 			window.fireEvent('ocFlexClose', this.__models.options.data.str_uniqueInstanceName);
 		} else {
 			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
 				window.ocFlexCloseCurrentlyOpen();
 			}
+
+			this.moveContentFromOriginalPositionToContainer();
 
 			window.ocFlexCloseCurrentlyOpen = this.toggle.bind(this);
 
