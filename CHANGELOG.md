@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.9 (2025-07-18)
+ * add callHookAsync
+
 ##### v3.1.8 (2025-06-23)
  * improve modul "ocFlex"
 
