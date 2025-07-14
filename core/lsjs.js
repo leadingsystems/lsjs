@@ -436,28 +436,6 @@ var classdef_lsjs_hooks = {
             ).filter(result => result !== undefined); // Remove undefined values
 		}
         return [];
-    },
-
-    /*
-     * Async version - must be used with await!
-     * Example: await lsjs.hooks.callHookAsync('my_hook', this, 1, 2);
-     */
-    callHookAsync: async function(str_hook, thisArg, ...args) {
-        const hooks = this.registered_hooks[str_hook];
-        if (!hooks) return [];
-        hooks.sort((a, b) => {
-            if (a.order === null && b.order === null) return 0;
-            if (a.order === null) return 1;
-            if (b.order === null) return -1;
-            return a.order - b.order;
-        });
-        const results = [];
-        for (const hook of hooks) {
-            // Await all, even sync ones (safe: sync returns instantly)
-            const result = await hook.function.apply(thisArg, args);
-            if (result !== undefined) results.push(result);
-        }
-        return results;
 	}
 };
 
