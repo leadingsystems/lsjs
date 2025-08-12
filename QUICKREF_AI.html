@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LSJS Quick Reference</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        pre, code {
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+        }
+
+        pre {
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        hr {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>LSJS Quick Reference — Leading Systems JavaScript Framework</h1>
+<p><strong>Version:</strong> Internal documentation based on analysis of LSJS core (<code>lsjs.js</code>, <code>lsjs_templateHandler.js</code>)
+    and example modules.</p>
+
+<hr>
+
+<h2>1. Overview</h2>
+<ul>
+    <li><strong>LSJS</strong> is a <strong>modular MVC‑like front‑end JS framework</strong> used in the
+        <strong>Merconis</strong> shop system.
+    </li>
+    <li>Modules can exist inside:
+        <ul>
+            <li><code>lsjs/core/modules</code> → reusable core modules.</li>
+            <li><code>lsjs/app/modules</code> → app‑specific modules.</li>
+        </ul>
+    </li>
+    <li><code>app.js</code> defines which modules are initialized at runtime.</li>
+</ul>
+
+<hr>
+
+<h2>2. Module Structure</h2>
+<p>A typical module consists of up to three components in its own folder:</p>
+<pre>modules/
+  moduleName/
+    controller.js
+    view.js
+    models/
+      options.js
+</pre>
+
+<h3>controller.js</h3>
+<p>Registers itself with LSJS:</p>
+<pre><code>lsjs.addControllerClass(str_moduleName, obj_classdef);
+</code></pre>
+<p>To match LSJS startup style, the module should register in <code>lsjs.__moduleHelpers</code>:</p>
+<pre><code>lsjs.__moduleHelpers[str_moduleName] = {
+    self: null,
+    start: function(obj_options) {
+        this.self = lsjs.createModule({ __name: str_moduleName });
+        if (this.self.__models && this.self.__models.options) {
+            this.self.__models.options.set(obj_options || {});
+        }
+    }
+};
+</code></pre>
+
+<h3>view.js</h3>
+<p>Handles DOM interaction, rendering, and event binding. Registered with:</p>
+<pre><code>lsjs.addViewClass(str_moduleName, obj_classdef);
+</code></pre>
+<p>Example:</p>
+<pre><code>var obj_classdef = {
+    start: function() {
+        this.registerElements(this.__el_container, 'main');
+        // DOM logic here
+    }
+};
+</code></pre>
+
+<h3>models/options.js</h3>
+<p>Stores default configuration and merges user‑provided overrides.</p>
+<pre><code>var obj_classdef_model = {
+    name: 'options',
+    data: {},
+    start: function() {
+        this.data = {
+            str_containerSelector: '',
+            bln_doNotUseAjax: false
+        };
+    },
+    set: function(obj_options) {
+        Object.merge(this.data, obj_options);
+        this.__module.onModelLoaded();
+    }
+};
+</code></pre>
+
+<hr>
+
+<h2>3. Creating a Module</h2>
+<ol>
+    <li>Create folder:
+        <pre>lsjs/app/modules/myModule/</pre>
+    </li>
+    <li>Add <code>controller.js</code> (with helper pattern):
+        <pre><code>(function() {
+    var str_moduleName = 'myModule';
+    var obj_classdef = {
+        start: function() {
+            console.log('Module started!');
+        }
+    };
+    lsjs.addControllerClass(str_moduleName, obj_classdef);
+
+    lsjs.__moduleHelpers[str_moduleName] = {
+        self: null,
+        start: function(obj_options) {
+            this.self = lsjs.createModule({ __name: str_moduleName });
+            if (this.self.__models && this.self.__models.options) {
+                this.self.__models.options.set(obj_options || {});
+            }
+        }
+    };
+})();
+</code></pre>
+    </li>
+    <li>Register/start in <code>app.js</code>:
+        <pre><code>lsjs.__moduleHelpers.myModule.start({ /* optional options */ });
+</code></pre>
+    </li>
+</ol>
+
+<hr>
+
+<h2>4. App Initialization Flow (app.js)</h2>
+<ul>
+    <li>Modules are initialized in <code>app.js</code> like:</li>
+</ul>
+<pre><code>lsjs.__moduleHelpers.filterFormManager.start({
+    str_containerSelector: '.template_filterForm_new',
+    bln_doNotUseAjax: false,
+    str_ocFlexInstanceName: 'off-canvas-filter-form'
+});
+</code></pre>
+<p>Flow:</p>
+<pre>Controller → Model(s) → View</pre>
+<p>Options from <code>.start()</code> go into the <code>options</code> model.</p>
+
+<hr>
+
+<h2>5. Template Handling</h2>
+<ul>
+    <li>Provided by <code>lsjs_templateHandler.js</code>:
+        <ul>
+            <li><code>lsjs.tpl.add(...)</code> → append rendered template as child.</li>
+            <li><code>lsjs.tpl.replace(...)</code> → replace all children, then append.</li>
+        </ul>
+    </li>
+</ul>
+<p>Templates registered with:</p>
+<pre><code>lsjs.tpl.register({
+    myTemplate: function(data) { /* return HTML */ }
+}, 'moduleName');
+</code></pre>
+
+<hr>
+
+<h2>6. Key LSJS APIs</h2>
+<ul>
+    <li><code>lsjs.createModule({ __name: ..., __parentModule: ..., __el_container: ... })</code> → creates a module
+        instance.
+    </li>
+    <li><code>lsjs.addControllerClass(name, def)</code> / <code>lsjs.addViewClass(name, def)</code> → register module
+        classes.
+    </li>
+    <li><code>lsjs.__moduleHelpers</code> → global registry to start/stop modules.</li>
+    <li><code>this.registerElements(container, namespace)</code> in views → auto‑registers DOM refs.</li>
+</ul>
+
+<hr>
+
+<h2>7. Patterns to Follow</h2>
+<ul>
+    <li>Always register in <code>lsjs.__moduleHelpers</code> for app‑initializable modules.</li>
+    <li>Use consistent structure:
+        <pre>controller.js
+view.js
+models/
+  options.js
+</pre>
+    </li>
+    <li>Keep <code>.start()</code> minimal; put DOM logic in the View.</li>
+    <li>Use <code>models/options.js</code> for configuration.</li>
+    <li>Use <code>lsjs.tpl</code> instead of raw <code>innerHTML</code> when rendering.</li>
+</ul>
+
+<hr>
+
+<h2>8. Example — Minimal Module Startup</h2>
+<pre><code>// productFilterUI/controller.js
+(function() {
+    var str_moduleName = 'productFilterUI';
+    var obj_classdef = {
+        start: function() {
+            var el = document.getElementById('productFilterUI');
+            console.log(el ? 'Found element' : 'Element missing');
+        }
+    };
+    lsjs.addControllerClass(str_moduleName, obj_classdef);
+    lsjs.__moduleHelpers[str_moduleName] = {
+        self: null,
+        start: function(obj_options) {
+            this.self = lsjs.createModule({ __name: str_moduleName });
+            if (this.self.__models && this.self.__models.options) {
+                this.self.__models.options.set(obj_options || {});
+            }
+        }
+    };
+})();
+</code></pre>
+
+<pre><code>// app.js
+lsjs.__moduleHelpers.productFilterUI.start({ str_containerSelector: '#productFilterUI' });
+</code></pre>
+
+</body>
+</html>
