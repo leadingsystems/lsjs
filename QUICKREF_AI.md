@@ -326,3 +326,121 @@ form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 ## Additional Notes
 
 For the most up-to-date information, refer to the official Leading Systems documentation and the [LSJS GitHub repository](https://github.com/leadingsystems/lsjs).
+
+---
+
+## 11. Core Modules
+
+### ocFlex — Flexible off‑canvas/overlay toggler
+
+- **What it is**: A core View module that toggles an off‑canvas/overlay container via one or more toggler elements. Supports either an existing container in the DOM or a standalone content element that will be moved into an auto‑generated overlay container when opened.
+- **Primary use cases**: Off‑canvas navigation, search, filter panels, mini‑cart, dialogs.
+
+#### How it works (high level)
+- You start ocFlex via `lsjs.__moduleHelpers.ocFlex.start({...})` with a unique instance name and either:
+  - `str_ocContainerSelector` to point to an existing overlay container, or
+  - `str_ocContentSelector` to point to an existing content element which ocFlex will move into an auto‑generated overlay container when opened.
+- The View finds togglers via `str_ocTogglerSelector` (global query, not limited to the container) and binds click to `toggle()`.
+- ocFlex adds state classes on `body`, on the container, and on togglers. It also locks body scroll while open and restores scroll on close.
+- Only one ocFlex can be open at a time; opening one closes any other open ocFlex instance.
+
+#### Default CSS classes applied
+- On `body`:
+  - General: `ocFlex`, `ocFlexOpen`, `ocFlexClosed`
+  - Specific (per instance): `ocFlex-{name}`, `ocFlexOpen-{name}`, `ocFlexClosed-{name}`
+- On container: `open` / `closed` toggled; initial application: `ocFlexApplied` (configurable)
+- On togglers: `open` / `closed` toggled
+
+#### Options (models/options.js)
+```javascript
+{
+  el_domReference: null,            // Limit DOM querying when called during CAJAX updates
+  bln_debug: false,                 // Log warnings to console
+  str_ocTogglerSelector: '',        // May match multiple toggler elements
+  // Choose exactly one of the following two selectors:
+  str_ocContainerSelector: '',      // Selector for existing container (must match exactly one)
+  str_ocContentSelector: '',        // Selector for existing content element (must match exactly one)
+  str_uniqueInstanceName: '',       // Required, used for specific state classes
+  str_classToSetWhenModuleApplied: 'ocFlexApplied',
+  bln_closeOnOutsideClick: true     // Click on overlay backdrop closes when true
+}
+```
+
+Notes:
+- Do not pass both `str_ocContainerSelector` and `str_ocContentSelector`. ocFlex will warn and abort.
+- When using `str_ocContentSelector`, ocFlex auto‑generates a container from template `autoOcContainer.html` (id: `{name}-container`) and moves the content in on open, back on close.
+
+#### Events
+- `window.fireEvent('ocFlexOpen', name)` when opened
+- `window.fireEvent('ocFlexClose', name)` when closed
+- Global helper `window.ocFlexCloseCurrentlyOpen` is maintained so opening a new ocFlex closes the previously open one.
+
+#### Toggle programmatically
+```javascript
+lsjs.__moduleHelpers.ocFlex.self['your-instance-name'].__view.toggle();
+```
+
+#### Project usage examples
+- Off‑canvas navigation:
+```javascript
+lsjs.__moduleHelpers.ocFlex.start({
+  str_ocTogglerSelector: '#off-canvas-navi-toggler',
+  str_ocContainerSelector: '#off-canvas-navi-container',
+  str_uniqueInstanceName: 'off-canvas-navi',
+  bln_debug: true
+});
+```
+- Off‑canvas search:
+```javascript
+lsjs.__moduleHelpers.ocFlex.start({
+  str_ocTogglerSelector: '.off-canvas-search-toggler',
+  str_ocContainerSelector: '#off-canvas-search-container',
+  str_uniqueInstanceName: 'off-canvas-search',
+  bln_debug: true
+});
+```
+- Off‑canvas filter form (initialized on CAJAX updates):
+```javascript
+window.addEvent('cajax_domUpdate', function(el_domReference) {
+  lsjs.__moduleHelpers.ocFlex.start({
+    el_domReference: el_domReference,
+    str_ocTogglerSelector: '.off-canvas-filter-form-toggler',
+    str_ocContainerSelector: '#off-canvas-filter-form-container',
+    str_uniqueInstanceName: 'off-canvas-filter-form',
+    bln_debug: false
+  });
+});
+```
+- Programmatic open after content injection (e.g., added‑to‑cart info):
+```javascript
+if (el_domReference.getElement('[id^="off-canvas-added-to-cart-info-container"]')) {
+  lsjs.__moduleHelpers.ocFlex.self['off-canvas-added-to-cart-info'].__view.toggle();
+}
+```
+
+#### Minimal HTML structures
+- Using an existing container:
+```html
+<a class="off-canvas-search-toggler" href="#">Search</a>
+<div id="off-canvas-search-container" class="oc-flex-default-container">
+  <!-- your content -->
+</div>
+```
+- Using an external content element (auto container):
+```html
+<button class="open-dialog">Open Dialog</button>
+<div id="myDialogContent">Dialog content...</div>
+```
+```javascript
+lsjs.__moduleHelpers.ocFlex.start({
+  str_ocTogglerSelector: '.open-dialog',
+  str_ocContentSelector: '#myDialogContent',
+  str_uniqueInstanceName: 'my-dialog'
+});
+```
+
+#### Gotchas
+- Ensure `str_uniqueInstanceName` is unique per instance; styles rely on it.
+- Toggler query is global; ensure your selector doesn’t unintentionally match unrelated elements.
+- In CAJAX flows, pass `el_domReference` so element lookups only search inside the updated subtree.
+- Do not re‑initialize the same container/content twice; ocFlex guards against duplicates, but prefer to scope with `el_domReference`.
