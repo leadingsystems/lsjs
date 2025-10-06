@@ -87,18 +87,7 @@
 						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
 
-						const liElement = this.parentNode;
-						const subMenu = liElement.querySelector(':scope > ul');
-						const toggleButton = liElement.querySelector(':scope > a');
-
-						if (subMenu) {
-							subMenu.setAttribute('aria-hidden', 'false');
-							subMenu.setAttribute('role', 'none');
-						}
-
-						if (toggleButton) {
-							toggleButton.setAttribute('aria-expanded', 'true');
-						}
+						self.setMenuToggleAriaAttributeOpen(this.parentNode, false)
 
 					}
 
@@ -172,19 +161,9 @@
 
 			els_toRemoveTouch.removeClass(this.__models.options.data.str_classToSetForTouchedElements);
 
+			let self = this;
 			Array.from(els_toRemoveTouch).forEach(function(buttonElement) {
-
-				const liElement = buttonElement.parentNode;
-				const subMenu = liElement.querySelector(':scope > ul');
-				const toggleButton = liElement.querySelector(':scope > a');
-
-				if (subMenu) {
-					subMenu.setAttribute('aria-hidden', 'true');
-				}
-
-				if (toggleButton) {
-					toggleButton.setAttribute('aria-expanded', 'false');
-				}
+				self.setMenuToggleAriaAttributeOpen(buttonElement.parentNode, true)
 			});
 		},
 
@@ -200,8 +179,20 @@
 			);
 		},
 
-		setMenuToggleAriaAttributeOpen: function() {
-			/**/
+		setMenuToggleAriaAttributeOpen: function(el_element, bln_toggle) {
+
+			const liElement = el_element;
+			const subMenu = liElement.querySelector(':scope > ul');
+			const toggleButton = liElement.querySelector(':scope > a');
+
+			if (subMenu) {
+				subMenu.setAttribute('aria-hidden', bln_toggle.toString());
+				subMenu.setAttribute('role', 'none');
+			}
+
+			if (toggleButton) {
+				toggleButton.setAttribute('aria-expanded', (!bln_toggle).toString());
+			}
 		},
 
 		callbackBeforeAddingTouch: function(el_aboutToAddTouch) {
