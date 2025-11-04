@@ -71,6 +71,45 @@
 })();
 
 
+//Through a procedure known as a "Monkey Patch", a new method named bindWithOriginal
+//is added to the global Function.prototype object. This method builds upon the
+//standard .bind method but additionally stores the original function in an internal
+//mapping list (a WeakMap).
+(function() {
+
+  // Prevents multiple executions if the file is loaded twice.
+  if (Function.prototype.bindWithOriginal) {
+    return;
+  }
+
+  Object.defineProperty(Function.prototype, 'bindWithOriginal', {
+    value: function(...bindArgs) {
+	  // 'this' is the function on which .bindWithOriginal() is called
+	  // -> our original function.
+      const originalFunction = this;
+
+	  //initialize the WeakMap if empty
+  	  if (!lsjs.hooks.mapBoundToOriginal || !(lsjs.hooks.mapBoundToOriginal instanceof WeakMap)) {
+		lsjs.hooks.mapBoundToOriginal = new WeakMap();
+	  }
+
+      // We call the *real*, native .bind() function.
+      const boundFunction = originalFunction.bind(...bindArgs);
+
+      // We store the association in our private map.
+	  lsjs.hooks.mapBoundToOriginal.set(boundFunction, originalFunction);
+
+      // We return the normally bound function.
+      return boundFunction;
+    },
+    //Configuration of the property
+    writable: true,
+    configurable: true,
+    enumerable: false //Important: Does not appear in for...in loops
+  });
+})();
+
+
 /*
  * Request.cajax makes an ajax call and expects an html response with cajax elements
  * whose contents replace the contents of elements currently in the dom with
