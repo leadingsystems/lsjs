@@ -434,7 +434,22 @@ var class_lsjs_helpers = new Class(classdef_lsjs_helpers);
 var classdef_lsjs_hooks = {
 	registered_hooks: {},
 
+	mapBoundToOriginal: new WeakMap(), 	//Mapping of bound functions to original functions. Used in 'bindWithOriginal' and 'registerHook'
+
+
+	//Besides the event (str_hook), the function expects a bound function in func_hookedFunction
+	//that was created using the 'bindWithOriginal' method (see the corresponding procedure
+	//at the beginning of this file). This allows the original function to be determined via
+	//the 'mapBoundToOriginal' association, enabling a unique comparison and avoiding
+	//duplicate entries.
+	//	@param		string 					str_hook				Unique name for the call of the hook
+	//	@param		boundfunctionobject		func_hookedFunction		Function reference created with bound
+	//	@param		object					obj_properties			additional Properties
 	registerHook: function(str_hook, func_hookedFunction, obj_properties) {
+
+		//get original function from mapping
+		const originalFn = this.mapBoundToOriginal.get(func_hookedFunction) || func_hookedFunction;
+
         if (!this.registered_hooks[str_hook]) {
             this.registered_hooks[str_hook] = [];
         }
@@ -442,12 +457,14 @@ var classdef_lsjs_hooks = {
         // Check if the function is already registered for this hook
         const alreadyRegistered = this.registered_hooks[str_hook].some(
             (hook) => hook.function === func_hookedFunction
+				|| hook.originalfunction === originalFn
         );
 
         // Only register if the function is not already registered
         if (!alreadyRegistered) {
 			this.registered_hooks[str_hook].push({
 				function: func_hookedFunction,
+				originalfunction: originalFn,
 				properties: obj_properties || {},
 				order: obj_properties?.order ?? null // Use `null` for unordered hooks
 			});
