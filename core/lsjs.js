@@ -447,6 +447,11 @@ var classdef_lsjs_hooks = {
 	//	@param		object					obj_properties			additional Properties
 	registerHook: function(str_hook, func_hookedFunction, obj_properties) {
 
+		//initialize the WeakMap if empty
+		if (!lsjs.hooks.mapBoundToOriginal || !(lsjs.hooks.mapBoundToOriginal instanceof WeakMap)) {
+			lsjs.hooks.mapBoundToOriginal = new WeakMap();
+		}
+
 		//get original function from mapping
 		const originalFn = this.mapBoundToOriginal.get(func_hookedFunction) || func_hookedFunction;
 
