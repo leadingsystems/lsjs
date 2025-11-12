@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.10 (2025-11-12)
+ * fix multiple hook calls
+
 ##### v3.1.9 (2025-07-18)
  * add callHookAsync
 

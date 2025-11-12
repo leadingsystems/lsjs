@@ -239,6 +239,43 @@ or
 {{template::templatename}}
 ```
 
+#### Hook Functions 
+
+The purpose of hook functions is to attach to an existing point in the core code and execute project-specific logic. 
+
+To enable this, numerous points have been placed in the core code, like
+```
+lsjs.hooks.callHook('[EVENT_NAME]', this, this);
+```
+where a potential hook can be called. 
+
+In custom development, hooks for a specific event must be registered by providing the registration function along with the event and the actual function to be executed.
+```
+lsjs.hooks.registerHook('EVENT_NAME', this.[FUNCTION_NAME].bindWithOriginal(this));
+```
+
+##### Function Binding & Repeated Registration 
+
+The initial intention was to use .bind on the hook function to create a new function that is bound to an object. 
+
+It turned out that functions created with .bind (a boundFunctionObject) cannot be uniquely identified within the registerHook function. 
+
+This led to new copies of the same function being saved for an event during repeated calls to the custom start-up procedure. Consequently, the hook function was executed multiple times. 
+
+Since the registration function ran again after every Ajax request, a new hook execution was triggered for EVERY registration (e.g., 4 reloads -> 5 calls!).
+
+##### Solution 
+
+To prevent the same function from being repeatedly added for an event, the bound function had to be made comparable, which is only possible via the original function. 
+
+Through a procedure known as a "Monkey Patch", a new method named bindWithOriginal is added to the global Function.prototype object. This method builds upon the standard .bind method but additionally stores the original function in an internal mapping list (a WeakMap). 
+
+The registerHook function can now use this internal WeakMap (mapBoundToOriginal) to determine the original function of a given bound function, enabling a unique comparison.
+
+##### What if a function needs to be called repeatedly? 
+
+If this unlikely case occurs, it was decided that this should be handled on the custom development side. At that point, the need for repetition is known and can be managed. One approach would be to create a wrapper (encapsulation) for the function that needs to be called multiple times. 
+
 #### Minifier
 By default, LSJS minifies its output in order to optimize page loading speed.
 This option can be deactivated because during development you probably don't want
