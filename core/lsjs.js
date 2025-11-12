@@ -71,10 +71,10 @@
 })();
 
 
-//Through a procedure known as a "Monkey Patch", a new method named bindWithOriginal
-//is added to the global Function.prototype object. This method builds upon the
-//standard .bind method but additionally stores the original function in an internal
-//mapping list (a WeakMap).
+/*
+ * Through a procedure known as a "Monkey Patch", a new method named bindWithOriginal is added to the global Function.prototype object.
+ * This method builds upon the standard .bind method but additionally stores the original function in an internal mapping list (a WeakMap).
+ */
 (function() {
 
   // Prevents multiple executions if the file is loaded twice.
@@ -108,7 +108,6 @@
     enumerable: false //Important: Does not appear in for...in loops
   });
 })();
-
 
 /*
  * Request.cajax makes an ajax call and expects an html response with cajax elements
@@ -436,15 +435,14 @@ var classdef_lsjs_hooks = {
 
 	mapBoundToOriginal: new WeakMap(), 	//Mapping of bound functions to original functions. Used in 'bindWithOriginal' and 'registerHook'
 
-
-	//Besides the event (str_hook), the function expects a bound function in func_hookedFunction
-	//that was created using the 'bindWithOriginal' method (see the corresponding procedure
-	//at the beginning of this file). This allows the original function to be determined via
-	//the 'mapBoundToOriginal' association, enabling a unique comparison and avoiding
-	//duplicate entries.
-	//	@param		string 					str_hook				Unique name for the call of the hook
-	//	@param		boundfunctionobject		func_hookedFunction		Function reference created with bound
-	//	@param		object					obj_properties			additional Properties
+    /*
+     * Besides the event (str_hook), the function expects a bound function in func_hookedFunction that was created using the 'bindWithOriginal' method
+     * (see the corresponding procedure at the beginning of this file).
+     * This allows the original function to be determined via the 'mapBoundToOriginal' association, enabling a unique comparison and avoiding duplicate entries.
+     * @param		string 					str_hook				Unique name for the call of the hook
+     * @param		boundfunctionobject		func_hookedFunction		Function reference created with bound
+     * @param		object					obj_properties			additional Properties
+     */
 	registerHook: function(str_hook, func_hookedFunction, obj_properties) {
 
 		//initialize the WeakMap if empty
