@@ -30,6 +30,27 @@
 				return;
 			}
 
+			const toggleLinks = document.querySelectorAll('a.submenu[aria-haspopup="true"]');
+
+			toggleLinks.forEach(function(link) {
+
+				const liElement = link.parentNode;
+				const subMenu = liElement.querySelector(':scope > ul');
+
+				if (self.check_elementActsAsToggler(link)) {
+
+					link.setAttribute('role', 'button');
+					link.setAttribute('aria-haspopup', 'true');
+					link.setAttribute('aria-expanded', 'false');
+					link.setAttribute('href', '#');
+
+					if (subMenu) {
+						subMenu.setAttribute('aria-hidden', 'true');
+						subMenu.setAttribute('role', 'none');
+					}
+				}
+			});
+
             this.els_touchableHyperlinks.addEvent(
             	'click',
 				function(event) {
@@ -65,6 +86,9 @@
 						self.callbackBeforeAddingTouch(this);
 						this.addClass(self.__models.options.data.str_classToSetForTouchedElements);
 						this.getParent().addClass(self.__models.options.data.str_classToSetForTouchedElements);
+
+						self.setMenuToggleAriaAttributeOpen(this.parentNode, false)
+
 					}
 
             		// the clicked element is already touched
@@ -98,6 +122,17 @@
 			this.el_body.addEvent(
 				'click',
 				function(event) {
+
+					const nativeEvent = event.event;
+					const targetElement = nativeEvent.target;
+					const hasRoleButton = targetElement.getAttribute('role') === 'button';
+
+					// If the element has a role=button that means it should not work as a normal link and we need to stop to redirect
+					if (hasRoleButton) {
+						nativeEvent.preventDefault();
+						nativeEvent.stopImmediatePropagation();
+					}
+
 					if (event.target.getParent(this.__models.options.data.var_touchableHyperlinkSelector) === null) {
 						/*
                          * Remove the touched class on all other touchable hyperlinks (parallel in DOM) to make sure it
@@ -125,6 +160,11 @@
 			);
 
 			els_toRemoveTouch.removeClass(this.__models.options.data.str_classToSetForTouchedElements);
+
+			let self = this;
+			Array.from(els_toRemoveTouch).forEach(function(buttonElement) {
+				self.setMenuToggleAriaAttributeOpen(buttonElement.parentNode, true)
+			});
 		},
 
 		preTouchActiveItems: function() {
@@ -137,6 +177,22 @@
 					}
 				}
 			);
+		},
+
+		setMenuToggleAriaAttributeOpen: function(el_element, bln_toggle) {
+
+			const liElement = el_element;
+			const subMenu = liElement.querySelector(':scope > ul');
+			const toggleButton = liElement.querySelector(':scope > a');
+
+			if (subMenu) {
+				subMenu.setAttribute('aria-hidden', bln_toggle.toString());
+				subMenu.setAttribute('role', 'none');
+			}
+
+			if (toggleButton) {
+				toggleButton.setAttribute('aria-expanded', (!bln_toggle).toString());
+			}
 		},
 
 		callbackBeforeAddingTouch: function(el_aboutToAddTouch) {
