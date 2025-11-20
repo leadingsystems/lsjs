@@ -7,15 +7,6 @@ var obj_classdef_model = {
 		/*
 		 * Initializing the options in the data object with default values which
 		 * can later be overwritten when the "set" method is called with other options
-		 *
-		 * Options:
-		 *  bln_useTouchBehaviourOnNonTouchDevices (true): adds class 'bln_useTouchBehaviourOnNonTouchDevices' and opens the submenu only after a click
-		 *  bln_followLinkOnSecondTouch: ???
-		 *  bln_allowMultipleParallelTouches: ???
-		 *  bln_allowMultipleParallelTouches: zwei Menüs simultan offen
-		 *  bln_preTouchActiveAndTrailOnStart: Navigation nach dem Laden der Seite offen
-		 *  bln_onlyHandleTouchOnTogglerElements: ???
-		 *  bln_untouchOnOutsideClick: ???
 		 */
 		this.data = {
 			var_touchableHyperlinkSelector: 'li > .submenu',
