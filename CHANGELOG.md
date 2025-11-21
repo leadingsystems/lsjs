@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.11 (2025-11-21)
+ * improve modul "touchNavi"
+
 ##### v3.1.10 (2025-11-12)
  * fix multiple hook calls
 
