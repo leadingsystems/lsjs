@@ -26,7 +26,8 @@ var obj_classdef_model = {
 		 *		defined in arr_pseudoElementForTogglerIdentification. If this option is false,
 		 *		the touch logic will apply to all elements regardless of their pseudo elements.
 		 *
-         *  bln_untouchOnOutsideClick: listens for clicks outside the navigation and removes the
+         *  bln_untouchOnOutsideClick:
+         * 		listens for clicks outside the navigation and removes the
          *      touched state everywhere when such a click happens
          *
          * arr_pseudoElementForTogglerIdentification:
