@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.12 (2025-11-28)
+ * improve documentation modul "touchNavi"
+
 ##### v3.1.11 (2025-11-21)
  * improve modul "touchNavi" (BFSG)
 
