@@ -5,6 +5,9 @@ var obj_classdef_model = {
 
 	start: function() {
 		/*
+		 * Initializing the options in the data object with default values which
+		 * can later be overwritten when the "set" method is called with other options
+		 *
          * Options:
          *  bln_useTouchBehaviourOnNonTouchDevices:
          * 		every link needs to be touched instead of just hovering over it
