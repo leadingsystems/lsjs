@@ -134,53 +134,61 @@ var obj_classdef = 	{
 		}
 
 		if (this.el_body.hasClass(this.obj_classes.specific.open)) {
-			window.ocFlexCloseCurrentlyOpen = null;
-
-			this.el_body.addClass(this.obj_classes.general.closed);
-			this.el_body.removeClass(this.obj_classes.general.open);
-			this.el_body.addClass(this.obj_classes.specific.closed);
-			this.el_body.removeClass(this.obj_classes.specific.open);
-			this.__el_container.addClass('closed');
-			this.__el_container.removeClass('open');
-			this.els_togglers.addClass('closed');
-			this.els_togglers.removeClass('open');
-			document.documentElement.scrollTop = this.float_documentScrollY;
-			this.el_body.setStyle('top', null);
-			// this.el_body.removeClass(this.obj_classes.general.keepSticky);
-
-			window.setTimeout(
-				this.moveContentFromContainerToOriginalPosition.bind(this),
-				300
-			)
-			window.fireEvent('ocFlexClose', this.__models.options.data.str_uniqueInstanceName);
+			this.close();
 		} else {
-			if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
-				window.ocFlexCloseCurrentlyOpen();
-			}
-
-			this.moveContentFromOriginalPositionToContainer();
-
-			window.ocFlexCloseCurrentlyOpen = this.toggle.bind(this);
-
-			// this.el_body.addClass(this.obj_classes.general.keepSticky);
-
-			this.float_documentScrollY = document.documentElement.scrollTop;
-
-			this.el_body.setStyle('top', this.float_documentScrollY * -1);
-
-			this.el_body.removeClass(this.obj_classes.general.closed);
-			this.el_body.addClass(this.obj_classes.general.open);
-			this.el_body.removeClass(this.obj_classes.specific.closed);
-			this.el_body.addClass(this.obj_classes.specific.open);
-			this.__el_container.removeClass('closed');
-			this.__el_container.addClass('open');
-			this.els_togglers.removeClass('closed');
-			this.els_togglers.addClass('open');
-
-			window.fireEvent('ocFlexOpen', this.__models.options.data.str_uniqueInstanceName);
+			this.open();
 		}
 
 	},
+
+	close: function() {
+		window.ocFlexCloseCurrentlyOpen = null;
+
+		this.el_body.addClass(this.obj_classes.general.closed);
+		this.el_body.removeClass(this.obj_classes.general.open);
+		this.el_body.addClass(this.obj_classes.specific.closed);
+		this.el_body.removeClass(this.obj_classes.specific.open);
+		this.__el_container.addClass('closed');
+		this.__el_container.removeClass('open');
+		this.els_togglers.addClass('closed');
+		this.els_togglers.removeClass('open');
+		document.documentElement.scrollTop = this.float_documentScrollY;
+		this.el_body.setStyle('top', null);
+		// this.el_body.removeClass(this.obj_classes.general.keepSticky);
+
+		window.setTimeout(
+			this.moveContentFromContainerToOriginalPosition.bind(this),
+			300
+		)
+		window.fireEvent('ocFlexClose', this.__models.options.data.str_uniqueInstanceName);
+	},
+
+	open: function() {
+		if (typeOf(window.ocFlexCloseCurrentlyOpen) === 'function') {
+			window.ocFlexCloseCurrentlyOpen();
+		}
+
+		this.moveContentFromOriginalPositionToContainer();
+
+		window.ocFlexCloseCurrentlyOpen = this.toggle.bind(this);
+
+		// this.el_body.addClass(this.obj_classes.general.keepSticky);
+
+		this.float_documentScrollY = document.documentElement.scrollTop;
+
+		this.el_body.setStyle('top', this.float_documentScrollY * -1);
+
+		this.el_body.removeClass(this.obj_classes.general.closed);
+		this.el_body.addClass(this.obj_classes.general.open);
+		this.el_body.removeClass(this.obj_classes.specific.closed);
+		this.el_body.addClass(this.obj_classes.specific.open);
+		this.__el_container.removeClass('closed');
+		this.__el_container.addClass('open');
+		this.els_togglers.removeClass('closed');
+		this.els_togglers.addClass('open');
+
+		window.fireEvent('ocFlexOpen', this.__models.options.data.str_uniqueInstanceName);
+	}
 };
 
 lsjs.addViewClass(str_moduleName, obj_classdef);
