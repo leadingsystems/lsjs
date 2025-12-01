@@ -444,3 +444,273 @@ lsjs.__moduleHelpers.ocFlex.start({
 - Toggler query is global; ensure your selector doesn’t unintentionally match unrelated elements.
 - In CAJAX flows, pass `el_domReference` so element lookups only search inside the updated subtree.
 - Do not re‑initialize the same container/content twice; ocFlex guards against duplicates, but prefer to scope with `el_domReference`.
+
+---
+
+## 12. Module lifecycle and createModule args (crucial)
+
+How LSJS instantiates modules and in which order things run:
+
+- Controller, View, then Models are instantiated; Models’ `start()` run first.
+- After all models signal loaded, View `.start()` runs, then Controller `.start()`.
+- A module instance exposes:
+  - `this.__name`, `this.__el_container`, `this.__controller`, `this.__view`, `this.__models`.
+  - View gets helper methods bound: `tplPure`, `tplAdd`, `tplReplace`, `registerElements`,
+    `removeDataBindings`, `debugBindings`.
+
+`lsjs.createModule({...})` accepts:
+- `__name` (required)
+- `__el_container` (Element) or `str_containerSelector` (string); if neither provided,
+  a `<div class="moduleContainer autoModuleContainer {__name}">` is created.
+- `__parentModule` (for Manager → Instance linkage)
+- `__useLoadingIndicator` (boolean) shows/hides global loading indicator around start.
+- Any additional keys are available as `this.__module.obj_args` inside Controller/View/Models.
+
+Global helpers:
+- `lsjs.__moduleHelpers` – put simple starters/factories here; managers commonly register in this.
+- `lsjs.__appHelpers` – apps can store global app references (e.g., `lsjs.__appHelpers.merconisApp`).
+
+---
+
+## 13. Auto‑element registration (data-lsjs-element)
+
+Use the View method `registerElements(container, group, registerSingles)` to auto‑collect
+DOM references and store them under `this.__autoElements[group]`.
+
+When you use LSJS templates via `this.tplAdd` / `this.tplReplace` / `this.tplPure`, auto‑elements inside the rendered template are registered automatically. This is done inside the core `tplUse()` flow after rendering:
+
+```940:949:assets/lsjs/core/lsjs.js
+		el_renderedTemplate = lsjs.tpl[str_mode](obj_usageOptions, str_moduleName);
+
+		if (el_renderedTemplate === null) {
+			return el_renderedTemplate;
+		}
+		
+		this.registerElements(el_renderedTemplate, obj_usageOptions.autoElementsKey !== null ? obj_usageOptions.autoElementsKey : obj_usageOptions.name, bln_registerSingleElementsInElementList);
+		this.registerDataBindings(el_renderedTemplate);
+		this.registerMultipleDataBindings(el_renderedTemplate);
+```
+
+Therefore:
+- If you render UI through templates, you typically do not need a separate `registerElements` call.
+- Call `registerElements` manually when enhancing pre‑existing DOM that was not created through LSJS templates.
+
+Markup:
+```html
+<div data-lsjs-element="row"></div>
+<div data-lsjs-autoElementSubGroup="item-1">
+  <button data-lsjs-element="remove"></button>
+</div>
+```
+
+Usage:
+```javascript
+// In View.start():
+this.registerElements(this.__el_container, 'main', true);
+// Access:
+this.__autoElements.main.row           // Element or Elements
+this.__autoElements.main['item-1'].remove
+```
+
+Notes:
+- `registerSingles = true` forces even single matches into an `Elements` collection.
+- You can filter by element or subgroup name with the optional 4th/5th params.
+- Use `bln_checkForParentSubGroups` when elements inherit subgroup from parent wrappers.
+
+---
+
+## 14. Data binding (crucial for forms and reactive UI)
+
+Two attribute styles are supported:
+
+- Single binding:
+  - `data-lsjs-bindToModel="options"`
+  - `data-lsjs-bindToPath="user.email"`
+  - `data-lsjs-bindToProperty="value"` (omit for smart default)
+  - `data-lsjs-bindToEvent="change"`
+  - `data-lsjs-bindToTranslationModelToView="translateEmailForInput"`
+  - `data-lsjs-bindToTranslationViewToModel="normalizeEmail"`
+  - `data-lsjs-bindToCallbackViewToModel="persistEmail"`
+  - `data-lsjs-bindToAllowInsideEvents="true"`
+
+- Multiple bindings:
+  - `data-lsjs-bindTo='[{ "model":"options", "path":"user.email", "event":"input" }]'`
+
+Where functions are instance methods on the target Model (e.g., `this.__models.profile`).
+
+Important behaviors:
+- Initial sync: after registration, elements are initialized with current model values.
+- Checkbox values:
+  - If `value=""` or `"true"` → booleans true/false.
+  - If `value="false"` → inverted boolean mapping.
+  - Otherwise uses element’s `value` when checked, empty string when unchecked.
+- `allowInsideEvents`: by default, ignore bubbled events from inside children; enable explicitly if needed.
+- Trigger programmatically: `this.__models.options.triggerDataBinding('user.email')`.
+
+Model function bindings (optional):
+- Define `obj_dataFunctionBindings` on a model mapping data paths to handler names.
+- Handlers receive `(newValue, registeredPath, originalValue, actualWrittenPath)`.
+- Useful for side‑effects (e.g., server persistence) and reset on failure.
+
+Example (generic Profile model):
+```javascript
+// models/profile.js
+var obj_classdef_model = {
+    name: 'profile',
+    data: {
+        user: { email: '' }
+    },
+    // Translate model → view (e.g., lowercase display)
+    translateEmailForInput: function(value, elBound) {
+        return String(value || '').toLowerCase();
+    },
+    // Translate view → model (e.g., trim and normalize)
+    normalizeEmail: function(newValue, elBound, oldValue, dataPath) {
+        return String(newValue || '').trim();
+    },
+    // Optional side-effect (e.g., async save)
+    persistEmail: function(newValue, elBound, oldValue, dataPath) {
+        // fire request or queue save; restore on failure if needed
+    }
+};
+```
+
+```html
+<!-- In template -->
+<input type="email"
+       data-lsjs-bindToModel="profile"
+       data-lsjs-bindToPath="user.email"
+       data-lsjs-bindToEvent="input"
+       data-lsjs-bindToTranslationModelToView="translateEmailForInput"
+       data-lsjs-bindToTranslationViewToModel="normalizeEmail"
+       data-lsjs-bindToCallbackViewToModel="persistEmail" />
+```
+
+---
+
+## 15. Templates advanced (tpl, events, placeholders)
+
+Registration:
+```javascript
+lsjs.tpl.register({ card: (arg) => `<div>${arg.title}</div>` }, 'moduleName');
+```
+
+Use from View (bound helpers):
+```javascript
+this.tplAdd({ name: 'card', arg: { title: 'Hi' }, parent: this.__el_container }, 'moduleName');
+```
+
+Detailed modes and options:
+- `tplPure({ name, arg, class, id, bind, parent?, autoElementsKey?, bln_discardContainerElement? }, moduleName?)`
+  - Renders and returns an Element without inserting into the DOM.
+  - Auto‑elements and data bindings inside the rendered element are registered immediately (see core snippet above).
+  - Useful when you need to manipulate the element first or insert it manually later.
+- `tplAdd({ name, arg, parent, class, id, bind, autoElementsKey?, bln_discardContainerElement? }, moduleName?)`
+  - Inserts the rendered element as a child of `parent`.
+  - If `bln_discardContainerElement` is true, only the inner children of the rendered wrapper are adopted and the wrapper is removed.
+- `tplReplace({ name, arg, parent, class, id, bind, autoElementsKey?, bln_discardContainerElement? }, moduleName?)`
+  - Replaces all children of `parent` with the rendered element. Implementation detail:
+    ```78:91:assets/lsjs/core/lsjs_templateHandler.js
+		if (obj_usageOptions.mode === 'replace') {
+			/*
+			 * First, we use destroy() on all the children, because we want to
+			 * prepare them for garbage collection. This, however, does not eliminate
+			 * text nodes, which is why, secondly, we use parent.empty() to get
+			 * rid of them, too.
+			 */
+			obj_usageOptions.parent.getChildren().destroy();
+			obj_usageOptions.parent.empty();
+		}
+		
+		obj_usageOptions.parent.adopt(el_renderedTemplate);
+    ```
+- Common options supported by the bound helpers:
+  - `name` (string): registered template name (required)
+  - `arg` (any): argument passed to the template function (available as `arg` in template scope)
+  - `parent` (Element): required for `tplAdd`/`tplReplace`; defaults to `this.__el_container` if omitted at higher levels
+  - `class`, `id` (string): applied to the wrapper element around the template HTML
+  - `bind` (object): set `this` inside the template function
+  - `autoElementsKey` (string|null): key under which auto‑elements are registered (defaults to the template `name` when omitted)
+  - `bln_discardContainerElement` (bool): adopt children of rendered wrapper, then remove wrapper
+
+Advanced:
+- `autoElementsKey`: set to the template name to auto‑register elements within the rendered
+  template under that key.
+- `data-lsjs-events='[{ "event":"click", "scope":"__view", "function":"onClick" }]'` binds
+  DOM events to methods. Valid scopes are properties on the module instance such as
+  `__view` or `__controller`.
+- Placeholders:
+  - `data-lsjs-replaceWithElement="this.els_renderedTemplates[0]"` to swap in elements created earlier.
+  - `data-lsjs-replaceWithTemplate="otherTemplateName"` to inline a (pure) template.
+- String output for server templates:
+  - `this.tplOutput({ name: 'card', arg: {...} })` returns a placeholder string which is
+    replaced after render.
+
+---
+
+## 16. CAJAX details and URL history
+
+`Request.cajax` options you will need:
+- `cajaxMode`: `'update' | 'updateCompletely' | 'append' | 'discard' | 'updateByAttribute'`
+  - `update`: replace innerHTML of matched target by id.
+  - `updateCompletely`: replace the whole element by id (preserves scrollTop).
+  - `append`: append children.
+  - `updateByAttribute`: match targets by a custom attribute value (set `attributeForUpdateTargetDetection`).
+- `el_formToUseForFormData`: send form via FormData; combine with
+  `lsjs.helpers.prepareFormForCajaxRequest(form)`.
+- `obj_additionalFormData`: include
+  `{'cajaxRequestData[requestedElementClass]': '<server-class>'}` (mandatory on Merconis).
+- `bln_doNotModifyUrl`: true to opt out of URL rewriting.
+
+URL history rewriting:
+- Enable globally: `lsjs.obj_preferences.bln_activateUrlModificationInRequestCajax = true;`
+- Uses `history.replaceState` to keep the current page URL in sync with cajax responses
+  while avoiding “fake” history steps.
+
+After cajax update:
+- LSJS fires `window.fireEvent('cajax_domUpdate', el_domReference)`.
+- Re‑initialize any modules that depend on replaced DOM. Scope lookups to `el_domReference`
+  where supported to avoid duplicate init.
+- Best practice before re‑initializing overlays: first close any open `ocFlex` instances
+  (use `window.ocFlexCloseCurrentlyOpen && window.ocFlexCloseCurrentlyOpen()`).
+
+---
+
+## 17. Hooks API
+
+LSJS provides a small hook system:
+- Register (prefer binding with `bindWithOriginal` to avoid duplicate registration tracking):
+  ```javascript
+  lsjs.hooks.registerHook('my_hook',
+    this.onSomething.bindWithOriginal(this),
+    { order: 100 });
+  ```
+- Call sync: `lsjs.hooks.callHook('my_hook', thisArg, arg1, arg2)` → returns array of non‑undefined results.
+- Call async: `await lsjs.hooks.callHookAsync('my_hook', thisArg, arg1)`; honors `order`.
+
+---
+
+## 18. App helpers pattern
+
+An app can expose itself if needed:
+```javascript
+lsjs.__appHelpers.myApp = new class_app();
+```
+This is how code like `lsjs.apiInterface.str_apiUrl = lsjs.__appHelpers.myApp.obj_config.str_ajaxUrl;`
+is wired in projects.
+
+---
+
+## 19. Loading indicator integration
+
+Pass `__useLoadingIndicator: true` to `lsjs.createModule({...})` to automatically show/hide the
+core loading indicator module around module startup (except for the loadingIndicator module itself).
+
+---
+
+## 20. Debugging tips
+
+- Manager/Instance: keep `arr_instances` on the Manager; inspect via console:
+  `lsjs.__moduleHelpers.productFilterUIManager.self.arr_instances`.
+- Use `this.__view.debugBindings()` to inspect currently registered data bindings.
+- Add `bln_debug` options to core modules (where available) to log warnings instead of throwing.
