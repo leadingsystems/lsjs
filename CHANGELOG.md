@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.13 (2026-03-06)
+ * add quick reference AI
+
 ##### v3.1.12 (2025-11-28)
  * improve documentation modul "touchNavi"
 
