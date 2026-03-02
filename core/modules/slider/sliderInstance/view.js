@@ -155,20 +155,19 @@ var obj_classdef = 	{
             function(float_slideOffset, int_slideKey) {
                 var el_navigationDot = new Element('span.navigation-dot').setProperty('data-misc-slide', int_slideKey);
 
-                var slideElement = this.els_items[int_slideKey];
+                if (bln_useDotNavigationImages) {
+                    var slideElement = this.els_items[int_slideKey];
 
-		        // Look for a picture or img element anywhere within the slide, prioritizing picture
-		        var pictureElement = slideElement.querySelector('picture') || slideElement.querySelector('img');
+                    // Look for a picture or img element anywhere within the slide, prioritizing picture.
+                    var pictureElement = slideElement.querySelector('picture') || slideElement.querySelector('img');
 
-                if (pictureElement) {
-		            var clonedElement = pictureElement.cloneNode(true);
+                    if (pictureElement) {
+                        var clonedElement = pictureElement.cloneNode(true);
 
-                    el_navigationDot.append(clonedElement);
-			
-                    if (bln_useDotNavigationImages) {
+                        el_navigationDot.append(clonedElement);
                         el_navigationDot.addClass('use-image');
                         clonedElement.setStyles({
-                            'pointer-events': 'none',
+                            'pointer-events': 'none'
                         });
                     }
                 }
