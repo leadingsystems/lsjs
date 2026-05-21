@@ -1,53 +1,57 @@
 var obj_classdef_model = {
 	name: 'options',
 
+	/*
+	 * Options:
+	 *  str_selectorForElementToStick:
+	 *      CSS selector for the element that should become sticky (typically the header)
+	 *
+	 *  str_selectorForElementToSaveSpace:
+	 *      CSS selector for an element that receives compensating padding to prevent
+	 *      content from jumping when the header switches to absolute/fixed positioning.
+	 *      Set to null if the layout already positions the header absolutely.
+	 *
+	 *  int_minScrollSpeedToShowSticky:
+	 *      minimum upward scroll speed (pixels per frame) required before the sticky
+	 *      header becomes visible
+	 *
+	 *  int_minScrollSpeedToHideSticky:
+	 *      minimum downward scroll speed (pixels per frame) required before the sticky
+	 *      header is hidden again
+	 *
+	 *  int_timeToWaitForRecalculationsAfterHeaderClickInMs:
+	 *      time in ms to wait before recalculating sizes/positions after a click in the
+	 *      header. Should correspond with CSS transition durations (e.g. opening
+	 *      subnavigations).
+	 *
+	 *  bln_stickyOnly:
+	 *      true if the header should always be sticky and the non-sticky state should
+	 *      never occur
+	 *
+	 *  bln_alwaysShowStickyHeader:
+	 *      true if the sticky header should be visible without the need to scroll upwards
+	 *
+	 *  bln_untouchEverythingInHeaderAfterHidingSticky:
+	 *      when true, expanded subnavigations and similar elements inside the header are
+	 *      collapsed (untouched) whenever the sticky header is hidden
+	 *
+	 *  int_stickyStartEndDistance:
+	 *      distance in pixels between the vertical scroll position where stickiness
+	 *      starts and where it ends (hysteresis to prevent flickering)
+	 *
+	 *  bln_debug:
+	 *      set to true for helpful debugging output in the console
+	 */
 	data: {
 		str_selectorForElementToStick: 'header',
-
-		/*
-		 * The sticky header script uses "position: absolute" and "position: fixed" for the header. If the header is
-		 * originally positioned relatively or statically, it is probably necessary to apply a padding to an element in
-		 * order to make sure that the space that was used by the header won't collapse which would cause the following
-		 * content to "jump".
-		 *
-		 * Can be set to null, which means that no space saver padding should be applied, e.g. in situations where the
-		 * layout originally already positions the header absolutely.
-		 */
 		str_selectorForElementToSaveSpace: 'body',
-
 		int_minScrollSpeedToShowSticky: 1,
 		int_minScrollSpeedToHideSticky: 1,
-
-		/*
-		 * If opening subnavigations etc. takes some time due to transitions, we have to make sure not to try to calculate
-		 * sizes and positions to early. This parameter defines the time to wait for a recalculation and should correspond
-		 * with css transition times.
-		 */
 		int_timeToWaitForRecalculationsAfterHeaderClickInMs: 800,
-
-		/*
-		 * True if the header should only be sticky and the non-sticky state should never occur.
-		 */
 		bln_stickyOnly: false,
-
-		/*
-		 * True if the sticky header should be displayed without the need to scroll upwards.
-		 */
 		bln_alwaysShowStickyHeader: false,
-
-		/*
-		 * Untouching the header means collapsing subnavigations etc. that might be expanded.
-		 */
 		bln_untouchEverythingInHeaderAfterHidingSticky: true,
-
-		/*
-		 * Distance in pixels between the vertical position where stickyness starts and where it ends
-		 */
 		int_stickyStartEndDistance: 150,
-
-		/*
-		 * Set to true for helpful debugging output
-		 */
 		bln_debug: false
 	},
 
