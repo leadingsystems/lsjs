@@ -39,6 +39,13 @@ var obj_classdef_model = {
          *		bln_onlyHandleTouchOnTogglerElements is set to true. If an element matches
          *		any of the configured pseudo elements, it is considered a valid toggler for
          *		touch interaction handling.
+         *
+         *  bln_keepOriginalHref:
+         *		When set to true, the original href attribute of toggler links is preserved
+         *		instead of being replaced with "#". The toggler behavior is then controlled
+         *		purely through event.preventDefault() in the click handler. This is useful
+         *		when submenu parent pages should remain navigable (e.g. in horizontal
+         *		navigations where submenus are visible without folding).
          */
 		this.data = {
 			var_touchableHyperlinkSelector: 'li > .submenu',
@@ -49,7 +56,8 @@ var obj_classdef_model = {
 			bln_preTouchActiveAndTrailOnStart: true,
 			bln_onlyHandleTouchOnTogglerElements: true,
 			bln_untouchOnOutsideClick: false,
-			arr_pseudoElementForTogglerIdentification: ['before', 'after']
+			arr_pseudoElementForTogglerIdentification: ['before', 'after'],
+			bln_keepOriginalHref: false
 		};
 	},
 
