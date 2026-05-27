@@ -40,12 +40,21 @@ var obj_classdef_model = {
          *		any of the configured pseudo elements, it is considered a valid toggler for
          *		touch interaction handling.
          *
-         *  bln_keepOriginalHref:
-         *		When set to true, the original href attribute of toggler links is preserved
-         *		instead of being replaced with "#". The toggler behavior is then controlled
-         *		purely through event.preventDefault() in the click handler. This is useful
-         *		when submenu parent pages should remain navigable (e.g. in horizontal
-         *		navigations where submenus are visible without folding).
+         *  var_keepOriginalHrefForLevels:
+         *		Controls whether the original href attribute of toggler links is preserved
+         *		instead of being replaced with "#". Accepts three value types:
+         *		- false (default): Current behavior. href is replaced with "#" on all levels.
+         *		- true: Original href is preserved on all levels.
+         *		- Array of integers (e.g. [2, 3, 4, 5]): Original href is preserved only for
+         *		  links on the specified navigation levels. All other levels still get "#".
+         *		The navigation level is determined by the CSS class of the parent ul element
+         *		(level_1, level_2, etc. as rendered by Contao's navigation modules).
+         *
+         *  bln_scopeToContainer:
+         *		When set to true, the ARIA and href initialization only processes links within
+         *		the module's own container element instead of querying the entire document.
+         *		This prevents one touchNavi instance from modifying links that belong to a
+         *		different navigation/instance. Default is false to preserve backward compatibility.
          */
 		this.data = {
 			var_touchableHyperlinkSelector: 'li > .submenu',
@@ -57,7 +66,8 @@ var obj_classdef_model = {
 			bln_onlyHandleTouchOnTogglerElements: true,
 			bln_untouchOnOutsideClick: false,
 			arr_pseudoElementForTogglerIdentification: ['before', 'after'],
-			bln_keepOriginalHref: false
+			var_keepOriginalHrefForLevels: false,
+			bln_scopeToContainer: false
 		};
 	},
 
