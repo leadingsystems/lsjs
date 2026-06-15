@@ -7,300 +7,144 @@ var obj_classdef_model = {
 		/*
 		 * Initializing the options in the data object with default values which
 		 * can later be overwritten when the "set" method is called with other options
+		 *
+		 * Options:
+		 *  var_togglerSelector: (mandatory)
+		 *      selector for the toggler element(s). If multiple elements match, they
+		 *      all act as togglers. Can also be a DOM element or collection.
+		 *
+		 *  var_contentBoxSelector: (mandatory)
+		 *      selector for the content box to fold/unfold. Only the first match is
+		 *      used. Can also be a DOM element.
+		 *
+		 *  var_wrapperSelector:
+		 *      selector for a wrapper element surrounding toggler and content. Only
+		 *      the first match is used. Receives open/closed/running CSS classes.
+		 *
+		 *  var_closeButtonSelector:
+		 *      selector for a dedicated close button. Multiple matches are supported.
+		 *
+		 *  bln_automaticallyCreateResizeBox:
+		 *      true to automatically wrap the content box in a helper element that
+		 *      handles the resizing. False to resize the content box element itself.
+		 *
+		 *  str_togglerEventType:
+		 *      event type for toggling (default: 'click'). Can be an array with two
+		 *      event types for enter/leave patterns, e.g. ['mouseenter', 'mouseleave']
+		 *      or ['mouseenter', 'closeButton'].
+		 *
+		 *  str_initialToggleStatus:
+		 *      'open' or 'closed'. Describes the element's visual state before
+		 *      lsUnfold is initialized (i.e. the CSS-only state without JavaScript).
+		 *
+		 *  bln_toggleOnInitialization:
+		 *      true to trigger a toggle immediately after initialization
+		 *
+		 *  bln_skipAnimationWhenTogglingOnInitialization:
+		 *      true to skip the animation when toggling on initialization
+		 *
+		 *  str_cookieIdentifierName:
+		 *      if set, the toggle status is persisted in a cookie under this name
+		 *      and restored on page reload
+		 *
+		 *  str_initialCookieStatus:
+		 *      'open' or 'closed'. Used as the initial cookie value when no cookie
+		 *      exists yet.
+		 *
+		 *  bln_closeOnOutsideClick:
+		 *      true to close the element when clicking outside of it
+		 *
+		 *  arr_selectorsToLimitCloseOnOutsideClick:
+		 *      array of CSS selectors. If set, an outside click only closes the
+		 *      element if the click target matches at least one of these selectors.
+		 *
+		 *  str_animationMode:
+		 *      'height' or 'margin-top'. Defines which CSS property drives the
+		 *      fold/unfold animation.
+		 *
+		 *  bln_morphPaddings:
+		 *      true to also animate paddings of the resize box to/from 0. Prefer
+		 *      setting padding on an inner element instead.
+		 *
+		 *  bln_considerWindowScrollInMarginAnimationMode:
+		 *      (margin-top mode only) true to factor in the current scroll position
+		 *      so the element always slides in from the viewport top.
+		 *
+		 *  bln_moveWithWindowScrollInMarginAnimationMode:
+		 *      (margin-top mode only) true to keep the element visible while
+		 *      scrolling the page.
+		 *
+		 *  obj_moveWithWindowScrollInMarginAnimationModeOffsets:
+		 *      { top: int, bottom: int } offsets in px for the scroll-tracking
+		 *      behaviour above.
+		 *
+		 *  str_initialDisplayType:
+		 *      valid CSS display value (e.g. 'block'). Mandatory when the content
+		 *      box starts with display:none, so lsUnfold knows the correct visible
+		 *      display type.
+		 *
+		 *  var_initialHeight:
+		 *      'auto', 'measure', 'getStyle' or an integer (px). Determines how the
+		 *      unfolded height is calculated. 'auto' is recommended for dynamic
+		 *      content (also set height:auto in CSS).
+		 *
+		 *  int_heightOffset:
+		 *      positive or negative pixel offset added to the calculated unfold height
+		 *
+		 *  int_widthOffset:
+		 *      positive or negative pixel offset added to the calculated unfold width
+		 *
+		 *  str_classOpen:
+		 *      CSS class applied to wrapper, toggler and resize box in open state
+		 *
+		 *  str_classClosed:
+		 *      CSS class applied to wrapper, toggler and resize box in closed state
+		 *
+		 *  str_classRunning:
+		 *      CSS class applied during the fold/unfold animation
+		 *
+		 *  bln_useLogging:
+		 *      true to activate development logging in the console
+		 *
+		 *  str_classUseLsUnfold:
+		 *      CSS class added to wrapper and close button to indicate that lsUnfold
+		 *      is active. Useful for CSS selectors that only show a toggler when
+		 *      JavaScript is available.
+		 *
+		 *  obj_morphOptions:
+		 *      Mootools Fx.Morph options object. Default: { duration: 250, link: 'ignore' }
 		 */
 		this.data = {
-			/*
-			 * Mandatory.
-			 * 
-			 * The selector for the toggler. If the selector matches multiple elements,
-			 * they all will be used. Can also be a DOM element or a collection of DOM elements.
-			 */
 			var_togglerSelector: '#whateverToggler',
-
-			/*
-			 * Mandatory.
-			 * 
-			 * The selector for the resize box. Only the first matched element will
-			 * be used. Can also be a DOM element.
-			 */
 			var_contentBoxSelector: '#whateverContentBox',
-
-			/*
-			 * Optional.
-			 * 
-			 * The selector for the wrapper. Only the first matched element will
-			 * be used. Can also be a DOM element.
-			 */
 			var_wrapperSelector: null,
-
-			/*
-			 * Optional.
-			 * 
-			 * The selector for a specific close button. If the selector
-			 * matches multiple elements, they all will be used. Can also be a
-			 * DOM element or a collection of DOM elements.
-			 */
 			var_closeButtonSelector: null,
-
-			/*
-			 * Optional.
-			 * 
-			 * True, if the content box should be automatically wrapped in another
-			 * element, that's being resized instead of the given content box itself.
-			 * 
-			 * False, if no new element should be created and if the content box itself
-			 * should be resized when folding/unfolding
-			 */
 			bln_automaticallyCreateResizeBox: true,
-
-			/*
-			 * Optional.
-			 * 
-			 * Defines, which events are used to toggle the unfold effect.
-			 * All event type values for the Mootools addEvent function are possible.
-			 * Also, an array holding two event types can be given. In this case,
-			 * the two event types will be switched, which makes mouseenter/mouseleave
-			 * or mouseover/mouseout possible.
-			 * 
-			 * If the only way to close the element should be the click on a special
-			 * close button or an outside click, the second event in the array can be
-			 * 'closeButton'. Actually, every non-existing can be used, because the
-			 * only way that this event can be triggered is by explicitly calling it,
-			 * which happens in case of a close button click or outside click.
-			 * 
-			 * Examples: ['mouseenter', 'mouseleave'] or ['mouseenter', 'closeButton'] etc.
-			 */
 			str_togglerEventType: 'click',
-
-			/*
-			 * Optional.
-			 * Possible values: 'open' or 'closed'.
-			 * 
-			 * Defines, whether the element is already opened when instantiating the
-			 * effect. Please note that this value refers to the element's status
-			 * before the lsUnfold effect is initialized. This means that an element
-			 * that, without active javascript, would be displayed as open because
-			 * of its css styles needs this value set to 'open' even if (with active
-			 * javascript and lsUnfold applied) it will be closed instantly using
-			 * the options 'bln_toggleOnInitialization' and 'bln_skipAnimationWhenTogglingOnInitialization'
-			 * or the option 'str_initialCookieStatus'.
-			 */
 			str_initialToggleStatus: 'open',
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * True if the element should be morphed right after initialization
-			 * (simulating an automatic toggle).
-			 */
 			bln_toggleOnInitialization: false,
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * True if the animation should be skipped when the element is being
-			 * toggled on initialization
-			 */
 			bln_skipAnimationWhenTogglingOnInitialization: false,
-
-			/*
-			 * Optional.
-			 * 
-			 * If set, this name will be used to store the toggle status in a cookie
-			 * and then later restore it on page reload
-			 */
 			str_cookieIdentifierName: '',
-
-			/*
-			 * Optional.
-			 * 
-			 * If set to either closed or open, this value is used as the initial
-			 * cookie status if the cookie doesn't exist yet.
-			 */
 			str_initialCookieStatus: '',
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * True if a click outside the unfolded element should close it
-			 */
 			bln_closeOnOutsideClick: false,
-
-			/*
-			 * Optional.
-			 * An array of selectors. The outside click target element will be checked against the given selectors and
-			 * the unfolded element will only be closed if the element matches at least one of the selectors.
-			 */
 			arr_selectorsToLimitCloseOnOutsideClick: [],
-
-			/*
-			 * Optional.
-			 * Possible values: 'height', 'margin-top'
-			 * 
-			 * The animation mode defines which css property is used to unfold
-			 * the resizeBox.
-			 */
 			str_animationMode: 'height',
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * True, if the paddings of the resizeBox should also be morphed to
-			 * and from 0. Please keep in mind, that it is much better not to have
-			 * a padding on the resizeBox at all but instead set the padding to an
-			 * element inside the resizeBox.
-			 */
 			bln_morphPaddings: false,
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * When using the animation mode "margin-top" the resizeBox is probably
-			 * hidden outside the window using a negative margin. Unfolding the element
-			 * means morphing from the negative margin to zero margin.
-			 * 
-			 * Using this flag, the current window scroll position can be considered,
-			 * so that the element will not morph from its negative margin to zero margin
-			 * but to the scroll position as a positive margin, which means that the 
-			 * element still moves inside the screen from the top, no matter what
-			 * the current scroll position is.
-			 */
 			bln_considerWindowScrollInMarginAnimationMode: false,
-
-			/*
-			 * Optional.
-			 * Boolean.
-			 * 
-			 * If the animation mode "margin-top" has been usde to slide the element
-			 * in from the top, this flag can be used to make sure, that the element
-			 * stays visible even if the user scrolls the window.
-			 */
 			bln_moveWithWindowScrollInMarginAnimationMode: false,
-
-			/*
-			 * Optional.
-			 * Object
-			 * 
-			 * If bln_moveWithWindowScrollInMarginAnimationMode is true, then the
-			 * element stays in its position when the window is being scrolled. However,
-			 * if the element is higher then the visible screen/window, it will be scrolled
-			 * up and down until its top or bottom edge is inside the visible area.
-			 * The offsets that can be defined in this object will be considered when
-			 * determining whether the top or bottom edge is in the visible area.
-			 * Example: A bottom value of 10 means that when scrolling down, the element
-			 * will move up until its bottom edge is 10 px inside the visible area.
-			 */
 			obj_moveWithWindowScrollInMarginAnimationModeOffsets: {
-				/*
-				 * Integer
-				 * 
-				 * The offset in px without unit.
-				 */
 				top: 0,
-
-				/*
-				 * Integer
-				 * 
-				 * The offset in px without unit.
-				 */
 				bottom: 0
 			},
-
-			/*
-			 * Optional, if the resizeBox starts opened.
-			 * Mandatory, if the resizeBox starts closed.
-			 * 
-			 * Can be any valid value for the css property "display" (e.g. "block",
-			 * "inline-block" etc.). This option needs to be set, if the element
-			 * to resize starts with "display: none;" in which case lsUnfold would
-			 * not be able to determine the correct display type to use for the
-			 * visible/unfolded state of the element.
-			 */
 			str_initialDisplayType: null,
-
-			/*
-			 * Optional.
-			 * Possible values: 'measure', 'getStyle', 'auto' or the height in
-			 * pixels without unit, e.g. 150
-			 * 
-			 * The initial height value can either be given directly (var_initalHeight: 'auto',
-			 * var_initalHeight: 150) or it can be determined using the getStyle method
-			 * (var_initalHeight: 'getStyle') or it can be determined using the
-			 * getDimensions method (var_initalHeight: 'measure').
-			 * 
-			 * In most cases, it's best not to use 'measure' or 'getStyle' because
-			 * it's not always easy to understand what the expected result should be.
-			 * 
-			 * If the resizeBox should be able to adapt its size dynamically (e.g.
-			 * because its content can grow), the value 'auto' should be set and it
-			 * is also important do define 'height: auto;' in the stylesheet for this
-			 * element as well, if the resizeBox starts opened.
-			 */
 			var_initialHeight: 'auto',
-
-			/*
-			 * Optional.
-			 * Integer.
-			 * 
-			 * When lsUnfold determines the size to which the element should be unfolded,
-			 * it is sometimes necessary to manipulate that value by adding a positive
-			 * or negative offset.
-			 */
 			int_heightOffset: 0,
-
-			/*
-			 * Optional.
-			 * Integer.
-			 *
-			 * When lsUnfold determines the size to which the element should be unfolded,
-			 * it is sometimes necessary to manipulate that value by adding a positive
-			 * or negative offset.
-			 */
 			int_widthOffset: 0,
-
-			/*
-			 * Optional.
-			 * 
-			 * The class to add to the wrapper, the toggler and the resizeBox when
-			 * the status is open.
-			 */
 			str_classOpen: 'lsUnfoldOpen',
-
-			/*
-			 * Optional.
-			 * 
-			 * The class to add to the wrapper, the toggler and the resizeBox when
-			 * the status is closed.
-			 */
 			str_classClosed: 'lsUnfoldClosed',
-
-			/*
-			 * Optional.
-			 * 
-			 * The class to add to the wrapper, the toggler and the resizeBox when
-			 * the status is running.
-			 */
 			str_classRunning: 'lsUnfoldRunning',
-
-			/*
-			 * For development purposes you can activate a logging in the console
-			 */
 			bln_useLogging: false,
-
-			/*
-			 * Optional.
-			 * 
-			 * The class to add to the wrapper and close button to indicate that lsUnfold is
-			 * used with this element. This can be used in a css selector in order to only
-			 * display a toggler button if the element can actually be toggled.
-			 */
 			str_classUseLsUnfold: 'useLsUnfold',
-
 			obj_morphOptions: {
 				'duration': 250,
 				'link': 'ignore'
