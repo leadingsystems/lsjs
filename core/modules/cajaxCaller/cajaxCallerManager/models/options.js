@@ -7,10 +7,27 @@ var obj_classdef_model = {
 		/*
 		 * Initializing the options in the data object with default values which
 		 * can later be overwritten when the "set" method is called with other options
+		 *
+		 * Options:
+		 *  el_domReference:
+		 *      optional DOM element used as search scope for the selector. Only required
+		 *      if module initialization happens inside a cajax_domUpdate event handler.
+		 *      When null, the entire document is searched.
+		 *
+		 *  str_selector:
+		 *      CSS selector to find elements that should be enriched with cajax caller
+		 *      functionality. A cajax caller enables an element (e.g. a link or button)
+		 *      to perform AJAX requests (cajax = Contao AJAX) instead of regular page
+		 *      navigations, replacing parts of the DOM with the server response. Each
+		 *      matched element receives its own cajaxCallerInstance.
+		 *
+		 *  str_classToSetWhenModuleApplied:
+		 *      CSS class added to each matched element once the module has been
+		 *      initialized on it
 		 */
 		this.data = {
 			el_domReference: null,
-			str_selector: '[data-lsjs-component~="cajaxCaller"]', // the selector for the dom element to enrich,
+			str_selector: '[data-lsjs-component~="cajaxCaller"]',
 			str_classToSetWhenModuleApplied: 'cajaxCallerApplied'
 		};
 	},

@@ -7,10 +7,27 @@ var obj_classdef_model = {
 		/*
 		 * Initializing the options in the data object with default values which
 		 * can later be overwritten when the "set" method is called with other options
+		 *
+		 * Options:
+		 *  el_domReference:
+		 *      optional DOM element used as search scope for the selector. Only required
+		 *      if module initialization happens inside a cajax_domUpdate event handler.
+		 *      When null, the entire document is searched.
+		 *
+		 *  str_selector:
+		 *      CSS selector to find elements that should be enriched with status toggler
+		 *      functionality. A status toggler switches an element between different
+		 *      states (e.g. active/inactive) via AJAX calls, updating both the visual
+		 *      representation and the server-side state. Each matched element receives
+		 *      its own statusTogglerInstance.
+		 *
+		 *  str_classToSetWhenModuleApplied:
+		 *      CSS class added to each matched element once the module has been
+		 *      initialized on it
 		 */
 		this.data = {
 			el_domReference: null,
-			str_selector: '[data-lsjs-component~="statusToggler"]', // the selector for the dom element to enrich,
+			str_selector: '[data-lsjs-component~="statusToggler"]',
 			str_classToSetWhenModuleApplied: 'statusTogglerApplied'
 		};
 	},

@@ -7,6 +7,15 @@ var obj_classdef_model = {
 		/*
 		 * Initializing the options in the data object with default values which
 		 * can later be overwritten when the "set" method is called with other options
+		 *
+		 * Options:
+		 *  str_selector:
+		 *      CSS selector to find numeric input fields that should be enriched with
+		 *      increment/decrement stepper buttons (plus/minus controls)
+		 *
+		 *  str_appliedClass:
+		 *      CSS class added to each matched element once the module has been
+		 *      initialized on it
 		 */
 		this.data = {
 			str_selector: '.useNumberStepper',
