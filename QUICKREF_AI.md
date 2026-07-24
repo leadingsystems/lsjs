@@ -445,6 +445,65 @@ lsjs.__moduleHelpers.ocFlex.start({
 - In CAJAX flows, pass `el_domReference` so element lookups only search inside the updated subtree.
 - Do not re‑initialize the same container/content twice; ocFlex guards against duplicates, but prefer to scope with `el_domReference`.
 
+### libraryLoader — external libraries and custom-code lifecycle hooks
+
+- **What it is**: A core module that (1) loads external JS libraries in sequence and
+  (2) drives a lightweight lifecycle for "custom-code" modules. It is host-agnostic:
+  it only reacts to `lsjs.__moduleHelpers` entries and standard LSJS/browser events, so
+  it works in standalone LSJS exactly as inside any host integration.
+- **Primary use case**: Attach project-/page-specific JavaScript (third-party widgets,
+  one-off page logic) without building a full MVC module.
+
+#### The `customCode` naming convention (mandatory)
+
+libraryLoader scans `lsjs.__moduleHelpers` and processes only entries whose **key starts
+with `customCode`**. A helper whose name does not start with `customCode` is ignored by
+this mechanism. Register the helper directly on `lsjs.__moduleHelpers`:
+
+```javascript
+(function() {
+    var str_moduleName = 'customCode-myFeature'; // MUST start with "customCode"
+    lsjs.__moduleHelpers[str_moduleName] = {
+        self: null,
+        getLibraryToLoad: function() {
+            return [
+                '<script src="https://example.com/widget.min.js"></script>',
+                '/custom/path/to/local.js'
+            ];
+        },
+        onDomReady: function(el_domReference) {},
+        onCajaxDomUpdate: function(el_domReference) {},
+        onLibrariesLoadedAndDomReady: function(el_domReference) {},
+        onLibraryLoaded: function(str_libraryURL) {}
+    };
+})();
+```
+
+#### Lifecycle callbacks and their triggering events
+
+- `getLibraryToLoad()` → called on `domready`. Must return an array of entries to load.
+  Each entry is either a full `<script ...></script>` string (inline scripts and
+  attributes are supported) or a plain URL/path string. Entries load sequentially.
+- `onDomReady(el_domReference)` → called on `domready`, right after library loading has
+  been kicked off.
+- `onLibraryLoaded(str_libraryURL)` → called on each `libraryLoaded` event, i.e. once per
+  loaded entry (also for entries that errored).
+- `onLibrariesLoadedAndDomReady(el_domReference)` → called on `librariesLoadedAndDomReady`,
+  i.e. once the DOM is ready AND all libraries have finished loading.
+- `onCajaxDomUpdate(el_domReference)` → called on `cajax_domUpdate`, so you can (re)bind to
+  DOM replaced by a CAJAX update. Scope your work to `el_domReference`.
+
+#### Notes
+
+- Loading is sequential and resilient: a failed entry is logged and counted, then loading
+  continues, so one broken library does not block the others.
+- Return an empty array from `getLibraryToLoad()` if the module only needs lifecycle hooks
+  and loads no external library.
+- Prefer this pattern over inline `<script>` in server templates for page-specific JS:
+  it keeps custom JS inside a versioned LSJS module and gives you defined DOM/CAJAX hooks.
+- How a custom-code module folder is discovered and compiled into the app is
+  integration-specific and therefore out of scope for LSJS itself.
+
 ---
 
 ## 12. Module lifecycle and createModule args (crucial)
