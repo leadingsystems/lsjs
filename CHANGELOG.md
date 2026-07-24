@@ -1,6 +1,9 @@
 Leading Systems LSJS changelog
 ===========================================
 
+##### v3.1.14 (2026-07-24)
+ * improve quick reference AI
+
 ##### v3.1.13 (2026-06-15)
  * add quick reference AI
  * fix dot navigation
