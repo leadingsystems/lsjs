@@ -247,7 +247,7 @@ var obj_classdef = 	{
 					 */
 					window.setTimeout(
 						function() {
-							this.determineSizesAndPositions;
+							this.determineSizesAndPositions();
 							this.__view.handleSubscrolling();
 						}.bind(this),
 						this.int_timeToWaitForRecalculationsAfterHeaderClickInMs
@@ -259,7 +259,11 @@ var obj_classdef = 	{
 
 			this.el_header.addEventListener(
 				'transitionend',
-				function() {
+				function(event) {
+					if (event.target !== this.el_header) {
+						return;
+					}
+
 					if (this.el_body.hasClass(this.obj_classes.moveout)) {
 						this.__view.untouchHeaderIfNecessary();
 					}
