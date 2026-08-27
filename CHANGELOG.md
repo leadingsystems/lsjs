@@ -1,10 +1,16 @@
 Leading Systems LSJS changelog
 ===========================================
 
-##### v3.1.14 (2026-07-24)
+### v3.1.16 (2026-08-28)
+ * add touchNavi option to keep original href on selected levels
+
+### v3.1.15 (2026-08-11)
+ * fix sticky header freeze caused by bubbled transitionend events
+
+### v3.1.14 (2026-07-24)
  * improve quick reference AI
 
-##### v3.1.13 (2026-06-15)
+### v3.1.13 (2026-06-15)
  * add quick reference AI
  * fix dot navigation
  * improve documentation
