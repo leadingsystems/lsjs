@@ -1,0 +1,40 @@
+
+$icon-size: 26px;
+
+.scrollToTop {
+  z-index: 99000;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: $icon-size;
+  height: $icon-size;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  i {
+    color: #777777;
+    font-size: $icon-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+
+    &:hover{
+      color: #aaaaaa;
+    }
+  }
+}
+
+.show-scroll-to-top {
+  visibility: visible;
+  opacity: 1;
+}
+
+
