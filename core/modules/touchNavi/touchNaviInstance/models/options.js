@@ -50,6 +50,12 @@ var obj_classdef_model = {
          *		The navigation level is determined by the CSS class of the parent ul element
          *		(level_1, level_2, etc. as rendered by Contao's navigation modules).
          *
+		 *		Accessibility: Values other than false skip role="button" and href="#"
+		 *		on the affected toggler links. Keyboard and screen reader users then
+		 *		follow the real href on first activation and cannot reliably open
+		 *		submenus. Default false keeps the accessible BFSG behaviour. Enable
+		 *		this only if that limitation is explicitly accepted.
+         *
          *  bln_scopeToContainer:
          *		When set to true, the ARIA and href initialization only processes links within
          *		the module's own container element instead of querying the entire document.
