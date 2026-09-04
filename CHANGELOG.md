@@ -1,101 +1,107 @@
 Leading Systems LSJS changelog
 ===========================================
 
-##### v3.1.14 (2026-07-24)
+### v3.1.16 (2026-08-28)
+ * add touchNavi option to keep original href on selected levels
+
+### v3.1.15 (2026-08-11)
+ * fix sticky header freeze caused by bubbled transitionend events
+
+### v3.1.14 (2026-07-24)
  * improve quick reference AI
 
-##### v3.1.13 (2026-06-15)
+### v3.1.13 (2026-06-15)
  * add quick reference AI
  * fix dot navigation
  * improve documentation
 
-##### v3.1.12 (2025-11-28)
+### v3.1.12 (2025-11-28)
  * improve documentation modul "touchNavi"
 
-##### v3.1.11 (2025-11-21)
+### v3.1.11 (2025-11-21)
  * improve modul "touchNavi" (BFSG)
 
-##### v3.1.10 (2025-11-12)
+### v3.1.10 (2025-11-12)
  * fix multiple hook calls
 
-##### v3.1.9 (2025-07-18)
+### v3.1.9 (2025-07-18)
  * add callHookAsync
 
-##### v3.1.8 (2025-06-23)
+### v3.1.8 (2025-06-23)
  * improve modul "ocFlex"
 
-##### v3.1.7 (2025-05-16)
+### v3.1.7 (2025-05-16)
  * extend modul "libraryLoader"
 
-##### v3.1.6 (2025-05-13)
+### v3.1.6 (2025-05-13)
  * add modul "libraryLoader"
 
-##### v3.1.5 (2025-04-11)
+### v3.1.5 (2025-04-11)
  * add feature multi app
 
-##### v3.1.4 (2025-04-03)
+### v3.1.4 (2025-04-03)
  * add new cajaxMode "updateByAttribute"
 
-##### v3.1.3 (2025-02-28)
+### v3.1.3 (2025-02-28)
  * fix slider thumbnail
 
-##### v3.1.2 (2025-02-20)
+### v3.1.2 (2025-02-20)
  * fix SamSite attribute for unfold cookie
  * add feature hooks
 
-##### v3.1.1 (2024-11-26)
+### v3.1.1 (2024-11-26)
  * fix slider thumbnail
 
-##### v3.1.0 (2023-12-11)
+### v3.1.0 (2023-12-11)
  * Improve caching
  * deprecated: lsjs_binder class will be removed in version 4.0
 
-##### v3.0.3 (2023-08-16)
+### v3.0.3 (2023-08-16)
  * Improve templating (add tplOutput for directly outputting templates in other templates)
 
-##### v3.0.2 (2023-06-29)
+### v3.0.2 (2023-06-29)
  * Fix double tap bug on iOS
 
-##### v3.0.1 (2023-02-28)
+### v3.0.1 (2023-02-28)
  * Improving statusToggler; Implementing the functionality to use fixed status values which are defined for the togglers using the data-lsjs-statustoggler-toggle-fixed-value attribute
 
-##### v3.0.0 (2023-01-11)
+### v3.0.0 (2023-01-11)
 
-##### 3.0.0 beta1 (2020-06-18)
+### 3.0.0 beta1 (2020-06-18)
 
-##### 2.0.11 (2020-06-05)
+### 2.0.11 (2020-06-05)
  * Use document.location in cajaxCaller if a form has no action attribute
 
-##### 2.0.10 (2019-06-26)
+### 2.0.10 (2019-06-26)
  * Add touch navi module
  * Add touch detector module
 
-##### 2.0.9 (2019-05-24)
+### 2.0.9 (2019-05-24)
 
-##### 2.0.8 (2018-04-28)
+### 2.0.8 (2018-04-28)
  * Fix loading indicator z-index
 
-##### 2.0.7 (2018-04-25)
+### 2.0.7 (2018-04-25)
 
-##### 2.0.6 (2018-02-26)
+### 2.0.6 (2018-02-26)
  * Implement caching and minification
 
-##### 2.0.5 (2018-02-25)
+### 2.0.5 (2018-02-25)
 
-##### 2.0.4 (2018-02-22)
+### 2.0.4 (2018-02-22)
  * Module customization is now possible using the GET parameter
  "pathToAppCustomization" in the call to binder.php
 
-##### 2.0.3 (2018-02-16)
+### 2.0.3 (2018-02-16)
  * Added debug mode which shows template locations in rendered html output.
  To activate it, use the GET parameter "debug=1" in the call to binder.php 
 
-##### 2.0.2 (2018-02-13)
+### 2.0.2 (2018-02-13)
  * Don't hide ".formReviewerApplied p.success"
 
-##### 2.0.1 (2018-02-12)
+### 2.0.1 (2018-02-12)
  * Enable the cajax caller module to execute javascript code that comes with the
  cajax response
 
-##### 2.0.0 (2018-01-10)
+### 2.0.0 (2018-01-10)
  * Now optimized for the usage within Contao 4 as a "contao-component"
